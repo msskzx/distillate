@@ -1,0 +1,11 @@
+node_modules/
+.bun-cache/
+out/
+release/
+release-final/
+coverage/
+*.tsbuildinfo
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+.env
