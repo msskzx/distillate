@@ -1,0 +1,16 @@
+export const mutedScrollbarsClass = [
+  '[scrollbar-color:var(--border)_transparent]',
+  '[scrollbar-width:thin]',
+  '[&_*]:[scrollbar-color:var(--border)_transparent]',
+  '[&_*]:[scrollbar-width:thin]',
+  '[&::-webkit-scrollbar]:size-1.5',
+  '[&_*::-webkit-scrollbar]:size-1.5',
+  '[&::-webkit-scrollbar-track]:bg-transparent',
+  '[&_*::-webkit-scrollbar-track]:bg-transparent',
+  '[&::-webkit-scrollbar-thumb]:rounded-full',
+  '[&_*::-webkit-scrollbar-thumb]:rounded-full',
+  '[&::-webkit-scrollbar-thumb]:bg-[var(--border)]',
+  '[&_*::-webkit-scrollbar-thumb]:bg-[var(--border)]',
+  '[&::-webkit-scrollbar-thumb:hover]:bg-[var(--border-strong)]',
+  '[&_*::-webkit-scrollbar-thumb:hover]:bg-[var(--border-strong)]',
+].join(' ')

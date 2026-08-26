@@ -1,4 +1,4 @@
-import { Archive, Check, ChevronLeft, ChevronRight, Cpu, Folder, Inbox, Pencil, RotateCcw, Save, Search, Star, Trash2, X } from 'lucide-react'
+import { Archive, Check, ChevronLeft, ChevronRight, Cpu, Folder, Inbox, Pencil, Power, RotateCcw, Save, Search, Settings, Star, Trash2, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { Card, CardStatus, UpdateCardInput } from '../../shared/cards'
 import { Button } from './components/Button'
@@ -7,6 +7,7 @@ import { Field, fieldClassName } from './components/Field'
 import { StatusBadge } from './components/StatusBadge'
 import { DropdownMenu } from './components/DropdownMenu'
 import { SelectMenu } from './components/SelectMenu'
+import { mutedScrollbarsClass } from './scrollbar'
 
 type View = 'queue' | 'reviewed'
 
@@ -289,7 +290,7 @@ export function App() {
   }
 
   return (
-    <main className="grid h-full grid-rows-[auto_1fr] bg-zinc-950 text-zinc-100">
+    <main className={`${mutedScrollbarsClass} dark grid h-full grid-rows-[auto_1fr] bg-zinc-950 text-zinc-100`}>
       <header className="flex min-h-16 items-center justify-between gap-6 border-b border-zinc-800 px-5">
         <div className="flex items-center gap-3">
           <img src="./icon.png" alt="" aria-hidden="true" className="size-10 rounded-xl shadow-lg shadow-black/30" />
@@ -321,13 +322,16 @@ export function App() {
         </nav>
         <DropdownMenu
           label="Settings"
+          icon={<Settings size={15} />}
           items={[{
-            label: 'Launch at startup',
+            label: <span className="text-xs">Launch at startup</span>,
+            icon: <Power size={15} />,
             checked: launchAtStartup,
             disabled: savingPreference,
             onSelect: () => void toggleLaunchAtStartup(),
           }]}
         />
+  
         </div>
       </header>
 

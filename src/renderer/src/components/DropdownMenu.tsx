@@ -11,7 +11,7 @@ export type DropdownMenuItem = {
   checked?: boolean
 }
 
-export function DropdownMenu({ label, items }: { label: string; items: DropdownMenuItem[] }) {
+export function DropdownMenu({ label, icon, items }: { label: string; icon?: ReactNode; items: DropdownMenuItem[] }) {
   const [open, setOpen] = useState(false)
   const root = useRef<HTMLDivElement>(null)
 
@@ -34,7 +34,7 @@ export function DropdownMenu({ label, items }: { label: string; items: DropdownM
   return (
     <div ref={root} className="relative">
       <Button aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((value) => !value)}>
-        {label} <ChevronDown size={14} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
+        {icon} {label} <ChevronDown size={14} className={`transition-transform ${open ? 'rotate-180' : ''}`} />
       </Button>
       {open ? (
         <div role="menu" className="absolute right-0 top-full z-20 mt-2 min-w-48 overflow-hidden rounded-xl border border-zinc-700 bg-zinc-900 p-1.5 shadow-2xl shadow-black/50">
@@ -53,10 +53,11 @@ export function DropdownMenu({ label, items }: { label: string; items: DropdownM
                 item.danger ? 'text-red-300 hover:bg-red-950/60' : 'text-zinc-200 hover:bg-zinc-800'
               }`}
             >
-              {item.checked === undefined ? item.icon : (
-                <span className="grid size-4 place-items-center">{item.checked ? <Check size={14} className="text-amber-300" /> : null}</span>
+              {item.icon ? <span className="grid size-4 shrink-0 place-items-center">{item.icon}</span> : null}
+              <span className="flex-1">{item.label}</span>
+              {item.checked === undefined ? null : (
+                <span className="grid size-4 shrink-0 place-items-center">{item.checked ? <Check size={14} className="text-amber-300" /> : null}</span>
               )}
-              <span>{item.label}</span>
             </button>
           ))}
         </div>

@@ -1,1 +1,11 @@
 @import "tailwindcss";
+
+:root {
+  --border: #d8e1eb;
+  --border-strong: #b8c8d9;
+}
+
+.dark {
+  --border: #29292d;
+  --border-strong: #414147;
+}
