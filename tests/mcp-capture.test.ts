@@ -22,6 +22,7 @@ describe('capture_card handler', () => {
     store = new CardStore(openBunDatabase(join(directory, 'test.sqlite')))
 
     const input = {
+      title: 'Keep capture independent of Electron ABI',
       challenge: 'A native module would couple packaging to the Electron ABI.',
       solution: 'Use a Bun-hosted SQLite adapter for agent capture.',
       reasoning: 'This keeps the MCP process independently runnable.',
@@ -43,6 +44,7 @@ describe('capture_card handler', () => {
 
     expect(first.created).toBe(true)
     expect(first.card.status).toBe('unreviewed')
+    expect(first.card.title).toBe('Keep capture independent of Electron ABI')
     expect(first.card.model).toBe('GPT-5.6')
     expect(first.card.modelVariant).toBe('sol')
     expect(first.card.reasoningEffort).toBe('medium')
@@ -51,5 +53,18 @@ describe('capture_card handler', () => {
     expect(first.card.sourceReference).toBe('task:mcp-test')
     expect(retry.created).toBe(false)
     expect(retry.card.id).toBe(first.card.id)
+  })
+
+  test('rejects captures without an agent-authored title', () => {
+    directory = mkdtempSync(join(tmpdir(), 'distillate-mcp-'))
+    store = new CardStore(openBunDatabase(join(directory, 'test.sqlite')))
+
+    expect(() => captureCard(store!, {
+      challenge: 'A title was not supplied.',
+      solution: 'Require titles at the capture boundary.',
+      reasoning: 'Derived titles hide missing agent context.',
+      project: 'distillate',
+      agent: 'codex',
+    } as Parameters<typeof captureCard>[1])).toThrow()
   })
 })

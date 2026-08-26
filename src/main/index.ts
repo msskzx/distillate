@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, Menu } from 'electron'
 import { join } from 'node:path'
 import { CardStore } from '../core/card-store'
 import { openNodeDatabase } from '../core/database-node'
@@ -26,6 +26,9 @@ function registerIpcHandlers(): void {
   ipcMain.handle('cards:set-status', (_event, id: string, status) =>
     getStore().setStatus(id, cardStatusSchema.parse(status)),
   )
+  ipcMain.handle('cards:set-favorite', (_event, id: string, favorite: boolean) =>
+    getStore().setFavorite(id, favorite),
+  )
   ipcMain.handle('cards:delete', (_event, id: string) => getStore().delete(id))
   ipcMain.handle('cards:projects', () => getStore().projects())
 }
@@ -39,6 +42,7 @@ function createWindow(): void {
     backgroundColor: '#09090b',
     icon: app.isPackaged ? undefined : join(__dirname, '../../build/icon.png'),
     show: false,
+    autoHideMenuBar: true,
     webPreferences: {
       preload: getPreloadPath(__dirname),
       contextIsolation: true,
@@ -46,6 +50,8 @@ function createWindow(): void {
       sandbox: true,
     },
   })
+
+  window.setMenuBarVisibility(false)
 
   window.once('ready-to-show', () => window.show())
 
@@ -57,6 +63,7 @@ function createWindow(): void {
 }
 
 app.whenReady().then(() => {
+  Menu.setApplicationMenu(null)
   registerIpcHandlers()
   createWindow()
 

@@ -1,14 +1,16 @@
-import { Archive, Check, Cpu, Inbox, Pencil, RotateCcw, Save, Search, Trash2, X } from 'lucide-react'
+import { Archive, Check, ChevronLeft, ChevronRight, Cpu, Inbox, Pencil, RotateCcw, Save, Search, Star, Trash2, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { Card, CardStatus, UpdateCardInput } from '../../shared/cards'
 import { Button } from './components/Button'
 import { CardListItem } from './components/CardListItem'
 import { Field, fieldClassName } from './components/Field'
 import { StatusBadge } from './components/StatusBadge'
+import { DropdownMenu } from './components/DropdownMenu'
 
 type View = 'queue' | 'reviewed'
 
 type Draft = {
+  title: string
   challenge: string
   solution: string
   reasoning: string
@@ -27,6 +29,7 @@ type Draft = {
 
 function toDraft(card: Card): Draft {
   return {
+    title: card.title,
     challenge: card.challenge,
     solution: card.solution,
     reasoning: card.reasoning,
@@ -116,6 +119,8 @@ export function App() {
   const [projects, setProjects] = useState<string[]>([])
   const [query, setQuery] = useState('')
   const [project, setProject] = useState('')
+  const [favoritesOnly, setFavoritesOnly] = useState(false)
+  const [page, setPage] = useState(1)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [draft, setDraft] = useState<Draft | null>(null)
   const [loading, setLoading] = useState(true)
@@ -124,6 +129,9 @@ export function App() {
   const [error, setError] = useState<string | null>(null)
 
   const selectedCard = useMemo(() => cards.find((card) => card.id === selectedId) ?? null, [cards, selectedId])
+  const pageSize = 10
+  const pageCount = Math.max(1, Math.ceil(cards.length / pageSize))
+  const visibleCards = useMemo(() => cards.slice((page - 1) * pageSize, page * pageSize), [cards, page])
 
   const load = useCallback(async () => {
     try {
@@ -133,7 +141,7 @@ export function App() {
       }
       const statuses: CardStatus[] = view === 'queue' ? ['unreviewed', 'revisit'] : ['reviewed']
       const [nextCards, nextProjects] = await Promise.all([
-        api.cards.list({ statuses, project: project || undefined, query: query || undefined }),
+        api.cards.list({ statuses, project: project || undefined, query: query || undefined, favorite: favoritesOnly || undefined }),
         api.cards.projects(),
       ])
       setCards(nextCards)
@@ -145,7 +153,21 @@ export function App() {
     } finally {
       setLoading(false)
     }
-  }, [project, query, view])
+  }, [favoritesOnly, project, query, view])
+
+  useEffect(() => {
+    setPage(1)
+  }, [favoritesOnly, project, query, view])
+
+  useEffect(() => {
+    if (page > pageCount) setPage(pageCount)
+  }, [page, pageCount])
+
+  useEffect(() => {
+    if (visibleCards.length && !visibleCards.some((card) => card.id === selectedId)) {
+      setSelectedId(visibleCards[0].id)
+    }
+  }, [selectedId, visibleCards])
 
   useEffect(() => {
     setLoading(true)
@@ -213,6 +235,19 @@ export function App() {
     }
   }
 
+  const toggleFavorite = async () => {
+    if (!selectedCard) return
+    setSaving(true)
+    try {
+      await window.distillate.cards.setFavorite(selectedCard.id, !selectedCard.favorite)
+      await load()
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Unable to update favorite')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const deleteCard = async () => {
     if (!selectedCard || !window.confirm('Delete this Distillate card? This cannot be undone.')) return
     setSaving(true)
@@ -258,13 +293,13 @@ export function App() {
               view === 'reviewed' ? 'bg-zinc-700 text-white' : 'text-zinc-400 hover:text-white'
             }`}
           >
-            <Archive size={15} /> Reviewed
+            <Archive size={15} /> Distilled
           </button>
         </nav>
       </header>
 
       <section className="grid min-h-0 grid-cols-[360px_minmax(0,1fr)]">
-        <aside className="grid min-h-0 grid-rows-[auto_1fr] border-r border-zinc-800 bg-zinc-950">
+        <aside className="grid min-h-0 grid-rows-[auto_1fr_auto] border-r border-zinc-800 bg-zinc-950">
           <div className="grid gap-3 border-b border-zinc-800 p-4">
             <label className="relative">
               <span className="sr-only">Search cards</span>
@@ -289,6 +324,16 @@ export function App() {
                 </option>
               ))}
             </select>
+            <button
+              type="button"
+              aria-pressed={favoritesOnly}
+              onClick={() => setFavoritesOnly((value) => !value)}
+              className={`flex min-h-9 items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold transition-colors ${
+                favoritesOnly ? 'border-amber-300/50 bg-amber-300/10 text-amber-200' : 'border-zinc-700 bg-zinc-900 text-zinc-400 hover:text-zinc-100'
+              }`}
+            >
+              <Star size={15} className={favoritesOnly ? 'fill-amber-300' : ''} /> Favorites only
+            </button>
           </div>
 
           <div className="min-h-0 overflow-y-auto" aria-live="polite">
@@ -298,13 +343,21 @@ export function App() {
                 <Inbox className="text-zinc-700" size={28} />
                 <p className="text-sm font-medium text-zinc-400">No cards here</p>
                 <p className="text-xs leading-5 text-zinc-600">
-                  {view === 'queue' ? 'New agent captures will appear in this queue.' : 'Reviewed cards will collect here.'}
+                  {view === 'queue' ? 'New agent captures will appear in this queue.' : 'Distilled cards will collect here.'}
                 </p>
               </div>
             ) : null}
-            {cards.map((card) => (
+            {visibleCards.map((card) => (
               <CardListItem key={card.id} card={card} selected={card.id === selectedId} onSelect={() => setSelectedId(card.id)} />
             ))}
+          </div>
+          <div className="flex min-h-14 items-center justify-between border-t border-zinc-800 px-4 text-xs text-zinc-500">
+            <span>{cards.length ? `${(page - 1) * pageSize + 1}–${Math.min(page * pageSize, cards.length)} of ${cards.length}` : '0 cards'}</span>
+            <div className="flex items-center gap-1">
+              <button type="button" aria-label="Previous page" disabled={page <= 1} onClick={() => setPage((value) => value - 1)} className="rounded-md p-2 hover:bg-zinc-800 disabled:opacity-30"><ChevronLeft size={15} /></button>
+              <span className="min-w-12 text-center">{page} / {pageCount}</span>
+              <button type="button" aria-label="Next page" disabled={page >= pageCount} onClick={() => setPage((value) => value + 1)} className="rounded-md p-2 hover:bg-zinc-800 disabled:opacity-30"><ChevronRight size={15} /></button>
+            </div>
           </div>
         </aside>
 
@@ -327,23 +380,25 @@ export function App() {
                 <div className="flex flex-wrap gap-2">
                   {!editing ? (
                     <>
-                      <Button onClick={() => setEditing(true)} disabled={saving}>
-                        <Pencil size={15} /> Edit
+                      <Button variant="primary" onClick={() => void changeStatus('reviewed')} disabled={saving || selectedCard.status === 'reviewed'}>
+                        <Check size={15} /> Distilled
                       </Button>
-                      {selectedCard.status !== 'reviewed' ? (
-                        <Button onClick={() => void changeStatus('reviewed')} disabled={saving}>
-                          <Check size={15} /> Mark reviewed
-                        </Button>
-                      ) : (
-                        <Button onClick={() => void changeStatus('unreviewed')} disabled={saving}>
-                          <RotateCcw size={15} /> Return to queue
-                        </Button>
-                      )}
-                      {selectedCard.status !== 'revisit' ? (
-                        <Button onClick={() => void changeStatus('revisit')} disabled={saving}>
-                          <RotateCcw size={15} /> Revisit
-                        </Button>
-                      ) : null}
+                      <Button onClick={() => void toggleFavorite()} disabled={saving} className={selectedCard.favorite ? 'border-amber-300/40 text-amber-200' : ''}>
+                        <Star size={15} className={selectedCard.favorite ? 'fill-amber-300 text-amber-300' : ''} /> {selectedCard.favorite ? 'Starred' : 'Star'}
+                      </Button>
+                      <DropdownMenu
+                        label="More"
+                        items={[
+                          { label: 'Edit', icon: <Pencil size={15} />, onSelect: () => setEditing(true), disabled: saving },
+                          ...(selectedCard.status !== 'revisit'
+                            ? [{ label: 'Revisit', icon: <RotateCcw size={15} />, onSelect: () => void changeStatus('revisit'), disabled: saving }]
+                            : []),
+                          ...(selectedCard.status !== 'unreviewed'
+                            ? [{ label: 'Return to queue', icon: <Inbox size={15} />, onSelect: () => void changeStatus('unreviewed'), disabled: saving }]
+                            : []),
+                          { label: 'Delete', icon: <Trash2 size={15} />, onSelect: () => void deleteCard(), disabled: saving, danger: true },
+                        ]}
+                      />
                     </>
                   ) : null}
                 </div>
@@ -357,6 +412,15 @@ export function App() {
                     void save()
                   }}
                 >
+              <Field label="Title" htmlFor="title">
+                <input
+                  id="title"
+                  required
+                  value={draft.title}
+                  onChange={(event) => updateDraft('title', event.target.value)}
+                  className={fieldClassName}
+                />
+              </Field>
               <Field label="Challenge" htmlFor="challenge">
                 <textarea
                   id="challenge"
@@ -500,6 +564,9 @@ export function App() {
                 </form>
               ) : (
                 <div className="grid gap-7">
+                  <div>
+                    <h1 className="text-2xl font-bold tracking-tight text-zinc-50">{selectedCard.title}</h1>
+                  </div>
                   <ReadField label="Challenge" value={selectedCard.challenge} />
                   <ReadField label="Solution" value={selectedCard.solution} />
                   <ReadField label="Reasoning" value={selectedCard.reasoning} />

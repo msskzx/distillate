@@ -16,6 +16,7 @@ export function createServer(store: CardStore): McpServer {
       description:
         'Add one concise, solved engineering challenge to the Distillate review queue. Use after the solution has been verified.',
       inputSchema: {
+        title: z.string().trim().min(1).max(200).describe('A concise title for the reusable lesson.'),
         challenge: z.string().trim().min(1).max(4_000).describe('The non-trivial problem or decision encountered.'),
         solution: z.string().trim().min(1).max(4_000).describe('The verified solution that was implemented.'),
         reasoning: z.string().trim().min(1).max(4_000).describe('Why this approach was chosen over reasonable alternatives.'),

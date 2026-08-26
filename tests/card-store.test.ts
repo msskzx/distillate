@@ -18,6 +18,7 @@ function createStore() {
 }
 
 const input = {
+  title: 'Share persisted cards safely across processes',
   challenge: 'The renderer and MCP process needed to share persisted cards.',
   solution: 'Both processes use the same SQLite database with WAL enabled.',
   reasoning: 'SQLite provides durable local concurrency without a background service.',
@@ -48,6 +49,8 @@ describe('CardStore', () => {
 
     expect(created.created).toBe(true)
     expect(created.card.status).toBe('unreviewed')
+    expect(created.card.title).toBe(input.title)
+    expect(created.card.favorite).toBe(false)
     expect(created.card.model).toBe('GPT-5.6')
     expect(created.card.modelVariant).toBe('sol')
     expect(created.card.reasoningEffort).toBe('medium')
@@ -65,6 +68,10 @@ describe('CardStore', () => {
     expect(updated.model).toBe('GPT-5.6 updated')
     expect(updated.reasoningEffort).toBe('high')
     expect(store.list({ query: 'GPT-5.6 updated' })).toHaveLength(1)
+
+    const favorite = store.setFavorite(created.card.id, true)
+    expect(favorite.favorite).toBe(true)
+    expect(store.list({ favorite: true })).toHaveLength(1)
 
     const reviewed = store.setStatus(created.card.id, 'reviewed')
     expect(reviewed.status).toBe('reviewed')

@@ -16,6 +16,7 @@ import type { SqlDatabase, SqlValue } from './sqlite'
 
 type CardRow = {
   id: string
+  title: string
   challenge: string
   solution: string
   reasoning: string
@@ -29,6 +30,7 @@ type CardRow = {
   total_tokens: number | null
   duration_ms: number | null
   source_reference: string | null
+  favorite: number
   status: string
   review_note: string | null
   idempotency_key: string | null
@@ -69,12 +71,24 @@ const migrations = [
     ALTER TABLE cards ADD COLUMN total_tokens INTEGER CHECK (total_tokens >= 0);
     ALTER TABLE cards ADD COLUMN duration_ms INTEGER CHECK (duration_ms >= 0);
   `,
+  `
+    ALTER TABLE cards ADD COLUMN title TEXT NOT NULL DEFAULT '';
+    ALTER TABLE cards ADD COLUMN favorite INTEGER NOT NULL DEFAULT 0 CHECK (favorite IN (0, 1));
+    UPDATE cards
+      SET title = CASE
+        WHEN length(trim(challenge)) <= 100 THEN trim(challenge)
+        ELSE trim(substr(challenge, 1, 97)) || '...'
+      END
+      WHERE title = '';
+    CREATE INDEX IF NOT EXISTS cards_favorite_idx ON cards(favorite, created_at DESC);
+  `,
 ]
 
 function rowToCard(row: unknown): Card {
   const value = row as CardRow
   return cardSchema.parse({
     id: value.id,
+    title: value.title,
     challenge: value.challenge,
     solution: value.solution,
     reasoning: value.reasoning,
@@ -88,6 +102,7 @@ function rowToCard(row: unknown): Card {
     totalTokens: value.total_tokens,
     durationMs: value.duration_ms,
     sourceReference: value.source_reference,
+    favorite: Boolean(value.favorite),
     status: value.status,
     reviewNote: value.review_note,
     idempotencyKey: value.idempotency_key,
@@ -153,13 +168,14 @@ export class CardStore {
     this.database
       .prepare(`
         INSERT INTO cards (
-          id, challenge, solution, reasoning, project, agent, model, model_variant,
+          id, title, challenge, solution, reasoning, project, agent, model, model_variant,
           reasoning_effort, input_tokens, output_tokens, total_tokens, duration_ms, source_reference,
           status, review_note, idempotency_key, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'unreviewed', NULL, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'unreviewed', NULL, ?, ?, ?)
       `)
       .run(
         id,
+        value.title,
         value.challenge,
         value.solution,
         value.reasoning,
@@ -196,13 +212,17 @@ export class CardStore {
     }
     if (value.query) {
       conditions.push(`(
-        challenge LIKE ? OR solution LIKE ? OR reasoning LIKE ? OR
+        title LIKE ? OR challenge LIKE ? OR solution LIKE ? OR reasoning LIKE ? OR
         project LIKE ? OR agent LIKE ? OR COALESCE(model, '') LIKE ? OR
         COALESCE(model_variant, '') LIKE ? OR COALESCE(reasoning_effort, '') LIKE ? OR
         COALESCE(review_note, '') LIKE ?
       )`)
       const query = `%${value.query}%`
-      params.push(query, query, query, query, query, query, query, query, query)
+      params.push(query, query, query, query, query, query, query, query, query, query)
+    }
+    if (value.favorite !== undefined) {
+      conditions.push('favorite = ?')
+      params.push(value.favorite ? 1 : 0)
     }
 
     const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''
@@ -227,6 +247,7 @@ export class CardStore {
     this.require(id)
     const value = updateCardInputSchema.parse(input)
     const columnByField: Record<keyof UpdateCardInput, string> = {
+      title: 'title',
       challenge: 'challenge',
       solution: 'solution',
       reasoning: 'reasoning',
@@ -260,6 +281,14 @@ export class CardStore {
     this.database
       .prepare('UPDATE cards SET status = ?, updated_at = ? WHERE id = ?')
       .run(value, new Date().toISOString(), id)
+    return this.require(id)
+  }
+
+  setFavorite(id: string, favorite: boolean): Card {
+    this.require(id)
+    this.database
+      .prepare('UPDATE cards SET favorite = ?, updated_at = ? WHERE id = ?')
+      .run(favorite ? 1 : 0, new Date().toISOString(), id)
     return this.require(id)
   }
 

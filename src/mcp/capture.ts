@@ -2,6 +2,7 @@ import { z } from 'zod'
 import type { CardStore } from '../core/card-store'
 
 export const captureCardToolSchema = z.object({
+  title: z.string().trim().min(1).max(200),
   challenge: z.string().trim().min(1).max(4_000),
   solution: z.string().trim().min(1).max(4_000),
   reasoning: z.string().trim().min(1).max(4_000),
@@ -23,6 +24,7 @@ export type CaptureCardToolInput = z.infer<typeof captureCardToolSchema>
 export function captureCard(store: CardStore, input: CaptureCardToolInput) {
   const value = captureCardToolSchema.parse(input)
   return store.create({
+    title: value.title,
     challenge: value.challenge,
     solution: value.solution,
     reasoning: value.reasoning,

@@ -2,7 +2,7 @@ import { GlobalRegistrator } from '@happy-dom/global-registrator'
 GlobalRegistrator.register()
 
 import { afterEach, describe, expect, mock, test } from 'bun:test'
-import { cleanup, render, waitFor } from '@testing-library/react'
+import { cleanup, render, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { Card } from '../src/shared/cards'
 import type { DistillateApi } from '../src/shared/bridge'
@@ -13,6 +13,7 @@ const originalSetInterval = window.setInterval
 function sampleCard(overrides: Partial<Card> = {}): Card {
   return {
     id: '1485f386-3f28-4e91-878f-1f58858948c4',
+    title: 'Reliable manual capture fallback',
     challenge: 'The agent needed a reliable manual capture fallback.',
     solution: 'Expose the same workflow as the $capture-card skill.',
     reasoning: 'A skill supports both automatic and explicit invocation.',
@@ -26,6 +27,7 @@ function sampleCard(overrides: Partial<Card> = {}): Card {
     totalTokens: 15_500,
     durationMs: 92_000,
     sourceReference: 'task:skill-design',
+    favorite: false,
     status: 'unreviewed',
     reviewNote: null,
     idempotencyKey: 'task:skill-design',
@@ -45,6 +47,10 @@ function installApi(overrides: Partial<Card> = {}) {
     card = { ...card, status }
     return card
   })
+  const setFavorite = mock(async (_id: string, favorite: boolean) => {
+    card = { ...card, favorite }
+    return card
+  })
 
   const api: DistillateApi = {
     cards: {
@@ -53,13 +59,14 @@ function installApi(overrides: Partial<Card> = {}) {
       create: mock(async () => ({ card, created: true })),
       update,
       setStatus,
+      setFavorite,
       delete: mock(async () => true),
       projects: mock(async () => ['distillate']),
     },
   }
   window.distillate = api
   window.setInterval = mock(() => 1) as unknown as typeof window.setInterval
-  return { update, setStatus }
+  return { update, setStatus, setFavorite }
 }
 
 function installEmptyApi() {
@@ -74,6 +81,9 @@ function installEmptyApi() {
         throw new Error('Not used')
       }),
       setStatus: mock(async () => {
+        throw new Error('Not used')
+      }),
+      setFavorite: mock(async () => {
         throw new Error('Not used')
       }),
       delete: mock(async () => false),
@@ -113,15 +123,16 @@ describe('review queue', () => {
     const user = userEvent.setup({ document: window.document })
     const view = render(<App />)
 
-    expect(await view.findByRole('button', { name: /^edit$/i })).toBeTruthy()
-    expect(view.getAllByText('The agent needed a reliable manual capture fallback.').length).toBeGreaterThanOrEqual(2)
+    expect(await view.findByRole('button', { name: /^more/i })).toBeTruthy()
+    expect(view.getByRole('heading', { name: 'Reliable manual capture fallback' })).toBeTruthy()
     expect(view.getByText('GPT-5.6 · sol')).toBeTruthy()
     expect(view.getByText('medium reasoning')).toBeTruthy()
     expect(view.getByText(/15[,.]500/)).toBeTruthy()
     expect(view.getByText('1.5 min')).toBeTruthy()
     expect(view.queryByLabelText('Challenge')).toBeNull()
 
-    await user.click(view.getByRole('button', { name: /^edit$/i }))
+    await user.click(view.getByRole('button', { name: /^more/i }))
+    await user.click(view.getByRole('menuitem', { name: /^edit$/i }))
 
     const challenge = await view.findByDisplayValue('The agent needed a reliable manual capture fallback.')
     expect((view.getByLabelText(/^Model/) as HTMLInputElement).value).toBe('GPT-5.6')
@@ -134,13 +145,27 @@ describe('review queue', () => {
 
     await waitFor(() => expect(api.update).toHaveBeenCalled())
     expect(api.update.mock.calls[0]?.[1]).toMatchObject({ challenge: 'The agent missed an automatic card capture.' })
-    expect(await view.findByRole('button', { name: /^edit$/i })).toBeTruthy()
+    expect(await view.findByRole('button', { name: /^more/i })).toBeTruthy()
     expect(view.getAllByText('The agent missed an automatic card capture.').length).toBeGreaterThanOrEqual(2)
     expect(view.queryByLabelText('Challenge')).toBeNull()
 
-    await user.click(view.getByRole('button', { name: /mark reviewed/i }))
+    await user.click(within(view.container.querySelector('article')!).getByRole('button', { name: /^distilled$/i }))
     await waitFor(() => expect(api.setStatus).toHaveBeenCalledWith(expect.any(String), 'reviewed'))
     expect(await view.findByText('No cards here')).toBeTruthy()
+  })
+
+  test('stars a card and exposes revisit from the More menu', async () => {
+    const api = installApi()
+    const user = userEvent.setup({ document: window.document })
+    const view = render(<App />)
+
+    await user.click(await view.findByRole('button', { name: /^star$/i }))
+    await waitFor(() => expect(api.setFavorite).toHaveBeenCalledWith(expect.any(String), true))
+    expect(await view.findByRole('button', { name: /^starred$/i })).toBeTruthy()
+
+    await user.click(view.getByRole('button', { name: /^more/i }))
+    await user.click(view.getByRole('menuitem', { name: /^revisit$/i }))
+    await waitFor(() => expect(api.setStatus).toHaveBeenCalledWith(expect.any(String), 'revisit'))
   })
 
   test('collapses missing run metadata into one quiet empty state', async () => {

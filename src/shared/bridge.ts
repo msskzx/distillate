@@ -14,6 +14,7 @@ export interface DistillateApi {
     create(input: CreateCardInput): Promise<CreateCardResult>
     update(id: string, input: UpdateCardInput): Promise<Card>
     setStatus(id: string, status: CardStatus): Promise<Card>
+    setFavorite(id: string, favorite: boolean): Promise<Card>
     delete(id: string): Promise<boolean>
     projects(): Promise<string[]>
   }

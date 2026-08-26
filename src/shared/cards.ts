@@ -10,6 +10,7 @@ const optionalLabel = z.string().trim().max(200).nullable().optional()
 const optionalCount = z.number().int().nonnegative().nullable().optional()
 
 export const createCardInputSchema = z.object({
+  title: z.string().trim().min(1).max(200),
   challenge: requiredSummary,
   solution: requiredSummary,
   reasoning: requiredSummary,
@@ -29,6 +30,7 @@ export const createCardInputSchema = z.object({
 export type CreateCardInput = z.infer<typeof createCardInputSchema>
 
 export const updateCardInputSchema = z.object({
+  title: z.string().trim().min(1).max(200).optional(),
   challenge: requiredSummary.optional(),
   solution: requiredSummary.optional(),
   reasoning: requiredSummary.optional(),
@@ -49,6 +51,7 @@ export type UpdateCardInput = z.infer<typeof updateCardInputSchema>
 
 export const cardSchema = z.object({
   id: z.string().uuid(),
+  title: z.string(),
   challenge: z.string(),
   solution: z.string(),
   reasoning: z.string(),
@@ -62,6 +65,7 @@ export const cardSchema = z.object({
   totalTokens: z.number().int().nonnegative().nullable(),
   durationMs: z.number().int().nonnegative().nullable(),
   sourceReference: z.string().nullable(),
+  favorite: z.boolean(),
   status: cardStatusSchema,
   reviewNote: z.string().nullable(),
   idempotencyKey: z.string().nullable(),
@@ -75,6 +79,7 @@ export const listCardsFiltersSchema = z.object({
   statuses: z.array(cardStatusSchema).optional(),
   project: z.string().trim().optional(),
   query: z.string().trim().optional(),
+  favorite: z.boolean().optional(),
 })
 
 export type ListCardsFilters = z.infer<typeof listCardsFiltersSchema>

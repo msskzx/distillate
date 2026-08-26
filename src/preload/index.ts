@@ -8,6 +8,7 @@ const api: DistillateApi = {
     create: (input) => ipcRenderer.invoke('cards:create', input),
     update: (id, input) => ipcRenderer.invoke('cards:update', id, input),
     setStatus: (id, status) => ipcRenderer.invoke('cards:set-status', id, status),
+    setFavorite: (id, favorite) => ipcRenderer.invoke('cards:set-favorite', id, favorite),
     delete: (id) => ipcRenderer.invoke('cards:delete', id),
     projects: () => ipcRenderer.invoke('cards:projects'),
   },

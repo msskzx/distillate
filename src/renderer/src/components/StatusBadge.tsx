@@ -9,7 +9,7 @@ const styles: Record<CardStatus, string> = {
 const labels: Record<CardStatus, string> = {
   unreviewed: 'Unreviewed',
   revisit: 'Revisit',
-  reviewed: 'Reviewed',
+  reviewed: 'Distilled',
 }
 
 export function StatusBadge({ status }: { status: CardStatus }) {
