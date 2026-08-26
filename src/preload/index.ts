@@ -2,6 +2,10 @@ import { contextBridge, ipcRenderer } from 'electron'
 import type { DistillateApi } from '../shared/bridge'
 
 const api: DistillateApi = {
+  preferences: {
+    getLaunchAtStartup: () => ipcRenderer.invoke('preferences:get-launch-at-startup'),
+    setLaunchAtStartup: (enabled) => ipcRenderer.invoke('preferences:set-launch-at-startup', enabled),
+  },
   cards: {
     list: (filters = {}) => ipcRenderer.invoke('cards:list', filters),
     get: (id) => ipcRenderer.invoke('cards:get', id),

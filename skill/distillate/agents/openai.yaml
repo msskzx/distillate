@@ -1,7 +1,7 @@
 interface:
-  display_name: "Capture Distillate Card"
+  display_name: "Distillate Challenge"
   short_description: "Save a solved challenge for later review"
-  default_prompt: "Use $capture-card to capture the noteworthy challenge we just solved."
+  default_prompt: "Use $distillate to capture the noteworthy challenge we just solved."
 dependencies:
   tools:
     - type: "mcp"

@@ -120,4 +120,20 @@ describe('CardStore', () => {
     expect(reopened.get(created.id)?.challenge).toBe(input.challenge)
     expect(reopened.get(created.id)?.model).toBe(input.model)
   })
+
+  test('removes titles that the legacy migration derived from challenges', () => {
+    const { store, path } = createStore()
+    const created = store.create(input).card
+    store.close()
+    stores.splice(stores.indexOf(store), 1)
+
+    const database = openBunDatabase(path)
+    database.prepare('UPDATE cards SET title = challenge, created_at = ? WHERE id = ?').run('2020-01-01T00:00:00.000Z', created.id)
+    database.prepare('DELETE FROM schema_migrations WHERE version = 5').run()
+    database.close()
+
+    const reopened = new CardStore(openBunDatabase(path))
+    stores.push(reopened)
+    expect(reopened.get(created.id)?.title).toBe('')
+  })
 })

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { ChevronDown } from 'lucide-react'
+import { Check, ChevronDown } from 'lucide-react'
 import { Button } from './Button'
 
 export type DropdownMenuItem = {
@@ -8,6 +8,7 @@ export type DropdownMenuItem = {
   onSelect(): void
   disabled?: boolean
   danger?: boolean
+  checked?: boolean
 }
 
 export function DropdownMenu({ label, items }: { label: string; items: DropdownMenuItem[] }) {
@@ -40,7 +41,8 @@ export function DropdownMenu({ label, items }: { label: string; items: DropdownM
           {items.map((item) => (
             <button
               key={item.label}
-              role="menuitem"
+              role={item.checked === undefined ? 'menuitem' : 'menuitemcheckbox'}
+              aria-checked={item.checked}
               type="button"
               disabled={item.disabled}
               onClick={() => {
@@ -51,7 +53,10 @@ export function DropdownMenu({ label, items }: { label: string; items: DropdownM
                 item.danger ? 'text-red-300 hover:bg-red-950/60' : 'text-zinc-200 hover:bg-zinc-800'
               }`}
             >
-              {item.icon}<span>{item.label}</span>
+              {item.checked === undefined ? item.icon : (
+                <span className="grid size-4 place-items-center">{item.checked ? <Check size={14} className="text-amber-300" /> : null}</span>
+              )}
+              <span>{item.label}</span>
             </button>
           ))}
         </div>

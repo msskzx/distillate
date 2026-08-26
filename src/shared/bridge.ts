@@ -8,6 +8,10 @@ import type {
 } from './cards'
 
 export interface DistillateApi {
+  preferences: {
+    getLaunchAtStartup(): Promise<boolean>
+    setLaunchAtStartup(enabled: boolean): Promise<boolean>
+  }
   cards: {
     list(filters?: ListCardsFilters): Promise<Card[]>
     get(id: string): Promise<Card | null>

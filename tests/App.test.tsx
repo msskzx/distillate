@@ -15,7 +15,7 @@ function sampleCard(overrides: Partial<Card> = {}): Card {
     id: '1485f386-3f28-4e91-878f-1f58858948c4',
     title: 'Reliable manual capture fallback',
     challenge: 'The agent needed a reliable manual capture fallback.',
-    solution: 'Expose the same workflow as the $capture-card skill.',
+    solution: 'Expose the same workflow as the $distillate skill.',
     reasoning: 'A skill supports both automatic and explicit invocation.',
     project: 'distillate',
     agent: 'codex',
@@ -51,10 +51,19 @@ function installApi(overrides: Partial<Card> = {}) {
     card = { ...card, favorite }
     return card
   })
+  const list = mock(async (filters: Parameters<DistillateApi['cards']['list']>[0] = {}) =>
+    !filters.statuses || filters.statuses.includes(card.status) ? [{ ...card }] : [],
+  )
+  const getLaunchAtStartup = mock(async () => false)
+  const setLaunchAtStartup = mock(async (enabled: boolean) => enabled)
 
   const api: DistillateApi = {
+    preferences: {
+      getLaunchAtStartup,
+      setLaunchAtStartup,
+    },
     cards: {
-      list: mock(async (filters = {}) => (!filters.statuses || filters.statuses.includes(card.status) ? [card] : [])),
+      list,
       get: mock(async () => card),
       create: mock(async () => ({ card, created: true })),
       update,
@@ -66,11 +75,15 @@ function installApi(overrides: Partial<Card> = {}) {
   }
   window.distillate = api
   window.setInterval = mock(() => 1) as unknown as typeof window.setInterval
-  return { update, setStatus, setFavorite }
+  return { list, update, setStatus, setFavorite, getLaunchAtStartup, setLaunchAtStartup }
 }
 
 function installEmptyApi() {
   const api: DistillateApi = {
+    preferences: {
+      getLaunchAtStartup: mock(async () => false),
+      setLaunchAtStartup: mock(async (enabled: boolean) => enabled),
+    },
     cards: {
       list: mock(async () => []),
       get: mock(async () => null),
@@ -161,11 +174,55 @@ describe('review queue', () => {
 
     await user.click(await view.findByRole('button', { name: /^star$/i }))
     await waitFor(() => expect(api.setFavorite).toHaveBeenCalledWith(expect.any(String), true))
-    expect(await view.findByRole('button', { name: /^starred$/i })).toBeTruthy()
+    expect(await within(view.container.querySelector('article')!).findByRole('button', { name: /^starred$/i })).toBeTruthy()
 
     await user.click(view.getByRole('button', { name: /^more/i }))
     await user.click(view.getByRole('menuitem', { name: /^revisit$/i }))
     await waitFor(() => expect(api.setStatus).toHaveBeenCalledWith(expect.any(String), 'revisit'))
+  })
+
+  test('filters with the styled project selector', async () => {
+    const api = installApi()
+    const user = userEvent.setup({ document: window.document })
+    const view = render(<App />)
+
+    await user.click(await view.findByRole('button', { name: 'Filter by project' }))
+    await user.click(view.getByRole('option', { name: 'distillate' }))
+
+    await waitFor(() => expect(api.list).toHaveBeenCalledWith(expect.objectContaining({ project: 'distillate' })))
+  })
+
+  test('enables launch at startup from Settings', async () => {
+    const api = installApi()
+    const user = userEvent.setup({ document: window.document })
+    const view = render(<App />)
+
+    await user.click(await view.findByRole('button', { name: /^settings/i }))
+    await user.click(view.getByRole('menuitemcheckbox', { name: 'Launch at startup' }))
+
+    await waitFor(() => expect(api.setLaunchAtStartup).toHaveBeenCalledWith(true))
+    await user.click(view.getByRole('button', { name: /^settings/i }))
+    expect(view.getByRole('menuitemcheckbox', { name: 'Launch at startup' }).getAttribute('aria-checked')).toBe('true')
+  })
+
+  test('does not replace an edited title when the background refresh completes', async () => {
+    const api = installApi()
+    const user = userEvent.setup({ document: window.document })
+    const view = render(<App />)
+
+    await user.click(await view.findByRole('button', { name: /^more/i }))
+    await user.click(view.getByRole('menuitem', { name: /^edit$/i }))
+    const title = view.getByLabelText('Title')
+    await user.clear(title)
+    await user.type(title, 'Agent-authored title')
+
+    window.dispatchEvent(new Event('focus'))
+    await waitFor(() => expect(api.list.mock.calls.length).toBeGreaterThan(1))
+    expect((view.getByLabelText('Title') as HTMLInputElement).value).toBe('Agent-authored title')
+
+    await user.click(view.getByRole('button', { name: /save changes/i }))
+    await waitFor(() => expect(api.update).toHaveBeenCalled())
+    expect(api.update.mock.calls[0]?.[1]).toMatchObject({ title: 'Agent-authored title' })
   })
 
   test('collapses missing run metadata into one quiet empty state', async () => {

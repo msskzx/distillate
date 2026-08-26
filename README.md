@@ -12,7 +12,7 @@ Distillate is a local-first review queue for noteworthy engineering challenges s
 - Editable cards, review notes, project filtering, and text search
 - Optional model provenance: variant, reasoning effort, token usage, and task duration
 - `Unreviewed`, `Reviewed`, and `Revisit` states
-- Automatic and explicit `$capture-card` skill workflows
+- Automatic and explicit `$distillate` skill workflows
 
 ## Development
 
@@ -31,6 +31,14 @@ bun test
 bun run build
 ```
 
+Create the Windows installer:
+
+```powershell
+bun run package:win
+```
+
+The setup executable is written to `release/Distillate-<version>-Setup.exe`. It installs Distillate per user, creates Start Menu and desktop shortcuts, and keeps the local card database when the application is uninstalled.
+
 Run the MCP server directly:
 
 ```powershell
@@ -41,7 +49,7 @@ Override the data directory for development or tests with `DISTILLATE_DATA_DIR`.
 
 ## Codex integration
 
-The canonical skill bundle lives in `skill/capture-card`. Install it as a user skill to make `$capture-card` available across repositories, then register the MCP server as `distillate`.
+The canonical skill bundle lives in `skill/distillate`. Install it as a user skill to make `$distillate` available across repositories, then register the MCP server as `distillate`.
 
 For automatic consideration after verified project work, merge the rule in `install/global-AGENTS.md` into the user's global Codex `AGENTS.md`.
 

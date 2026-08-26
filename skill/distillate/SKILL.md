@@ -1,5 +1,5 @@
 ---
-name: capture-card
+name: distillate
 description: Capture a concise Distillate review card after an agent solves and verifies a non-trivial engineering challenge, or whenever the user explicitly asks to capture the current challenge. Do not use for routine implementation work.
 ---
 
@@ -11,7 +11,7 @@ Preserve the essence of a solved engineering challenge without turning it into p
 
 Capture automatically after completing and verifying work when the challenge involved a meaningful tradeoff, surprising constraint, non-obvious failure, or reusable engineering insight. Do not interrupt development or request review first. Skip routine implementation, formatting, dependency maintenance, and obvious fixes.
 
-When the user explicitly invokes `$capture-card`, capture from the current task even if you would not have selected it automatically. Infer the fields from the conversation and completed work. Ask only when the card cannot be meaningfully reconstructed.
+When the user explicitly invokes `$distillate`, capture from the current task even if you would not have selected it automatically. Infer the fields from the conversation and completed work. Ask only when the card cannot be meaningfully reconstructed.
 
 ## Submit
 

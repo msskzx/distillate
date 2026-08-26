@@ -12,7 +12,7 @@ export function CardListItem({ card, selected, onSelect }: { card: Card; selecte
       }`}
     >
       <span className="flex items-start gap-2">
-        <span className="line-clamp-2 min-w-0 flex-1 text-sm font-semibold leading-5 text-zinc-100">{card.title}</span>
+        <span className="line-clamp-2 min-w-0 flex-1 text-sm font-semibold leading-5 text-zinc-100">{card.title || 'Untitled'}</span>
         {card.favorite ? <Star aria-label="Favorite" size={14} className="mt-0.5 shrink-0 fill-amber-300 text-amber-300" /> : null}
       </span>
       <span className="line-clamp-2 text-xs leading-5 text-zinc-500">{card.challenge}</span>

@@ -74,13 +74,19 @@ const migrations = [
   `
     ALTER TABLE cards ADD COLUMN title TEXT NOT NULL DEFAULT '';
     ALTER TABLE cards ADD COLUMN favorite INTEGER NOT NULL DEFAULT 0 CHECK (favorite IN (0, 1));
+    CREATE INDEX IF NOT EXISTS cards_favorite_idx ON cards(favorite, created_at DESC);
+  `,
+  `
     UPDATE cards
-      SET title = CASE
+      SET title = ''
+      WHERE created_at <= COALESCE(
+        (SELECT applied_at FROM schema_migrations WHERE version = 4),
+        created_at
+      )
+      AND title = CASE
         WHEN length(trim(challenge)) <= 100 THEN trim(challenge)
         ELSE trim(substr(challenge, 1, 97)) || '...'
-      END
-      WHERE title = '';
-    CREATE INDEX IF NOT EXISTS cards_favorite_idx ON cards(favorite, created_at DESC);
+      END;
   `,
 ]
 

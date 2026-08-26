@@ -1,4 +1,4 @@
-import { Archive, Check, ChevronLeft, ChevronRight, Cpu, Inbox, Pencil, RotateCcw, Save, Search, Star, Trash2, X } from 'lucide-react'
+import { Archive, Check, ChevronLeft, ChevronRight, Cpu, Folder, Inbox, Pencil, RotateCcw, Save, Search, Star, Trash2, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { Card, CardStatus, UpdateCardInput } from '../../shared/cards'
 import { Button } from './components/Button'
@@ -6,6 +6,7 @@ import { CardListItem } from './components/CardListItem'
 import { Field, fieldClassName } from './components/Field'
 import { StatusBadge } from './components/StatusBadge'
 import { DropdownMenu } from './components/DropdownMenu'
+import { SelectMenu } from './components/SelectMenu'
 
 type View = 'queue' | 'reviewed'
 
@@ -127,6 +128,8 @@ export function App() {
   const [saving, setSaving] = useState(false)
   const [editing, setEditing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [launchAtStartup, setLaunchAtStartup] = useState(false)
+  const [savingPreference, setSavingPreference] = useState(false)
 
   const selectedCard = useMemo(() => cards.find((card) => card.id === selectedId) ?? null, [cards, selectedId])
   const pageSize = 10
@@ -175,6 +178,12 @@ export function App() {
   }, [load])
 
   useEffect(() => {
+    const api = window.distillate
+    if (!api?.preferences) return
+    void api.preferences.getLaunchAtStartup().then(setLaunchAtStartup).catch(() => undefined)
+  }, [])
+
+  useEffect(() => {
     const refresh = () => void load()
     const timer = window.setInterval(refresh, 5_000)
     window.addEventListener('focus', refresh)
@@ -185,8 +194,8 @@ export function App() {
   }, [load])
 
   useEffect(() => {
-    setDraft(selectedCard ? toDraft(selectedCard) : null)
-  }, [selectedCard])
+    if (!editing) setDraft(selectedCard ? toDraft(selectedCard) : null)
+  }, [editing, selectedCard])
 
   useEffect(() => {
     setEditing(false)
@@ -248,6 +257,19 @@ export function App() {
     }
   }
 
+  const toggleLaunchAtStartup = async () => {
+    setSavingPreference(true)
+    try {
+      const enabled = await window.distillate.preferences.setLaunchAtStartup(!launchAtStartup)
+      setLaunchAtStartup(enabled)
+      setError(null)
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Unable to update startup preference')
+    } finally {
+      setSavingPreference(false)
+    }
+  }
+
   const deleteCard = async () => {
     if (!selectedCard || !window.confirm('Delete this Distillate card? This cannot be undone.')) return
     setSaving(true)
@@ -276,6 +298,7 @@ export function App() {
             <p className="text-xs text-zinc-500">Solved challenges, ready when you are.</p>
           </div>
         </div>
+        <div className="flex items-center gap-2">
         <nav aria-label="Card views" className="flex rounded-lg border border-zinc-800 bg-zinc-900 p-1">
           <button
             type="button"
@@ -296,6 +319,16 @@ export function App() {
             <Archive size={15} /> Distilled
           </button>
         </nav>
+        <DropdownMenu
+          label="Settings"
+          items={[{
+            label: 'Launch at startup',
+            checked: launchAtStartup,
+            disabled: savingPreference,
+            onSelect: () => void toggleLaunchAtStartup(),
+          }]}
+        />
+        </div>
       </header>
 
       <section className="grid min-h-0 grid-cols-[360px_minmax(0,1fr)]">
@@ -311,29 +344,25 @@ export function App() {
                 className={`${fieldClassName} pl-9`}
               />
             </label>
-            <select
-              aria-label="Filter by project"
-              value={project}
-              onChange={(event) => setProject(event.target.value)}
-              className={fieldClassName}
-            >
-              <option value="">All projects</option>
-              {projects.map((name) => (
-                <option key={name} value={name}>
-                  {name}
-                </option>
-              ))}
-            </select>
-            <button
-              type="button"
-              aria-pressed={favoritesOnly}
-              onClick={() => setFavoritesOnly((value) => !value)}
-              className={`flex min-h-9 items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold transition-colors ${
-                favoritesOnly ? 'border-amber-300/50 bg-amber-300/10 text-amber-200' : 'border-zinc-700 bg-zinc-900 text-zinc-400 hover:text-zinc-100'
-              }`}
-            >
-              <Star size={15} className={favoritesOnly ? 'fill-amber-300' : ''} /> Favorites only
-            </button>
+            <div className="flex items-center gap-2">
+              <SelectMenu
+                ariaLabel="Filter by project"
+                icon={<Folder size={15} />}
+                value={project}
+                options={[{ label: 'All projects', value: '' }, ...projects.map((name) => ({ label: name, value: name }))]}
+                onChange={setProject}
+              />
+              <button
+                type="button"
+                aria-pressed={favoritesOnly}
+                onClick={() => setFavoritesOnly((value) => !value)}
+                className={`flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-semibold transition-colors focus:outline-none focus:ring-1 focus:ring-amber-300 ${
+                  favoritesOnly ? 'border-amber-300/50 bg-amber-300/10 text-amber-200' : 'border-zinc-700 bg-zinc-900 text-zinc-400 hover:border-zinc-600 hover:bg-zinc-800 hover:text-zinc-100'
+                }`}
+              >
+                <Star size={15} className={favoritesOnly ? 'fill-amber-300' : ''} /> Starred
+              </button>
+            </div>
           </div>
 
           <div className="min-h-0 overflow-y-auto" aria-live="polite">
@@ -565,7 +594,7 @@ export function App() {
               ) : (
                 <div className="grid gap-7">
                   <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-zinc-50">{selectedCard.title}</h1>
+                    <h1 className="text-2xl font-bold tracking-tight text-zinc-50">{selectedCard.title || 'Untitled'}</h1>
                   </div>
                   <ReadField label="Challenge" value={selectedCard.challenge} />
                   <ReadField label="Solution" value={selectedCard.solution} />

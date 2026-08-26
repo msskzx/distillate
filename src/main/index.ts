@@ -10,6 +10,7 @@ import {
   updateCardInputSchema,
 } from '../shared/cards'
 import { getPreloadPath } from './window-paths'
+import { desktopAppId } from '../shared/runtime'
 
 let store: CardStore | null = null
 
@@ -19,6 +20,16 @@ function getStore(): CardStore {
 }
 
 function registerIpcHandlers(): void {
+  ipcMain.handle('preferences:get-launch-at-startup', () => {
+    if (!app.isPackaged || process.platform !== 'win32') return false
+    return app.getLoginItemSettings({ path: process.execPath }).openAtLogin
+  })
+  ipcMain.handle('preferences:set-launch-at-startup', (_event, enabled: unknown) => {
+    if (typeof enabled !== 'boolean') throw new Error('Launch-at-startup setting must be a boolean')
+    if (!app.isPackaged || process.platform !== 'win32') return false
+    app.setLoginItemSettings({ openAtLogin: enabled, path: process.execPath })
+    return app.getLoginItemSettings({ path: process.execPath }).openAtLogin
+  })
   ipcMain.handle('cards:list', (_event, filters) => getStore().list(listCardsFiltersSchema.parse(filters ?? {})))
   ipcMain.handle('cards:get', (_event, id: string) => getStore().get(id))
   ipcMain.handle('cards:create', (_event, input) => getStore().create(createCardInputSchema.parse(input)))
@@ -61,6 +72,8 @@ function createWindow(): void {
     void window.loadFile(join(__dirname, '../renderer/index.html'))
   }
 }
+
+if (process.platform === 'win32') app.setAppUserModelId(desktopAppId)
 
 app.whenReady().then(() => {
   Menu.setApplicationMenu(null)
