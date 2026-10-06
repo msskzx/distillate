@@ -42,6 +42,13 @@ window.TICKET_CRAFTER_CURRICULUM = [
         title: "Real-World Engineering Skills",
         architecture: "Current",
         blurb: "Unslop prose filtering, Socratic spec pipelines, and deep architecture refactoring."
+      },
+      {
+        id: "0006",
+        file: "lessons/0006-anatomy-of-the-agent-harness.html",
+        title: "The Anatomy of the Agent Harness",
+        architecture: "Current",
+        blurb: "Runtime FSM, context compaction, tool interception, idempotency, and error recovery."
       }
     ]
   }

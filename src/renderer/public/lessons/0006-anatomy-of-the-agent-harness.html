@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 6: The Anatomy of the Agent Harness — Runtime Mechanics & Execution Invariants</title>
+  <link rel="stylesheet" href="assets/lesson.css">
+  <script src="assets/theme.js"></script>
+  <script src="assets/curriculum.js"></script>
+  <script src="assets/sidebar.js"></script>
+</head>
+<body>
+<nav class="sidebar" id="sidebar-nav" data-sidebar aria-label="Lessons"></nav>
+<button type="button" class="sb-toggle" data-sidebar-toggle aria-expanded="false" aria-controls="sidebar-nav">Lessons</button>
+<main class="lesson-shell">
+  <p class="eyebrow">Agent Architecture · Deep Dive</p>
+  <h1>The Anatomy of the Agent Harness: Runtime Mechanics & Execution Invariants</h1>
+
+  <div class="banner">
+    <strong>The Core Axiom:</strong> The foundation model provides the statistical probability distribution over next tokens. The harness provides literally everything else: deterministic state transitions, memory compaction, tool dispatch, exception handling, and safety boundaries.
+  </div>
+
+  <p>
+    In Lesson 2, we introduced the high-level concept of the agent harness alongside skills, subagents, and MCP. But in real-world systems engineering, the harness is not just a lightweight wrapper script around an API call—it is an operating-system-level process supervisor.
+  </p>
+  <p>
+    This lesson takes a microscope to the <strong>harness runtime engine</strong>: the exact step-by-step state machine, event streams, context compaction strategies, tool execution interception, and failure recovery mechanics that separate fragile prompt chains from resilient production systems.
+  </p>
+
+  <!-- Section 1: The Formal State Machine -->
+  <h2>1. The Harness as a Finite State Machine (FSM)</h2>
+  <p>
+    To build or debug an agent harness, you must treat it not as a conversation, but as a formal discrete-event state machine with strict transition guards:
+  </p>
+
+  <!-- FSM Mermaid Diagram -->
+  <div class="mermaid" data-mermaid>
+stateDiagram-v2
+    [*] --> Idle : Awaiting User Input
+    Idle --> Assembling : Event user_prompt_received
+    Assembling --> CallingLLM : Payload compiled & budgeted
+    CallingLLM --> ParsingOutput : Stream complete / Tokens received
+    
+    state ParsingOutput <<choice>>
+    ParsingOutput --> ToolValidating : Function call / Tool block detected
+    ParsingOutput --> Stopping : Stop condition / Text response only
+    ParsingOutput --> Recovering : Malformed JSON / Schema violation
+
+    ToolValidating --> ExecutingTool : Policy Gate Passed (Auto or Approved)
+    ToolValidating --> Idle : Rejected by Policy / User Denied
+    
+    ExecutingTool --> InjectingObservation : stdout / stderr captured
+    ExecutingTool --> ToolFailing : Timeout / Crash / Non-zero exit
+    
+    ToolFailing --> InjectingObservation : Error formatted as feedback
+    InjectingObservation --> Compacting : Check context budget threshold
+    Compacting --> CallingLLM : Ready for next loop iteration
+    
+    Recovering --> CallingLLM : Synthetic correction prompt injected
+    Stopping --> Idle : Delivered final response
+  </div>
+  <div class="diagram-fallback" data-mermaid-fallback>
+    Harness FSM: Idle → Context Assembling → Calling LLM → Parsing Output. If tool emitted → Tool Validating → Executing Tool → Observation Injected → Compaction check → back to Calling LLM. If text only → Stopping → Idle. If parsing fails → Recovering → Calling LLM.
+  </div>
+
+  <div class="layers">
+    <div class="layer">
+      <span class="n">State 1</span>
+      <div><strong>Context Assembly & Budgeting:</strong> Resolves system instructions, appends history, injects active tools, and trims tokens to stay within the model's sliding window.</div>
+    </div>
+    <div class="layer">
+      <span class="n">State 2</span>
+      <div><strong>LLM Inference Streaming:</strong> Dispatches HTTP/gRPC request to model provider; parses server-sent token events in real time.</div>
+    </div>
+    <div class="layer">
+      <span class="n">State 3</span>
+      <div><strong>Grammar & Schema Validation:</strong> Verifies that emitted tool calls match exact JSON Schema specifications before host execution.</div>
+    </div>
+    <div class="layer">
+      <span class="n">State 4</span>
+      <div><strong>Policy Interception & Gating:</strong> Checks security policy (sandbox boundary, read-only vs destructive mutations, interactive user approval).</div>
+    </div>
+    <div class="layer">
+      <span class="n">State 5</span>
+      <div><strong>Dispatch & Execution:</strong> Spawns sandboxed sub-process, communicates over STDIO with MCP servers, or executes internal system routines.</div>
+    </div>
+    <div class="layer">
+      <span class="n">State 6</span>
+      <div><strong>Feedback Injection:</strong> Captures process exit codes, stdout, or stderr, and formats them into a synthetic message for the model.</div>
+    </div>
+  </div>
+
+  <!-- Section 2: Context Budgeting and Sliding Compaction -->
+  <h2>2. Context Budgeting: Sliding Windows & Pruning Algorithms</h2>
+  <p>
+    An agent loop running across 40 steps easily generates millions of cumulative tokens. If the harness naively appends every tool output into conversation history, three fatal failures occur:
+  </p>
+  <ul>
+    <li><strong>Attention Dilution ("Lost in the Middle"):</strong> As context grows, models miss critical instructions placed between massive stdout logs.</li>
+    <li><strong>Exponential Latency & API Cost:</strong> Cost scales quadratically with history length on non-cached models.</li>
+    <li><strong>Hard Context Window Crash:</strong> The harness throws an unrecoverable <code>context_length_exceeded</code> error.</li>
+  </ul>
+
+  <!-- Compaction Strategy Comparison Table -->
+  <table>
+    <thead>
+      <tr>
+        <th>Compaction Strategy</th>
+        <th>How the Harness Implements It</th>
+        <th>Trade-off / Failure Mode</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Naive FIFO Truncation</strong></td>
+        <td>Drops the oldest messages when context exceeds a high-water mark (e.g. 80% of window).</td>
+        <td>Disastrous: deletes the initial user goal and original system prompt constraints.</td>
+      </tr>
+      <tr>
+        <td><strong>Tool Result Pruning</strong></td>
+        <td>Replaces verbose intermediate tool outputs (e.g. 5,000-line test runs or file dumps) from previous turns with a 1-line tombstone: <code>[Output truncated: 520 lines pruned]</code>.</td>
+        <td>High leverage: preserves all user intent and decisions while purging 90% of token deadweight.</td>
+      </tr>
+      <tr>
+        <td><strong>Hierarchical Summarization (Checkpointing)</strong></td>
+        <td>Spawns a background summarizer model to compress turns 1–20 into an immutable 300-word "Handoff State Brief", replacing the entire history slice.</td>
+        <td>Slight latency pause at compaction boundary; loss of low-level syntactic details.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Section 3: Tool Interception and Idempotency -->
+  <h2>3. Tool Interception, Sandboxing & Idempotency</h2>
+  <p>
+    A production harness must never blindly execute a command just because the model asked for it. The harness acts as a <strong>hypervisor</strong> between the LLM and the host operating system.
+  </p>
+
+  <!-- Execution Pipeline Diagram -->
+  <div class="mermaid" data-mermaid>
+flowchart LR
+    LLMRequest["Model Emits Tool Call<br/><code>replace_file_content(...)</code>"] --> Interceptor["Harness Tool Interceptor"]
+    
+    subgraph Checks[Harness Policy Checks]
+        SchemaCheck["Schema Validation (Zod)"]
+        BoundaryCheck["Path Traversal Guard (Path must be inside workspace)"]
+        IdempotentCheck["Idempotency Filter (Has this exact edit run already?)"]
+        ApprovalCheck{"Consequential? (Requires User Modal)"}
+    end
+
+    Interceptor --> SchemaCheck
+    SchemaCheck --> BoundaryCheck
+    BoundaryCheck --> IdempotentCheck
+    IdempotentCheck --> ApprovalCheck
+    
+    ApprovalCheck -->|Auto / Approved| Sandbox["Sandboxed Process Worker"]
+    ApprovalCheck -->|User Rejected| Rejection["Inject Veto to LLM: 'Action denied by user'"]
+
+    Sandbox --> ExecutionResult["Captured Result (exit code, stdout, diff)"]
+
+    classDef proc fill:#16242f,stroke:#63aae4,stroke-width:1.5px,color:#e4e2de;
+    classDef check fill:#2a2113,stroke:#e0a83f,stroke-width:1.5px,color:#e4e2de;
+    classDef safe fill:#13241a,stroke:#5cc98a,stroke-width:1.5px,color:#e4e2de;
+    classDef veto fill:#2d1818,stroke:#f0837f,stroke-width:1.5px,color:#e4e2de;
+    class LLMRequest,Interceptor,Sandbox proc;
+    class SchemaCheck,BoundaryCheck,IdempotentCheck,ApprovalCheck check;
+    class ExecutionResult safe;
+    class Rejection veto;
+  </div>
+  <div class="diagram-fallback" data-mermaid-fallback>
+    Harness Interception Pipeline: Tool Call → Schema Validation (Zod) → Path Traversal Guards → Idempotency check → Approval Gate. If passed → Sandboxed Process executes → Result captured. If denied → Rejection message injected back to model.
+  </div>
+
+  <div class="callout pattern">
+    <span class="label">The Idempotency Key Invariant</span>
+    <p>
+      In Distillate's MCP server, notice how <code>capture_card</code> accepts an <code>idempotency_key</code>. If an agent loops or retries following a network hiccup, the harness guarantees that identical submissions never generate duplicate database records.
+    </p>
+  </div>
+
+  <!-- Section 4: Error Recovery and Self-Correction Loops -->
+  <h2>4. Error Recovery: The Harness as a Teacher</h2>
+  <p>
+    When a tool call fails, a bad harness crashes. An amateur harness echoes a generic error string. A <strong>mature harness transforms errors into structured actionable guidance</strong>.
+  </p>
+
+  <div class="layers">
+    <div class="layer">
+      <span class="n">Failure 1</span>
+      <div>
+        <strong>JSON Parse / Schema Violation:</strong>
+        Instead of halting, the harness synthesizes a correction: <em>"Your tool call failed schema validation: parameter 'target_file' must be an absolute path, received 'foo.js'. Please retry with absolute path."</em>
+      </div>
+    </div>
+    <div class="layer">
+      <span class="n">Failure 2</span>
+      <div>
+        <strong>Non-Zero Process Exit (Build / Lint Failure):</strong>
+        The harness extracts the exact compiler error and line number, injecting it directly into the next prompt turn. The model is forced to recognize that its previous hypothesis was falsified by reality.
+      </div>
+    </div>
+    <div class="layer">
+      <span class="n">Failure 3</span>
+      <div>
+        <strong>Infinite Loop Detection (Ping-Ponging):</strong>
+        If the model attempts the exact same failing tool call three consecutive times with identical arguments, the harness forcibly trips a circuit breaker: <em>"Execution aborted: detected 3 identical repetitive tool calls without progress. Formulate an alternative strategy."</em>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 5: Synchronous vs Asynchronous Harness Architectures -->
+  <h2>5. Event-Driven & Streaming Harness Architectures</h2>
+  <p>
+    Early agent experiments ran synchronous loops: blocking the main thread while the model inferred, then blocking while the tool ran. In interactive environments (like Antigravity or Electron apps like Distillate), this freezes the UI and makes real-time cancellation impossible.
+  </p>
+  <p>
+    Modern harnesses use <strong>reactive, event-driven architectures</strong>:
+  </p>
+  <ul>
+    <li><strong>Token-by-token Tool Streaming:</strong> The harness parses tool call parameters incrementally while tokens stream, allowing validation to begin before generation finishes.</li>
+    <li><strong>Abort Controllers:</strong> The user can hit "Stop" at any microsecond; the harness terminates child shell processes, halts the socket stream, and returns the workspace to a clean state.</li>
+    <li><strong>Async Subprocess Spawning:</strong> Commands that take minutes (e.g. <code>bun install</code>, running browser agents) are pushed to background task runners, pinging the harness via asynchronous message queues when complete.</li>
+  </ul>
+
+  <!-- Quick Check Quiz -->
+  <section class="quiz">
+    <h2>Quick Check</h2>
+    <p>What is the most effective harness strategy to prevent context window saturation during a long multi-step debugging session?</p>
+    <button class="quiz-option" data-answer>A. Deleting the initial system prompt to save space</button>
+    <button class="quiz-option" data-answer>B. Pruning verbose historical tool outputs (replacing 5,000-line test outputs with concise summaries) while preserving original instructions, decisions, and current state</button>
+    <button class="quiz-option" data-answer>C. Increasing temperature to generate shorter responses</button>
+    <p class="quiz-answer">
+      <strong>Correct: B.</strong> The initial system prompt and core requirements must remain fixed. The vast majority of token bloat comes from intermediate tool dumps (logs, grep results, test runs) that have already served their purpose. Pruning these intermediate outputs frees context without losing user intent.
+    </p>
+  </section>
+
+  <!-- Exercise -->
+  <section class="exercise">
+    <h2>Try This: Trace Your Harness</h2>
+    <p>
+      Inspect your current agent environment or codebase:
+    </p>
+    <ol>
+      <li>Where does the loop state live? Is it an in-memory array, or persisted to disk (e.g. SQLite / JSON lines)?</li>
+      <li>What happens if a tool call takes 60 seconds? Does it lock the process or run as an asynchronous task?</li>
+      <li>What guard rails prevent the model from modifying files outside of the target workspace?</li>
+    </ol>
+  </section>
+
+  <!-- References -->
+  <section class="references">
+    <h2>References & Deeper Reading</h2>
+    <ul>
+      <li><a href="https://arxiv.org/abs/2210.03629">ReAct: Synergizing Reasoning and Acting in Language Models (Yao et al.)</a> — Foundational paper formalizing thought-action-observation traces.</li>
+      <li><a href="https://modelcontextprotocol.io/specification/2025-06-18">Model Context Protocol Specification</a> — Protocol architecture for decoupled tool invocation.</li>
+      <li><a href="https://www.anthropic.com/research/building-effective-agents">Anthropic: Building Effective Agents</a> — Production guidance on agent loops, evaluation, and harness orchestrators.</li>
+      <li><a href="https://platform.openai.com/docs/guides/function-calling">OpenAI Function Calling & Tool Use Guide</a> — Schema specifications and tool interception patterns.</li>
+    </ul>
+  </section>
+
+  <nav class="lesson-nav">
+    <a class="prev" href="0005-real-world-engineering-skills.html">← Lesson 5: Real-World Engineering Skills</a>
+    <a class="next" href="../index.html">Back to Distillate →</a>
+  </nav>
+</main>
+<button data-theme-toggle type="button" style="position: fixed; right: 1rem; bottom: 1rem; z-index: 100; border: 1px solid var(--rule-strong); background: var(--paper); color: var(--ink); padding: 0.5rem 0.75rem; border-radius: 4px; font-family: var(--sans); font-size: 0.75rem; font-weight: 600; cursor: pointer;"></button>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+(function () {
+  function fallback() {
+    document.querySelectorAll('[data-mermaid]').forEach(function (el) { el.hidden = true });
+    document.querySelectorAll('[data-mermaid-fallback]').forEach(function (el) { el.hidden = false });
+  }
+  function render() {
+    document.querySelectorAll('[data-mermaid-fallback]').forEach(function (el) { el.hidden = true });
+    try {
+      mermaid.initialize({ startOnLoad: false, theme: 'neutral' });
+      mermaid.run({ nodes: Array.from(document.querySelectorAll('[data-mermaid]')) }).catch(fallback);
+    } catch (error) { fallback(); }
+  }
+  if (window.mermaid) { render(); } else { fallback(); }
+})();
+</script>
+<script src="assets/quiz.js"></script>
+<script src="assets/lesson.js"></script>
+</body>
+</html>
