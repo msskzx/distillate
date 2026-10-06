@@ -109,7 +109,16 @@ graph TD
   <div class="callout drift">
     <span class="label">The Anti-Pattern: Voodoo Emotional Coercion</span>
     <p>
-      Begging or emotionally blackmailing an LLM is a symptom of an <strong>absent harness and missing verification loop</strong>. An LLM has no nervous system, no fear of mortality, and no bank account. Telling a model <em>"make no mistakes"</em> does not give it a compiler, a linter, or test coverage.
+      Emotional prompting can influence model behavior, and some studies have even measured performance improvements from motivational or emotional stimuli. But these effects are model-, task-, and prompt-dependent and should not be confused with reliability mechanisms.
+    </p>
+    <p>
+      An LLM does not literally fear consequences or value a $200 tip. More importantly, telling a model <em>"make no mistakes"</em> does not give it a compiler, linter, test suite, or feedback loop.
+    </p>
+    <p>
+      Prompt pressure may change behavior; a harness verifies behavior.
+    </p>
+    <p>
+      If correctness matters, replace emotional coercion with executable checks, tool feedback, tests, and retry/repair loops.
     </p>
   </div>
 

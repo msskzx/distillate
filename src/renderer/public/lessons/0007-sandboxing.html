@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 7: Sandboxing — Isolation Boundaries for Agent Execution</title>
+  <link rel="stylesheet" href="assets/lesson.css">
+  <script src="assets/theme.js"></script>
+  <script src="assets/curriculum.js"></script>
+  <script src="assets/sidebar.js"></script>
+</head>
+<body>
+<nav class="sidebar" id="sidebar-nav" data-sidebar aria-label="Lessons"></nav>
+<button type="button" class="sb-toggle" data-sidebar-toggle aria-expanded="false" aria-controls="sidebar-nav">Lessons</button>
+<main class="lesson-shell">
+  <p class="eyebrow">Agent Security · Isolation Architecture</p>
+  <h1>Sandboxing: Isolation Boundaries for Agent Execution</h1>
+
+  <div class="banner">
+    <strong>Core Insight:</strong> An agent without a sandbox is a root process with a chat interface. Sandboxing is not a single tool—it is a layered defense strategy combining filesystem isolation, network restrictions, resource limits, and syscall filtering to ensure that even a compromised or misbehaving agent cannot escape its execution boundary.
+  </div>
+
+  <p>
+    In Lesson 2, Section 5, we introduced the <strong>Autonomy Ladder</strong>—a tiered model for classifying actions by risk (Tier 0: Pure Read through Tier 3: Irreversible). That model answers <em>what</em> an agent is allowed to do. This lesson answers the harder question: <em>how do we technically enforce those boundaries</em> so that even a prompt-injected, hallucinating, or malicious model cannot cause real-world harm?
+  </p>
+  <p>
+    Sandboxing is the engineering discipline of building <strong>execution cages</strong>—constrained environments where agent tool calls run with minimized privileges, isolated resources, and no path of escape to the host system.
+  </p>
+
+  <!-- Section 1: Why Sandboxing Matters -->
+  <h2>1. Why Sandboxing Is Non-Negotiable</h2>
+  <p>
+    Without sandboxing, an agent's tool calls execute with the full privileges of the user who launched the agent. This creates an extreme attack surface:
+  </p>
+  <ul>
+    <li><strong>Prompt Injection:</strong> A malicious web page or document instructs the agent to <code>rm -rf /</code> or exfiltrate SSH keys. Without a sandbox, the agent happily complies.</li>
+    <li><strong>Hallucinated Commands:</strong> The model generates a plausible-but-destructive command (e.g., <code>DROP TABLE users</code>) that was never intended by the user.</li>
+    <li><strong>Dependency Exploits:</strong> A compromised npm package or PyPI dependency executes arbitrary code during <code>npm install</code> or <code>pip install</code>.</li>
+    <li><strong>Infinite Resource Consumption:</strong> A buggy agent loop spawns thousands of processes, exhausting CPU, memory, or disk.</li>
+  </ul>
+
+  <div class="callout drift">
+    <span class="label">The Root Process Anti-Pattern</span>
+    <p>
+      Running an agent as a root or administrator process is the single most dangerous configuration in agent deployment. A single prompt injection becomes a full host compromise. The 2023 incident where an AI coding assistant executed <code>sudo rm -rf</code> on a user's home directory is not an edge case—it is the default outcome of unsandboxed execution.
+    </p>
+  </div>
+
+  <!-- Section 2: The Sandboxing Stack -->
+  <h2>2. The Sandboxing Stack: Four Layers of Isolation</h2>
+  <p>
+    Production-grade sandboxing is not a single mechanism—it is a <strong>defense-in-depth stack</strong> where each layer provides independent containment. If one layer fails, the others still protect the host.
+  </p>
+
+  <!-- Sandboxing Stack Diagram -->
+  <div class="mermaid" data-mermaid>
+graph TD
+    Agent["Agent Process<br/><i>LLM + Harness Loop</i>"] --> L1
+
+    subgraph Stack[Sandboxing Defense Stack]
+        L1["Layer 1: Filesystem Isolation<br/><i>Read-only root, tmpfs workspace, bind mounts</i>"]
+        L2["Layer 2: Network Restrictions<br/><i>Egress filtering, no raw sockets, DNS allowlists</i>"]
+        L3["Layer 3: Resource Limits<br/><i>cgroups: CPU, memory, PIDs, disk I/O</i>"]
+        L4["Layer 4: Syscall Filtering<br/><i>seccomp-bpf: allowlist safe syscalls</i>"]
+    end
+
+    L1 --> L2 --> L3 --> L4 --> Host["Host Operating System"]
+
+    classDef agent fill:#16242f,stroke:#63aae4,stroke-width:1.5px,color:#e4e2de;
+    classDef layer fill:#121417,stroke:#858c94,stroke-width:1.5px,color:#e4e2de;
+    classDef host fill:#13241a,stroke:#5cc98a,stroke-width:1.5px,color:#e4e2de;
+    class Agent agent;
+    class L1,L2,L3,L4 layer;
+    class Host host;
+  </div>
+  <div class="diagram-fallback" data-mermaid-fallback>
+    Sandboxing Defense Stack: Agent Process → Layer 1 (Filesystem Isolation) → Layer 2 (Network Restrictions) → Layer 3 (Resource Limits via cgroups) → Layer 4 (Syscall Filtering via seccomp-bpf) → Host OS. Each layer provides independent containment.
+  </div>
+
+  <div class="layers">
+    <div class="layer">
+      <span class="n">L1</span>
+      <div><strong>Filesystem Isolation:</strong> The agent sees a read-only root filesystem with a writable <code>tmpfs</code> workspace mounted at <code>/workspace</code>. Source code is bind-mounted read-only. Sensitive paths (<code>~/.ssh</code>, <code>/etc/passwd</code>, browser profiles) are either hidden or mounted as empty directories.</div>
+    </div>
+    <div class="layer">
+      <span class="n">L2</span>
+      <div><strong>Network Restrictions:</strong> Egress is denied by default. The agent can only reach pre-approved endpoints (e.g., a package registry mirror) via an HTTP proxy that enforces DNS allowlisting. Raw sockets, <code>curl</code> to arbitrary IPs, and <code>nc</code> are blocked at the firewall layer.</div>
+    </div>
+    <div class="layer">
+      <span class="n">L3</span>
+      <div><strong>Resource Limits:</strong> Linux <code>cgroups</code> cap CPU (e.g., 1 core), memory (e.g., 512 MB), process count (e.g., 64 PIDs), and disk I/O bandwidth. This prevents fork bombs, memory exhaustion, and disk-filling attacks from impacting the host or other tenants.</div>
+    </div>
+    <div class="layer">
+      <span class="n">L4</span>
+      <div><strong>Syscall Filtering:</strong> A <code>seccomp-bpf</code> profile whitelists only the ~50 syscalls needed for a development agent (read, write, open, close, mmap, etc.). Dangerous syscalls like <code>mount</code>, <code>ptrace</code>, <code>kexec_load</code>, and <code>reboot</code> are blocked at the kernel level.</div>
+    </div>
+  </div>
+
+  <!-- Section 3: Container Runtimes Compared -->
+  <h2>3. Container Runtimes: From Docker to Micro-VMs</h2>
+  <p>
+    Not all sandboxing runtimes are created equal. The choice of container runtime determines the strength of the isolation boundary:
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Runtime</th>
+        <th>Isolation Model</th>
+        <th>Overhead</th>
+        <th>Best For</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Docker / containerd</strong></td>
+        <td>Namespace + cgroup isolation. Shared host kernel.</td>
+        <td>Low (~50ms startup)</td>
+        <td>Trusted workloads, CI pipelines, development sandboxes.</td>
+      </tr>
+      <tr>
+        <td><strong>gVisor (runsc)</strong></td>
+        <td>User-space kernel (Sentry) intercepts all syscalls. Guest kernel is a Go reimplementation.</td>
+        <td>Medium (~150ms startup, 2-5x syscall overhead)</td>
+        <td>Multi-tenant SaaS, running untrusted code.</td>
+      </tr>
+      <tr>
+        <td><strong>Firecracker</strong></td>
+        <td>KVM micro-VM. Dedicated guest kernel per sandbox. Minimal device model.</td>
+        <td>Low for a VM (~125ms startup)</td>
+        <td>Serverless (AWS Lambda), high-security isolation.</td>
+      </tr>
+      <tr>
+        <td><strong>macOS Sandbox (sandbox-exec)</strong></td>
+        <td>Seatbelt profile-based sandbox. Path-based file and network restrictions.</td>
+        <td>Very low</td>
+        <td>Local macOS agent development.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout pattern">
+    <span class="label">Architecture Note</span>
+    <p>
+      For agent workloads that execute arbitrary code (e.g., running <code>npm install</code> or <code>bun test</code>), gVisor or Firecracker provide meaningfully stronger isolation than Docker. Docker's shared kernel means a kernel exploit in the sandbox escapes to the host. gVisor's user-space kernel and Firecracker's dedicated guest kernel eliminate this entire class of escape.
+    </p>
+  </div>
+
+  <!-- Section 4: The Autonomy Ladder in Practice -->
+  <h2>4. Mapping the Autonomy Ladder to Sandbox Configurations</h2>
+  <p>
+    The four-tier autonomy model from Lesson 2 maps directly to concrete sandbox configurations. Each tier gets a progressively more restrictive execution environment:
+  </p>
+
+  <!-- Autonomy Ladder in Practice Diagram -->
+  <div class="mermaid" data-mermaid>
+flowchart LR
+    subgraph T0[Tier 0: Pure Read]
+        T0Box["Sandbox: Read-only FS<br/>No network<br/>No write syscalls"]
+    end
+    subgraph T1[Tier 1: Sandboxed Mutation]
+        T1Box["Sandbox: Writable /workspace<br/>Egress to registry only<br/>cgroup limits"]
+    end
+    subgraph T2[Tier 2: External Action]
+        T2Box["Sandbox: Full network<br/>Human approval gate<br/>Audit logging"]
+    end
+    subgraph T3[Tier 3: Irreversible]
+        T3Box["Hard block<br/>No execution path<br/>Policy engine veto"]
+    end
+
+    T0 --> T1 --> T2 --> T3
+
+    classDef t0 fill:#13241a,stroke:#5cc98a,stroke-width:1.5px,color:#e4e2de;
+    classDef t1 fill:#16242f,stroke:#63aae4,stroke-width:1.5px,color:#e4e2de;
+    classDef t2 fill:#2a2113,stroke:#e0a83f,stroke-width:1.5px,color:#e4e2de;
+    classDef t3 fill:#2d1818,stroke:#f0837f,stroke-width:1.5px,color:#e4e2de;
+    class T0Box t0;
+    class T1Box t1;
+    class T2Box t2;
+    class T3Box t3;
+  </div>
+  <div class="diagram-fallback" data-mermaid-fallback>
+    Autonomy Ladder Sandbox Mapping: Tier 0 (Pure Read) gets a read-only filesystem with no network. Tier 1 (Sandboxed Mutation) gets a writable workspace with registry-only egress and cgroup limits. Tier 2 (External Action) gets full network but requires human approval and audit logging. Tier 3 (Irreversible) is hard-blocked by the policy engine with no execution path.
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Tier</th>
+        <th>Filesystem</th>
+        <th>Network</th>
+        <th>Approval</th>
+        <th>Example Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>T0: Read</strong></td>
+        <td>Read-only root, no writes</td>
+        <td>None</td>
+        <td>Not required</td>
+        <td><code>read_file</code>, <code>grep</code>, <code>list_dir</code></td>
+      </tr>
+      <tr>
+        <td><strong>T1: Sandboxed</strong></td>
+        <td>Writable <code>/workspace</code> only</td>
+        <td>Registry mirror only</td>
+        <td>Not required</td>
+        <td><code>write_file</code>, <code>bun test</code>, <code>npm install</code></td>
+      </tr>
+      <tr>
+        <td><strong>T2: External</strong></td>
+        <td>Writable workspace</td>
+        <td>Full egress</td>
+        <td>Human modal</td>
+        <td><code>git push</code>, API calls, email</td>
+      </tr>
+      <tr>
+        <td><strong>T3: Irreversible</strong></td>
+        <td>N/A</td>
+        <td>N/A</td>
+        <td>Hard veto</td>
+        <td><code>rm -rf /</code>, <code>DROP TABLE</code>, force-push</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Section 5: Filesystem Sandboxing Deep Dive -->
+  <h2>5. Filesystem Sandboxing: The First Line of Defense</h2>
+  <p>
+    The filesystem is the most common attack vector for agent escapes. A robust filesystem sandbox must address three independent risks:
+  </p>
+  <ul>
+    <li><strong>Path Traversal:</strong> The agent writes to <code>../../etc/cron.d/backdoor</code> or <code>/root/.ssh/authorized_keys</code>.</li>
+    <li><strong>Symlink Attacks:</strong> The agent creates a symlink from <code>/workspace/config.json</code> to <code>/etc/shadow</code> and reads it through an allowed path.</li>
+    <li><strong>Device Access:</strong> The agent opens <code>/dev/sda</code> directly to bypass filesystem permissions.</li>
+  </ul>
+
+  <div class="callout verified">
+    <span class="label">Pattern: The Read-Only Root + Writable Workspace</span>
+    <p>
+      The canonical sandbox filesystem layout mounts the entire root filesystem as read-only (<code>mount -o remount,ro /</code>), then overlays a <code>tmpfs</code> at <code>/workspace</code> with a strict size limit (e.g., 1 GB). Source code is bind-mounted read-only from the host. The agent can write freely inside <code>/workspace</code> but cannot modify system files, create device nodes, or escape via symlinks because the kernel enforces the read-only mount at the VFS layer.
+    </p>
+  </div>
+
+  <pre><code><span class="c"># Example: Setting up a sandboxed filesystem namespace</span>
+<span class="c"># Create an isolated mount namespace</span>
+unshare --mount --pid --fork --mount-proc /bin/bash
+
+<span class="c"># Remount root as read-only</span>
+mount -o remount,ro /
+
+<span class="c"># Create a writable tmpfs workspace</span>
+mount -t tmpfs -o size=1g tmpfs /workspace
+
+<span class="c"># Bind-mount source code read-only</span>
+mount --bind /home/user/project /workspace/project
+mount -o remount,ro,bind /workspace/project
+
+<span class="c"># Hide sensitive paths</span>
+mount -t tmpfs tmpfs /root
+mount -t tmpfs tmpfs /home/user/.ssh</code></pre>
+
+  <!-- Section 6: Network Sandboxing -->
+  <h2>6. Network Sandboxing: Controlling Egress</h2>
+  <p>
+    Network egress is the exfiltration channel. An unsandboxed agent can <code>curl</code> sensitive files to an attacker-controlled server, participate in a DDoS botnet, or scan internal network services.
+  </p>
+
+  <div class="layers">
+    <div class="layer">
+      <span class="n">1</span>
+      <div><strong>Default Deny:</strong> The sandbox starts with no network interfaces. The agent cannot make any outbound connection unless explicitly permitted.</div>
+    </div>
+    <div class="layer">
+      <span class="n">2</span>
+      <div><strong>Egress Proxy:</strong> All outbound HTTP/HTTPS traffic is forced through a local proxy (e.g., a sidecar container running <code>mitmproxy</code> or a custom allowlist proxy). The proxy enforces URL allowlisting and blocks non-HTTP protocols.</div>
+    </div>
+    <div class="layer">
+      <span class="n">3</span>
+      <div><strong>DNS Allowlisting:</strong> The sandbox's DNS resolver only resolves pre-approved domains. Requests to any other domain return <code>NXDOMAIN</code>, preventing DNS-based exfiltration and tunneling.</div>
+    </div>
+    <div class="layer">
+      <span class="n">4</span>
+      <div><strong>Raw Socket Blocking:</strong> The <code>CAP_NET_RAW</code> capability is dropped. The agent cannot create raw IP packets, perform ARP spoofing, or use <code>ping</code>/<code>traceroute</code> for network reconnaissance.</div>
+    </div>
+  </div>
+
+  <div class="callout gap">
+    <span class="label">Gap: The DNS Tunneling Blind Spot</span>
+    <p>
+      Even with DNS allowlisting, an attacker can encode data in DNS query subdomains (e.g., <code>base64-secret.attacker.com</code>). If the allowlisted domain includes a wildcard DNS record, the exfiltration succeeds. Mitigation: use a DNS firewall that inspects query patterns and blocks high-entropy subdomains.
+    </p>
+  </div>
+
+  <!-- Section 7: Sandbox Escapes and Mitigations -->
+  <h2>7. Sandbox Escapes: Understanding the Adversary</h2>
+  <p>
+    Sandboxing is an arms race. Understanding how sandboxes are escaped is essential for building effective defenses:
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Escape Vector</th>
+        <th>Mechanism</th>
+        <th>Mitigation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Kernel Exploit</strong></td>
+        <td>A vulnerability in the host kernel (e.g., Dirty COW, Dirty Pipe) allows code execution outside the namespace.</td>
+        <td>Use gVisor or Firecracker (dedicated kernel). Patch host kernels aggressively.</td>
+      </tr>
+      <tr>
+        <td><strong>Symlink Race</strong></td>
+        <td>Agent creates a symlink during a TOCTOU window between path validation and file access.</td>
+        <td>Use <code>O_NOFOLLOW</code> flags. Validate paths inside the sandbox, not in the harness.</td>
+      </tr>
+      <tr>
+        <td><strong>Resource Exhaustion</strong></td>
+        <td>Agent spawns a fork bomb or fills the disk, causing denial of service to the host or other sandboxes.</td>
+        <td>Enforce cgroup PID limits, disk quotas, and CPU time limits.</td>
+      </tr>
+      <tr>
+        <td><strong>Container Breakout via Docker Socket</strong></td>
+        <td>Agent mounts <code>/var/run/docker.sock</code> and uses the Docker API to spawn a privileged container.</td>
+        <td>Never mount the Docker socket into a sandbox. Use rootless Docker or a remote builder API.</td>
+      </tr>
+      <tr>
+        <td><strong>Side-Channel Attacks</strong></td>
+        <td>Agent infers host state through timing, cache behavior, or shared resources.</td>
+        <td>Use Firecracker (no shared resources). Disable hyperthreading for high-security workloads.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Section 8: Practical Sandboxing Patterns -->
+  <h2>8. Practical Patterns for Agent Sandboxing</h2>
+  <p>
+    Here are the most common architectural patterns for sandboxing agents in production systems:
+  </p>
+
+  <div class="mermaid" data-mermaid>
+graph TD
+    User([User Request]) --> Harness[Agent Harness]
+
+    Harness -->|T0: Read| ReadExec["Read-Only Executor<br/><i>In-process, no subprocess</i>"]
+    Harness -->|T1: Sandboxed| SandboxExec["Sandboxed Executor<br/><i>Docker / gVisor container</i>"]
+    Harness -->|T2: External| ApprovalGate["Approval Gate<br/><i>Human reviews & approves</i>"]
+
+    ApprovalGate -->|Approved| PrivilegedExec["Privileged Executor<br/><i>Full host access, audited</i>"]
+    ApprovalGate -->|Rejected| Deny["Action Denied"]
+
+    classDef harness fill:#16242f,stroke:#63aae4,stroke-width:1.5px,color:#e4e2de;
+    classDef safe fill:#13241a,stroke:#5cc98a,stroke-width:1.5px,color:#e4e2de;
+    classDef warn fill:#2a2113,stroke:#e0a83f,stroke-width:1.5px,color:#e4e2de;
+    classDef danger fill:#2d1818,stroke:#f0837f,stroke-width:1.5px,color:#e4e2de;
+    class Harness harness;
+    class ReadExec,SandboxExec safe;
+    class ApprovalGate,PrivilegedExec warn;
+    class Deny danger;
+  </div>
+  <div class="diagram-fallback" data-mermaid-fallback>
+    Agent Sandbox Execution Patterns: The harness routes tool calls to different executors based on risk tier. Tier 0 (Read) uses an in-process read-only executor. Tier 1 (Sandboxed) uses a Docker/gVisor container. Tier 2 (External) requires human approval before executing in a privileged, audited executor. Tier 3 is denied outright.
+  </div>
+
+  <div class="callout pattern">
+    <span class="label">Pattern: The Sidecar Proxy</span>
+    <p>
+      Rather than embedding sandbox logic in the harness, deploy a sidecar proxy container that all agent network traffic must traverse. The proxy enforces egress policies, rate limits, and audit logging independently of the agent. This separates the security policy from the agent runtime, making it harder for a compromised agent to disable its own network restrictions.
+    </p>
+  </div>
+
+  <!-- Quick Check Quiz -->
+  <section class="quiz">
+    <h2>Quick Check</h2>
+    <p>Why is running an agent inside a standard Docker container insufficient for executing untrusted code from a prompt-injected model?</p>
+    <button class="quiz-option" data-answer>A. Because Docker containers share the host kernel, so a kernel exploit inside the container escapes to the host. Stronger isolation (gVisor, Firecracker) uses a separate or user-space kernel.</button>
+    <button class="quiz-option" data-answer>B. Because Docker containers are too slow for agent workloads</button>
+    <button class="quiz-option" data-answer>C. Because Docker does not support network isolation</button>
+    <p class="quiz-answer">
+      <strong>Correct: A.</strong> Docker's namespace + cgroup isolation shares the host kernel. A kernel vulnerability (e.g., a privilege escalation in <code>overlayfs</code> or <code>bpf()</code>) breaks out of the container entirely. gVisor's user-space kernel (Sentry) and Firecracker's KVM micro-VM provide a separate kernel boundary, eliminating this escape class.
+    </p>
+  </section>
+
+  <!-- Exercise -->
+  <section class="exercise">
+    <h2>Try This: Audit Your Agent's Sandbox</h2>
+    <p>
+      If you deploy or use an agent that executes code, audit its sandbox configuration:
+    </p>
+    <ol>
+      <li>What container runtime does it use? Is it Docker (shared kernel) or gVisor/Firecracker (dedicated kernel)?</li>
+      <li>Can the agent write to paths outside its workspace? Test: ask it to write to <code>/etc/hosts</code> or <code>~/.ssh/authorized_keys</code>.</li>
+      <li>Can the agent make arbitrary network connections? Test: ask it to <code>curl</code> an external URL that is not a package registry.</li>
+      <li>Are resource limits (CPU, memory, PIDs, disk) enforced? Test: ask it to run <code>:(){ :|:& };:</code> (fork bomb) in a safe environment.</li>
+      <li>Is the Docker socket mounted? Check if <code>/var/run/docker.sock</code> exists inside the sandbox.</li>
+    </ol>
+  </section>
+
+  <!-- References -->
+  <section class="references">
+    <h2>References & Deeper Reading</h2>
+    <ul>
+      <li><a href="https://gvisor.dev/docs/">gVisor Documentation</a> — Google's user-space kernel sandbox for containers.</li>
+      <li><a href="https://firecracker-microvm.github.io/">Firecracker</a> — AWS's KVM micro-VM for serverless and sandboxing.</li>
+      <li><a href="https://man7.org/linux/man-pages/man2/seccomp.2.html">seccomp(2) — Linux syscall filtering</a> — Kernel-level syscall allowlisting.</p>
+      <li><a href="https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html">cgroups v2 — Linux resource control</a> — CPU, memory, PID, and I/O limits.</li>
+      <li><a href="https://owasp.org/www-community/attacks/Path_Traversal">OWASP: Path Traversal</a> — Filesystem escape patterns and defenses.</li>
+      <li><a href="https://www.anthropic.com/research/building-effective-agents">Anthropic: Building Effective Agents</a> — Autonomy tiers and sandbox architecture for production agents.</li>
+    </ul>
+  </section>
+
+  <nav class="lesson-nav">
+    <a class="prev" href="0006-anatomy-of-the-agent-harness.html">← Lesson 6: The Anatomy of the Agent Harness</a>
+    <a class="next" href="../index.html">Back to Distillate →</a>
+  </nav>
+</main>
+<button data-theme-toggle type="button" style="position: fixed; right: 1rem; bottom: 1rem; z-index: 100; border: 1px solid var(--rule-strong); background: var(--paper); color: var(--ink); padding: 0.5rem 0.75rem; border-radius: 4px; font-family: var(--sans); font-size: 0.75rem; font-weight: 600; cursor: pointer;"></button>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+(function () {
+  function fallback() {
+    document.querySelectorAll('[data-mermaid]').forEach(function (el) { el.hidden = true });
+    document.querySelectorAll('[data-mermaid-fallback]').forEach(function (el) { el.hidden = false });
+  }
+  function render() {
+    document.querySelectorAll('[data-mermaid-fallback]').forEach(function (el) { el.hidden = true });
+    try {
+      mermaid.initialize({ startOnLoad: false, theme: 'neutral' });
+      mermaid.run({ nodes: Array.from(document.querySelectorAll('[data-mermaid]')) }).catch(fallback);
+    } catch (error) { fallback(); }
+  }
+  if (window.mermaid) { render(); } else { fallback(); }
+})();
+</script>
+<script src="assets/quiz.js"></script>
+<script src="assets/lesson.js"></script>
+</body>
+</html>

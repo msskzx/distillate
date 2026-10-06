@@ -49,6 +49,13 @@ window.TICKET_CRAFTER_CURRICULUM = [
         title: "The Anatomy of the Agent Harness",
         architecture: "Current",
         blurb: "Runtime FSM, context compaction, tool interception, idempotency, and error recovery."
+      },
+      {
+        id: "0007",
+        file: "lessons/0007-sandboxing.html",
+        title: "Sandboxing: Isolation Boundaries for Agent Execution",
+        architecture: "Current",
+        blurb: "Filesystem isolation, network restrictions, resource limits, syscall filtering, and container runtime comparisons."
       }
     ]
   }
