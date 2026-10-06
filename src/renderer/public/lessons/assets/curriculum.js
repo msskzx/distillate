@@ -21,6 +21,13 @@ window.TICKET_CRAFTER_CURRICULUM = [
         title: "Inside the Agent Harness",
         architecture: "Current",
         blurb: "ReAct loops, skills packaging, subagent isolation, sandboxes, and MCP tools."
+      },
+      {
+        id: "0003",
+        file: "lessons/0003-the-frontier-pause-wars.html",
+        title: "The Frontier Pause Wars",
+        architecture: "Current",
+        blurb: "Corporate drama, safety pledges, commercial moats, and the battle over open weights."
       }
     ]
   }
