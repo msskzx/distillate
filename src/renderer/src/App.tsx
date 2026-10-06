@@ -8,8 +8,9 @@ import { StatusBadge } from './components/StatusBadge'
 import { DropdownMenu } from './components/DropdownMenu'
 import { SelectMenu } from './components/SelectMenu'
 import { mutedScrollbarsClass } from './scrollbar'
+import { LessonsView } from './components/LessonsView'
 
-type View = 'queue' | 'reviewed'
+type View = 'queue' | 'reviewed' | 'lessons'
 
 type Draft = {
   title: string
@@ -296,11 +297,10 @@ export function App() {
           <img src="./icon.png" alt="" aria-hidden="true" className="size-10 rounded-xl shadow-lg shadow-black/30" />
           <div>
             <h1 className="text-lg font-bold tracking-tight">Distillate</h1>
-            <p className="text-xs text-zinc-500">Solved challenges, ready when you are.</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-        <nav aria-label="Card views" className="flex rounded-lg border border-zinc-800 bg-zinc-900 p-1">
+            <nav aria-label="Distillate views" className="flex rounded-lg border border-zinc-800 bg-zinc-900 p-1">
           <button
             type="button"
             onClick={() => setView('queue')}
@@ -319,12 +319,19 @@ export function App() {
           >
             <Archive size={15} /> Distilled
           </button>
+          <button
+            type="button"
+            onClick={() => setView('lessons')}
+            className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${view === 'lessons' ? 'bg-cyan-300 text-slate-950' : 'text-zinc-400 hover:text-white'}`}
+          >
+            Learn
+          </button>
         </nav>
         <DropdownMenu
           label="Settings"
           icon={<Settings size={15} />}
           items={[{
-            label: <span className="text-xs">Launch at startup</span>,
+            label: 'Launch at startup',
             icon: <Power size={15} />,
             checked: launchAtStartup,
             disabled: savingPreference,
@@ -335,7 +342,7 @@ export function App() {
         </div>
       </header>
 
-      <section className="grid min-h-0 grid-cols-[360px_minmax(0,1fr)]">
+      {view === 'lessons' ? <LessonsView /> : <section className="grid min-h-0 grid-cols-[360px_minmax(0,1fr)]">
         <aside className="grid min-h-0 grid-rows-[auto_1fr_auto] border-r border-zinc-800 bg-zinc-950">
           <div className="grid gap-3 border-b border-zinc-800 p-4">
             <label className="relative">
@@ -615,7 +622,7 @@ export function App() {
             </div>
           )}
         </article>
-      </section>
+      </section>}
     </main>
   )
 }
