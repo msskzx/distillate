@@ -28,6 +28,13 @@ window.TICKET_CRAFTER_CURRICULUM = [
         title: "The Frontier Pause Wars",
         architecture: "Current",
         blurb: "Corporate drama, safety pledges, commercial moats, and the battle over open weights."
+      },
+      {
+        id: "0004",
+        file: "lessons/0004-ai-security-incidents.html",
+        title: "AI Security Incidents & Supply Chains",
+        architecture: "Current",
+        blurb: "Hugging Face breaches, pickle code execution, malicious weights, and Safetensors."
       }
     ]
   }
