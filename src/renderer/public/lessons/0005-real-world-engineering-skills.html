@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 5: Real-World Engineering Skills — From Unslop to Architecture Refactoring</title>
+  <link rel="stylesheet" href="assets/lesson.css">
+  <script src="assets/theme.js"></script>
+  <script src="assets/curriculum.js"></script>
+  <script src="assets/sidebar.js"></script>
+</head>
+<body>
+<nav class="sidebar" id="sidebar-nav" data-sidebar aria-label="Lessons"></nav>
+<button type="button" class="sb-toggle" data-sidebar-toggle aria-expanded="false" aria-controls="sidebar-nav">Lessons</button>
+<main class="lesson-shell">
+  <p class="eyebrow">Agent Workflows · Production Skills</p>
+  <h1>Real-World Engineering Skills: From Unslop to Deep Architecture Refactoring</h1>
+
+  <div class="banner">
+    <strong>Core Insight:</strong> Prompts tell an AI what you wish it would do. Skills give an agent an explicit state machine, operational invariants, stable vocabulary, and a deterministic definition of done.
+  </div>
+
+  <p>
+    In Lesson 1 and Lesson 2, we introduced the concept of skills: reusable, version-controlled markdown packages that shape how agents think and act. But what does a battle-tested production skill look like in practice?
+  </p>
+  <p>
+    This lesson dissects the most influential open-source agent skills in modern software engineering—from style-purging filters like Cursor's <code>unslop</code> to Matt Pocock's masterclass engineering suite: <code>grill-with-docs</code>, <code>to-spec</code>, <code>to-tickets</code>, <code>improve-codebase-architecture</code>, and <code>codebase-design</code>.
+  </p>
+
+  <!-- Section 1: The Spectrum of Skills -->
+  <h2>1. The Anatomy of Real-World Skills</h2>
+  <p>
+    Real-world skills fall along a spectrum ranging from <strong>Constraint Filters</strong> (deterministic style/tone enforcement) to <strong>Cognitive Interviewers</strong> (extracting implicit design decisions) to <strong>Architectural Engines</strong> (analyzing module depth and connascence).
+  </p>
+
+  <div class="layers">
+    <div class="layer">
+      <span class="n">Type 1</span>
+      <div>
+        <strong>Deterministic Filters (e.g. <code>unslop</code>):</strong>
+        Applies zero-shot structural rules to strip out LLM hallucinations, chatbot sycophancy, superficial phrasing, and telltale prose patterns.
+      </div>
+    </div>
+    <div class="layer">
+      <span class="n">Type 2</span>
+      <div>
+        <strong>Interactive Interviewers (e.g. <code>grill-with-docs</code>):</strong>
+        Relentlessly probes user assumptions along a dependency decision tree before writing a single line of production code.
+      </div>
+    </div>
+    <div class="layer">
+      <span class="n">Type 3</span>
+      <div>
+        <strong>State Synthesizers (e.g. <code>to-spec</code>, <code>to-tickets</code>):</strong>
+        Compresses messy multi-turn conversations into durable decision records and single-context tracer-bullet tickets.
+      </div>
+    </div>
+    <div class="layer">
+      <span class="n">Type 4</span>
+      <div>
+        <strong>Architectural Examiners (e.g. <code>codebase-design</code>, <code>improve-codebase-architecture</code>):</strong>
+        Applies foundational computer science principles (Parnas information hiding, John Ousterhout deep modules, connascence coupling) to inspect code.
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Case Study 1 - unslop -->
+  <h2>2. Case Study: <code>unslop</code> (Cursor Plugin Stack)</h2>
+  <p>
+    Created for the Cursor editor plugin ecosystem, <a href="https://github.com/cursor/plugins/blob/main/pstack/skills/unslop/SKILL.md"><code>unslop</code></a> is designed to eradicate "AI tells" from documentation, code comments, and technical summaries.
+  </p>
+  <p>
+    Notice how <code>unslop</code> rejects vague advice like <em>"write naturally"</em>. Instead, it provides a numbered catalog of specific syntactic violations:
+  </p>
+
+  <div class="layers">
+    <div class="layer">
+      <span class="n">Rule 3</span>
+      <div><strong>Superficial <code>-ing</code> phrases:</strong> Ban <em>"highlighting..."</em>, <em>"ensuring..."</em>, <em>"fostering..."</em>, <em>"showcasing..."</em>. Delete or expand with concrete evidence.</div>
+    </div>
+    <div class="layer">
+      <span class="n">Rule 7</span>
+      <div><strong>AI Vocabulary:</strong> Purge <em>crucial, delve, enduring, enhance, interplay, intricate, landscape (abstract), pivotal, tapestry, testament, vibrant</em>. Replace with simple nouns and verbs.</div>
+    </div>
+    <div class="layer">
+      <span class="n">Rule 8</span>
+      <div><strong>Fancy ways to say "is":</strong> Replace <em>"serves as"</em>, <em>"stands as"</em>, <em>"boasts"</em> with direct <em>"is"</em> or <em>"has"</em>.</div>
+    </div>
+    <div class="layer">
+      <span class="n">Rule 22</span>
+      <div><strong>Sycophantic Chatbot Tone:</strong> Strip out <em>"Great question! You're absolutely right!"</em>, <em>"I hope this helps!"</em>. Respond directly with the data.</div>
+    </div>
+  </div>
+
+  <div class="callout pattern">
+    <span class="label">Why Stable Rule IDs Matter</span>
+    <p>
+      In <code>unslop</code>, each pattern has a stable numeric ID (e.g., Rule 7, Rule 13). When code reviewers or other skills audit an agent's output, they cite the specific rule number (<em>"Violates unslop Rule 7: remove 'delve'"</em>) rather than arguing subjective writing preferences.
+    </p>
+  </div>
+
+  <!-- Section 3: The Engineering Pipeline -->
+  <h2>3. The Specification Pipeline: <code>grill-with-docs</code> $\to$ <code>to-spec</code> $\to$ <code>to-tickets</code></h2>
+  <p>
+    Matt Pocock’s engineering suite illustrates how multiple skills link together to form an end-to-end software development lifecycle for autonomous agents.
+  </p>
+
+  <!-- Mermaid Workflow Diagram -->
+  <div class="mermaid" data-mermaid>
+flowchart TD
+    Idea([Vague Feature Idea / User Request]) --> Grill["grill-with-docs<br/><i>Relentless Socratic Interview</i>"]
+
+    Grill -->|Updates in Real-Time| Docs[("ADRs & GLOSSARY.md<br/><i>Decisions & Domain Terms</i>")]
+    Grill -->|All Prerequisites Satisfied| Spec["to-spec<br/><i>Synthesizes Thread into Spec</i>"]
+
+    Spec -->|Formal Single Spec File| Tickets["to-tickets<br/><i>Vertical Tracer-Bullet Slices</i>"]
+
+    Tickets --> Ticket1["Ticket 1 (Schema + API + UI slice)"]
+    Tickets --> Ticket2["Ticket 2 (Edges + Tests slice)"]
+
+    classDef proc fill:#16242f,stroke:#63aae4,stroke-width:1.5px,color:#e4e2de;
+    classDef store fill:#2a2113,stroke:#e0a83f,stroke-width:1.5px,color:#e4e2de;
+    classDef out fill:#13241a,stroke:#5cc98a,stroke-width:1.5px,color:#e4e2de;
+    class Grill,Spec,Tickets proc;
+    class Docs store;
+    class Ticket1,Ticket2 out;
+  </div>
+  <div class="diagram-fallback" data-mermaid-fallback>
+    The Matt Pocock Workflow: Vague Idea → grill-with-docs interviews user and generates ADRs and GLOSSARY.md → to-spec synthesizes the final decisions into a specification issue → to-tickets decomposes the spec into vertical tracer-bullet slices sized for single context windows.
+  </div>
+
+  <h3>A. <code>grill-with-docs</code>: The Active Interviewer</h3>
+  <p>
+    Most developers make the mistake of asking an LLM to immediately generate code. <code>grill-with-docs</code> forbids immediate implementation.
+  </p>
+  <ul>
+    <li>It traverses a <strong>decision tree</strong>: only asking questions whose prerequisites have already been answered.</li>
+    <li>It produces tangible collateral as it goes: drafting <code>ADR-001.md</code> (Architecture Decision Records) and appending definitions to <code>GLOSSARY.md</code>.</li>
+  </ul>
+
+  <h3>B. <code>to-spec</code>: Capturing the Cleared Path</h3>
+  <p>
+    When a task spans multiple agent sessions, conversation history explodes. <code>to-spec</code> halts discovery and creates a frozen specification:
+  </p>
+  <ul>
+    <li>It does not ask new questions; it synthesizes existing consensus.</li>
+    <li>It produces a self-contained specification that a brand-new agent session with zero memory can execute with full fidelity.</li>
+  </ul>
+
+  <h3>C. <code>to-tickets</code>: Vertical Slices over Horizontal Layers</h3>
+  <p>
+    Horizontal slicing (e.g. "Ticket 1: write all schemas", "Ticket 2: write all endpoints", "Ticket 3: write all frontend") is an AI anti-pattern: nothing works until the very end, and error states accumulate silently.
+  </p>
+  <ul>
+    <li><strong>Tracer Bullets:</strong> <code>to-tickets</code> enforces vertical slices. Each ticket delivers a complete end-to-end path (Schema + Route + UI + Test) for a single capability.</li>
+    <li><strong>Context-Sized:</strong> Every ticket is explicitly scoped to be completable inside a single fresh context window.</li>
+  </ul>
+
+  <!-- Section 4: Architectural Skills -->
+  <h2>4. Architectural Skills: <code>codebase-design</code> & <code>improve-codebase-architecture</code></h2>
+  <p>
+    The most advanced skills don't just format text; they encode rigorous software engineering theory into the agent's analytical lens.
+  </p>
+
+  <h3><code>codebase-design</code>: Deep Modules & Information Hiding</h3>
+  <p>
+    Based on John Ousterhout’s <em>A Philosophy of Software Design</em> and David Parnas’s classic paper on modularization, this skill arms the agent with an unambiguous design rubric:
+  </p>
+
+  <!-- Deep vs Shallow Module Diagram -->
+  <div class="mermaid" data-mermaid>
+flowchart LR
+    subgraph Shallow[Shallow Module Anti-Pattern]
+        SInterface["Large Interface (20 exposed methods, complex flags)"]
+        SImpl["Thin Implementation (Barely does any work)"]
+        SInterface --- SImpl
+    end
+
+    subgraph Deep[Deep Module Best Practice]
+        DInterface["Small Interface (1 simple method call)"]
+        DImpl["Massive Implementation (Hides state, retries, locks, concurrency)"]
+        DInterface === DImpl
+    end
+
+    classDef bad fill:#2d1818,stroke:#f0837f,stroke-width:1.5px,color:#e4e2de;
+    classDef good fill:#13241a,stroke:#5cc98a,stroke-width:1.5px,color:#e4e2de;
+    class SInterface,SImpl bad;
+    class DInterface,DImpl good;
+  </div>
+  <div class="diagram-fallback" data-mermaid-fallback>
+    Deep vs Shallow Modules: A shallow module exposes a large, complex interface with very little hidden implementation. A deep module exposes a small, simple interface while hiding extensive internal implementation complexity.
+  </div>
+
+  <ul>
+    <li><strong>Deep Module:</strong> High leverage. A small, clean interface hiding immense internal complexity, state management, or concurrency.</li>
+    <li><strong>The Seam Rule:</strong> <em>"One adapter is a hypothetical seam. Two adapters make a real seam."</em> Forbids agents from introducing speculative abstractions before a second live consumer exists.</li>
+    <li><strong>The Deletion Test:</strong> Can an entire capability be deleted in a single commit by deleting its module folder without modifying callers across five other domains?</li>
+  </ul>
+
+  <h3><code>improve-codebase-architecture</code>: Hunting Connascence</h3>
+  <p>
+    This skill directs the agent to scan codebases for leaking concerns using <strong>Connascence</strong> (the degree to which a change in one component forces a change in another):
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>Connascence Type</th>
+        <th>What It Means</th>
+        <th>How the Skill Fixes It</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Connascence of Name</strong></td>
+        <td>Modules must agree on symbol names.</td>
+        <td>Acceptable at module boundaries; standard refactor.</td>
+      </tr>
+      <tr>
+        <td><strong>Connascence of Execution</strong></td>
+        <td>Order of operations matters (Function A must be called before Function B).</td>
+        <td>Encapsulate the sequence inside a single deep method so callers cannot get the order wrong.</td>
+      </tr>
+      <tr>
+        <td><strong>Connascence of Algorithm</strong></td>
+        <td>Two modules must share an identical calculation (e.g. hashing, checksums, token encoding).</td>
+        <td>Extract algorithm into one single-purpose module; eliminate duplication.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Quick Check Quiz -->
+  <section class="quiz">
+    <h2>Quick Check</h2>
+    <p>Why does <code>to-tickets</code> recommend breaking plans into vertical "tracer bullet" slices rather than horizontal architectural layers?</p>
+    <button class="quiz-option" data-answer>A. Because horizontal layers take less tokens to explain</button>
+    <button class="quiz-option" data-answer>B. Because vertical slices deliver working end-to-end functionality (schema to UI) sized to fit within a single fresh context window, catching integration failures early</button>
+    <button class="quiz-option" data-answer>C. Because databases should never have schemas</button>
+    <p class="quiz-answer">
+      <strong>Correct: B.</strong> Horizontal slicing leaves verification until the end of the project. Vertical tracer-bullets guarantee that every ticket produces a testable, end-to-end slice that fits inside an agent's context budget.
+    </p>
+  </section>
+
+  <!-- Exercise -->
+  <section class="exercise">
+    <h2>Try This: Author a Production Skill</h2>
+    <p>
+      Pick an unwritten convention in your team's codebase (e.g. how API errors are formatted, how caching keys are constructed, or how database queries are paginated):
+    </p>
+    <ol>
+      <li>Author a <code>SKILL.md</code> with frontmatter (<code>name</code>, <code>description</code>, <code>triggers</code>).</li>
+      <li>Replace vague advice (<em>"write clean code"</em>) with 3 numbered, verifiable invariants.</li>
+      <li>Include an explicit gate condition (e.g., <em>"Require unit test covering cache invalidation before reporting completion"</em>).</li>
+    </ol>
+  </section>
+
+  <!-- References -->
+  <section class="references">
+    <h2>References & Primary Skill Repositories</h2>
+    <ul>
+      <li><a href="https://github.com/cursor/plugins/blob/main/pstack/skills/unslop/SKILL.md">Cursor Plugins: unslop/SKILL.md</a> — The canonical pattern-removal filter for technical prose.</li>
+      <li><a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/grill-with-docs/SKILL.md">Matt Pocock: grill-with-docs/SKILL.md</a> — Socratic design interviews that generate ADRs and domain glossaries.</li>
+      <li><a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/to-spec/SKILL.md">Matt Pocock: to-spec/SKILL.md</a> — Synthesizing multi-turn conversations into frozen specification issues.</li>
+      <li><a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/to-tickets/SKILL.md">Matt Pocock: to-tickets/SKILL.md</a> — Decomposing specs into context-sized vertical tracer-bullet tasks.</li>
+      <li><a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/improve-codebase-architecture/SKILL.md">Matt Pocock: improve-codebase-architecture/SKILL.md</a> — Parnas secrets and Connascence coupling analysis.</li>
+      <li><a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/SKILL.md">Matt Pocock: codebase-design/SKILL.md</a> — Deep module design vocabulary and architectural seams.</li>
+    </ul>
+  </section>
+
+  <nav class="lesson-nav">
+    <a class="prev" href="0004-ai-security-incidents.html">← Lesson 4: AI Security Incidents</a>
+    <a class="next" href="../index.html">Back to Distillate →</a>
+  </nav>
+</main>
+<button data-theme-toggle type="button" style="position: fixed; right: 1rem; bottom: 1rem; z-index: 100; border: 1px solid var(--rule-strong); background: var(--paper); color: var(--ink); padding: 0.5rem 0.75rem; border-radius: 4px; font-family: var(--sans); font-size: 0.75rem; font-weight: 600; cursor: pointer;"></button>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+(function () {
+  function fallback() {
+    document.querySelectorAll('[data-mermaid]').forEach(function (el) { el.hidden = true });
+    document.querySelectorAll('[data-mermaid-fallback]').forEach(function (el) { el.hidden = false });
+  }
+  function render() {
+    document.querySelectorAll('[data-mermaid-fallback]').forEach(function (el) { el.hidden = true });
+    try {
+      mermaid.initialize({ startOnLoad: false, theme: 'neutral' });
+      mermaid.run({ nodes: Array.from(document.querySelectorAll('[data-mermaid]')) }).catch(fallback);
+    } catch (error) { fallback(); }
+  }
+  if (window.mermaid) { render(); } else { fallback(); }
+})();
+</script>
+<script src="assets/quiz.js"></script>
+<script src="assets/lesson.js"></script>
+</body>
+</html>

@@ -35,6 +35,13 @@ window.TICKET_CRAFTER_CURRICULUM = [
         title: "AI Security Incidents & Supply Chains",
         architecture: "Current",
         blurb: "Hugging Face breaches, pickle code execution, malicious weights, and Safetensors."
+      },
+      {
+        id: "0005",
+        file: "lessons/0005-real-world-engineering-skills.html",
+        title: "Real-World Engineering Skills",
+        architecture: "Current",
+        blurb: "Unslop prose filtering, Socratic spec pipelines, and deep architecture refactoring."
       }
     ]
   }
