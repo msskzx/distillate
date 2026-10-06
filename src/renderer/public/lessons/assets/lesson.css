@@ -1,0 +1,843 @@
+/* ==========================================================================
+   Ticket Crafter Architecture — shared lesson stylesheet
+   Built for long-term reference: these files get printed and re-read, not
+   skimmed once. Tufte-ish: measure ~68ch, generous leading, restrained ink.
+
+   THEMING
+   -------
+   Every colour is a token, resolved with light-dark(). The page follows the
+   OS preference by default. assets/theme.js supplies the persistent Auto /
+   Light / Dark control and sets the theme attribute on the root element:
+
+       <html data-theme="dark">     always dark
+       <html data-theme="light">    always light
+
+   Printing is always forced to the light scheme - see the @media print block
+   at the bottom. Never add a raw hex to a rule outside the token block; add a
+   token instead, so both schemes stay in step.
+   ========================================================================== */
+
+:root {
+  color-scheme: light dark;
+
+  /* Surfaces. The dark page is true black (#000) so the reader matches a dark
+     reading environment rather than a tinted grey. Every ink token below is
+     chosen to clear WCAG AA against BOTH this and the light surface. */
+  --paper:        light-dark(#ffffff, #000000);
+  --paper-warm:   light-dark(#fbfaf8, #0a0a0c);
+  --code-bg:      light-dark(#f5f6f8, #121417);
+
+  /* Ink */
+  --ink:          light-dark(#1a1a1a, #e4e2de);
+  --ink-soft:     light-dark(#4a4f57, #a9aeb6);
+  --ink-faint:    light-dark(#676c72, #868c95);
+
+  /* Rules. --rule-strong is the one that must reach 3:1 against --paper:
+     it bounds interactive controls, so it is the edge that identifies them. */
+  --rule:         light-dark(#dcdfe4, #2f343b);
+  --rule-soft:    light-dark(#eceef1, #23272d);
+  --rule-strong:  light-dark(#858c94, #69707a);
+
+  /* Accent */
+  --accent:       light-dark(#1f5f8b, #63aae4);
+  --accent-soft:  light-dark(#e8f0f6, #16242f);
+
+  /* Semantic */
+  --good:         light-dark(#1f6f43, #5cc98a);
+  --good-soft:    light-dark(#e6f2ec, #13241a);
+  --warn:         light-dark(#8a5a00, #e0a83f);
+  --warn-soft:    light-dark(#fbf1de, #2a2113);
+  --bad:          light-dark(#9b2226, #f0837f);
+  --bad-soft:     light-dark(#fbeaea, #2d1818);
+
+  /* Code syntax */
+  --code-ink:     light-dark(#2b3138, #cdd3da);
+  --syn-comment:  light-dark(#666b71, #8a939d);
+  --syn-keyword:  light-dark(#8250df, #d2a8ff);
+  --syn-string:   light-dark(#0a3069, #a5d6ff);
+  --syn-func:     light-dark(#0550ae, #79c0ff);
+
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --sans:  ui-sans-serif, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono:  ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+/* Distillate's merged lesson keeps its original HTML while using Ticket Crafter's reading system. */
+.lesson-shell { max-width: 46rem; margin: 0 auto; padding: 3.5rem 1.75rem 7.5rem; }
+.lesson-shell > * { max-width: 68ch; }
+.lesson-shell .back { display: inline-block; margin-bottom: 2.5rem; font-family: var(--sans); border-bottom: 0; }
+.lesson-shell .banner { margin: 1.6rem 0; padding: 1.05rem 1.25rem; border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 4px; background: var(--accent-soft); font-family: var(--sans); font-size: .96rem; }
+.lesson-shell .banner strong { color: var(--accent); }
+.lesson-shell .quiz, .lesson-shell .exercise, .lesson-shell .references { margin: 2.25rem 0; padding: 1.35rem 1.4rem 1.2rem; border: 1px solid var(--rule); border-radius: 6px; background: var(--paper-warm); font-family: var(--sans); }
+.lesson-shell .quiz h2, .lesson-shell .exercise h2, .lesson-shell .references h2 { margin: 0 0 1rem; padding: 0; border: 0; font-size: 1.05rem; }
+.lesson-shell .quiz-option { display: block; width: 100%; margin: .5rem 0 0; padding: .62rem .85rem; border: 1px solid var(--rule-strong); border-radius: 4px; background: var(--paper); color: var(--ink); font: .9rem/1.45 var(--sans); text-align: left; cursor: pointer; }
+.lesson-shell .quiz-answer { display: none; margin-top: .85rem; padding: .8rem .95rem; border-left: 3px solid var(--good); background: var(--good-soft); font-size: .875rem; }
+.lesson-shell .quiz-answer.visible { display: block; }
+.lesson-shell .lesson-nav { max-width: none; }
+@media (max-width: 620px) { .lesson-shell { padding: 2.5rem 1rem 5rem; } }
+
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"]  { color-scheme: dark; }
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1.62;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---------- Layout -------------------------------------------------------
+
+   Default: single column, centred. Once sidebar.js runs it adds
+   .has-sidebar to <html>, which reserves a left column. The lesson stays
+   readable with no JS and no sidebar — the grid is opt-in. */
+
+/* Page-specific controls (theme toggle, sidebar toggle) are fixed to the
+   viewport, so reserve clearance at both ends of the document. Tailwind or
+   plain CSS positions the control; this guarantees neither ever covers the
+   lesson header or the trailing nav. */
+.lesson {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 3.5rem 1.75rem 7.5rem;
+}
+
+@media (max-width: 620px) {
+  .lesson { padding-top: 4.25rem; }
+}
+
+/* ---------- Sidebar ------------------------------------------------------
+   Left column, sticky, own scroll. Collapses to a drawer below 60rem.
+   Hidden entirely in print and when no manifest is present. */
+
+.sidebar {
+  display: none;
+}
+
+html.has-sidebar .sidebar {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 40;
+  width: 17.5rem;
+  height: 100vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1.5rem 1.15rem 2rem;
+  background: var(--paper-warm);
+  border-right: 1px solid var(--rule);
+  font-family: var(--sans);
+}
+
+/* The sidebar is position:fixed, so it takes no flow space. Reserve the
+   column with padding on <body> instead of a margin on .lesson: padding
+   shrinks the containing block, so .lesson's own `margin: 0 auto` still
+   centres it inside the remaining width. A margin would pin it to the
+   sidebar edge instead, which is what this is correcting. */
+html.has-sidebar body { padding-left: 17.5rem; }
+
+/* Below the drawer breakpoint the sidebar is out of flow, so drop the
+   reservation entirely. */
+@media (max-width: 60rem) {
+  html.has-sidebar body { padding-left: 0; }
+}
+
+/* ---- Collapsed ---------------------------------------------------------
+   Hiding the pane must release the reservation AND return the lesson to the
+   full viewport centre, not leave it stranded in a sidebar-sized column.
+   Both states are explicit so neither is a side effect of the other. */
+
+html.sidebar-hidden .sidebar { display: none; }
+html.sidebar-hidden body { padding-left: 0; }
+
+/* With the pane gone the show control is the only entry point, so surface it
+   on wide screens. When the pane IS visible the in-column hide button is the
+   control, and a floating button would just sit over the content. */
+@media (min-width: 60.001rem) {
+  html.has-sidebar.sidebar-hidden .sb-toggle { display: block; }
+}
+
+/* Header block: brand, tagline, and the hide control. */
+.sb-head {
+  position: relative;
+  margin-bottom: 1.4rem;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.sb-brand {
+  display: block;
+  padding-right: 2.75rem;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-decoration: none;
+  margin-bottom: .3rem;
+  border: 0;
+}
+.sb-brand:hover { color: var(--accent); }
+
+.sb-tagline {
+  font-size: .74rem;
+  line-height: 1.45;
+  color: var(--ink-faint);
+  margin: 0;
+}
+
+.sb-close {
+  position: absolute;
+  top: -.3rem;
+  right: -.25rem;
+  display: flex;
+  align-items: center;
+  gap: .25rem;
+  font-family: var(--sans);
+  font-size: .72rem;
+  line-height: 1;
+  color: var(--ink-faint);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  padding: .28rem .42rem;
+  cursor: pointer;
+}
+.sb-close:hover {
+  color: var(--ink);
+  border-color: var(--rule-strong);
+  background: var(--paper);
+}
+.sb-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sb-close[hidden] { display: none; }
+
+.sb-close [aria-hidden="true"] { font-size: .95rem; line-height: 1; }
+.sb-close-text { letter-spacing: .02em; }
+
+.sb-group { margin-bottom: 1.5rem; }
+.sb-group:last-child { margin-bottom: 0; }
+
+.sb-group-name {
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 0 0 .5rem;
+}
+
+.sb-list { list-style: none; margin: 0; padding: 0; }
+
+.sb-item {
+  margin: 0 0 .2rem;
+  padding: .5rem .6rem .55rem;
+  border-radius: 5px;
+  border-left: 2px solid transparent;
+}
+
+.sb-item a,
+.sb-item > span[aria-disabled] {
+  display: grid;
+  grid-template-columns: 1.9rem 1fr;
+  align-items: baseline;
+  gap: 0 .35rem;
+  text-decoration: none;
+  border: 0;
+  color: var(--ink-soft);
+}
+.sb-item a:hover { color: var(--ink); }
+
+.sb-id {
+  font-family: var(--mono);
+  font-size: .7rem;
+  color: var(--ink-faint);
+}
+
+.sb-title {
+  font-size: .855rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.sb-blurb {
+  display: block;
+  margin-top: .2rem;
+  padding-left: 2.25rem;
+  font-size: .745rem;
+  line-height: 1.45;
+  color: var(--ink-faint);
+}
+
+.sb-item.is-current {
+  background: var(--accent-soft);
+  border-left-color: var(--accent);
+}
+.sb-item.is-current .sb-title,
+.sb-item.is-current a { color: var(--ink); }
+.sb-item.is-current .sb-id { color: var(--accent); }
+
+.sb-item.is-planned { opacity: .5; }
+.sb-item.is-planned .sb-title { font-weight: 500; font-style: italic; }
+
+/* Drawer toggle: visible only on narrow screens. */
+.sb-toggle {
+  display: none;
+  position: fixed;
+  top: .9rem;
+  left: .9rem;
+  z-index: 60;
+  font-family: var(--sans);
+  font-size: .78rem;
+  color: var(--ink-soft);
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-radius: 6px;
+  padding: .38rem .7rem;
+  cursor: pointer;
+}
+.sb-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (max-width: 60rem) {
+  html.has-sidebar .lesson { margin-left: 0; }
+  html.has-sidebar .sidebar {
+    transform: translateX(-100%);
+    transition: transform .18s ease;
+    box-shadow: none;
+  }
+  html.sidebar-open .sidebar {
+    transform: translateX(0);
+    box-shadow: 0 0 0 100vmax rgb(0 0 0 / .32);
+  }
+  html.has-sidebar .sb-toggle { display: block; }
+  /* Escape closes the drawer without changing the stored preference. */
+  html.has-sidebar.sb-ready:not(.sidebar-open) .sb-close { display: none; }
+}
+
+/* Scrim click-to-close for the drawer. */
+@media (min-width: 60.001rem) {
+  html.has-sidebar .sb-scrim { display: none; }
+}
+
+.lesson > * { max-width: 68ch; }
+
+.lesson > .wide,
+pre,
+.mermaid,
+table,
+.lesson-nav { max-width: none; }
+
+/* ---------- Typography --------------------------------------------------- */
+
+h1, h2, h3, h4 {
+  font-family: var(--sans);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.011em;
+  color: var(--ink);
+}
+
+h1 {
+  font-size: 2.05rem;
+  margin: 0 0 .5rem;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: 1.42rem;
+  margin: 3.25rem 0 .85rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--rule-soft);
+}
+
+h3 {
+  font-size: 1.09rem;
+  margin: 2rem 0 .6rem;
+  color: var(--ink-soft);
+}
+
+h4 {
+  font-size: .95rem;
+  margin: 1.5rem 0 .45rem;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--ink-faint);
+}
+
+p { margin: 0 0 1.05rem; }
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 32%, transparent);
+}
+a:hover { border-bottom-color: var(--accent); }
+
+ul, ol { margin: 0 0 1.05rem; padding-left: 1.4rem; }
+li { margin: .3rem 0; }
+li > ul, li > ol { margin: .3rem 0 .5rem; }
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 2.75rem 0;
+}
+
+strong { font-weight: 700; }
+em { font-style: italic; }
+
+small, .small { font-size: .84rem; color: var(--ink-faint); }
+
+code {
+  font-family: var(--mono);
+  font-size: .845em;
+  background: var(--code-bg);
+  padding: .12em .38em;
+  border-radius: 3px;
+  color: var(--code-ink);
+  word-break: break-word;
+}
+
+pre {
+  font-family: var(--mono);
+  font-size: .8rem;
+  line-height: 1.55;
+  background: var(--code-bg);
+  border: 1px solid var(--rule-soft);
+  border-left: 3px solid var(--rule);
+  border-radius: 4px;
+  padding: 1rem 1.15rem;
+  overflow-x: auto;
+  margin: 1.35rem 0;
+  color: var(--code-ink);
+}
+pre code { background: none; padding: 0; font-size: 1em; }
+
+/* Syntax highlighting for <pre> blocks. Opt in per span:
+     <span class="c">comment</span>
+     <span class="k">keyword</span>
+     <span class="s">string</span>
+     <span class="f">function name</span>                        */
+pre .c { color: var(--syn-comment); font-style: italic; }
+pre .k { color: var(--syn-keyword); }
+pre .s { color: var(--syn-string); }
+pre .f { color: var(--syn-func); }
+
+kbd {
+  font-family: var(--mono);
+  font-size: .78em;
+  border: 1px solid var(--rule-strong);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  padding: .1em .4em;
+  background: var(--paper);
+}
+
+/* ---------- Lesson header ------------------------------------------------ */
+
+.eyebrow {
+  font-family: var(--sans);
+  font-size: .74rem;
+  font-weight: 600;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 0 0 .7rem;
+}
+
+.standfirst {
+  font-size: 1.16rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  margin: 0 0 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.standfirst em { color: var(--ink); font-style: italic; }
+
+.architecture-snapshot {
+  margin: 0 0 1rem;
+  padding: .65rem .8rem;
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  font-size: .86rem;
+}
+
+.architecture-snapshot strong { color: var(--ink); }
+.architecture-snapshot.historical { border-left-color: var(--warn); background: var(--warn-soft); }
+.architecture-snapshot.current { border-left-color: var(--good); background: var(--good-soft); }
+/* Mixed = part of the lesson still matches the code, part has since moved.
+   Deliberately the most prominent of the three: read the note, don't skip it. */
+.architecture-snapshot.mixed   { border-left-color: var(--bad);  background: var(--bad-soft); }
+
+.sb-snapshot {
+  display: block;
+  margin: .25rem 0 0 2rem;
+  color: var(--ink-faint);
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+/* ---------- Callouts ----------------------------------------------------- */
+
+.callout {
+  margin: 1.6rem 0;
+  padding: 1.05rem 1.25rem;
+  border-radius: 4px;
+  border-left: 3px solid var(--rule);
+  background: var(--paper-warm);
+  font-size: .96rem;
+}
+.callout > :last-child { margin-bottom: 0; }
+.callout p:first-child { margin-top: 0; }
+
+.callout .label {
+  display: block;
+  font-family: var(--sans);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-bottom: .45rem;
+  color: var(--ink-faint);
+}
+
+.callout.drift   { border-left-color: var(--bad);  background: var(--bad-soft); }
+.callout.drift   .label { color: var(--bad); }
+.callout.gap     { border-left-color: var(--warn); background: var(--warn-soft); }
+.callout.gap     .label { color: var(--warn); }
+.callout.pattern { border-left-color: var(--accent); background: var(--accent-soft); }
+.callout.pattern .label { color: var(--accent); }
+.callout.verified{ border-left-color: var(--good); background: var(--good-soft); }
+.callout.verified .label { color: var(--good); }
+
+/* ---------- Tables ------------------------------------------------------- */
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.5rem 0;
+  font-family: var(--sans);
+  font-size: .855rem;
+  line-height: 1.5;
+}
+
+th {
+  text-align: left;
+  font-weight: 600;
+  font-size: .72rem;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  padding: 0 .85rem .5rem 0;
+  border-bottom: 1.5px solid var(--rule);
+  vertical-align: bottom;
+}
+
+td {
+  padding: .62rem .85rem .62rem 0;
+  border-bottom: 1px solid var(--rule-soft);
+  vertical-align: top;
+}
+
+td code, th code { background: none; padding: 0; font-size: .95em; }
+tr:last-child td { border-bottom: 0; }
+
+td.num { font-family: var(--mono); font-size: .82rem; color: var(--ink-faint); white-space: nowrap; }
+
+/* ---------- Diagrams ----------------------------------------------------- */
+
+.mermaid {
+  margin: 1.75rem 0;
+  text-align: center;
+}
+
+.mermaid svg { max-width: 100%; height: auto; }
+
+/* Fallback for a diagram that has not been rendered. */
+.diagram-fallback {
+  border: 1px dashed var(--rule);
+  border-radius: 4px;
+  padding: 1.25rem 1.4rem;
+  background: var(--paper-warm);
+  font-family: var(--sans);
+  font-size: .88rem;
+  color: var(--ink-soft);
+}
+
+/* Layer strip: a horizontal stack used to show system layers. */
+.layers {
+  margin: 1.75rem 0;
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  overflow: hidden;
+  font-family: var(--sans);
+}
+.layer {
+  display: flex;
+  align-items: baseline;
+  gap: .9rem;
+  padding: .8rem 1.05rem;
+  border-bottom: 1px solid var(--rule-soft);
+  background: var(--paper);
+}
+.layer:last-child { border-bottom: 0; }
+.layer .n {
+  font-family: var(--mono);
+  font-size: .74rem;
+  color: var(--ink-faint);
+  flex: 0 0 auto;
+  width: 1.1rem;
+}
+.layer .name {
+  font-weight: 600;
+  font-size: .9rem;
+  flex: 0 0 11.5rem;
+}
+.layer .desc { font-size: .865rem; color: var(--ink-soft); }
+@media (max-width: 620px) {
+  .layer { flex-direction: column; gap: .25rem; }
+  .layer .name { flex: none; }
+}
+
+/* ---------- Quiz --------------------------------------------------------- */
+
+.quiz {
+  margin: 2.25rem 0;
+  padding: 1.35rem 1.4rem 1.2rem;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--paper-warm);
+  font-family: var(--sans);
+}
+
+.quiz > .q {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.45;
+  margin: 0 0 1rem;
+  padding: 0;
+}
+.quiz > .q::before {
+  content: "Check yourself";
+  display: block;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: .5rem;
+}
+
+.quiz .options { display: flex; flex-direction: column; gap: .5rem; }
+
+.quiz button.opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  font-size: .9rem;
+  line-height: 1.45;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-radius: 4px;
+  padding: .62rem .85rem;
+  cursor: pointer;
+  transition: border-color .12s, background .12s;
+}
+.quiz button.opt:hover:not(:disabled) { border-color: var(--ink-soft); }
+.quiz button.opt:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.quiz button.opt:disabled { cursor: default; }
+.quiz button.opt.correct { border-color: var(--good); background: var(--good-soft); }
+.quiz button.opt.wrong   { border-color: var(--bad);  background: var(--bad-soft); }
+
+.quiz .feedback {
+  margin-top: .85rem;
+  padding: .8rem .95rem;
+  border-radius: 4px;
+  font-size: .875rem;
+  line-height: 1.5;
+  display: none;
+  border-left: 3px solid var(--rule);
+  background: var(--paper);
+}
+.quiz .feedback.show { display: block; }
+.quiz .feedback.ok  { border-left-color: var(--good); }
+.quiz .feedback.no  { border-left-color: var(--bad); }
+.quiz .feedback b { display: block; margin-bottom: .2rem; }
+.quiz .feedback.ok b  { color: var(--good); }
+.quiz .feedback.no b  { color: var(--bad); }
+.quiz .feedback p:last-child { margin-bottom: 0; }
+
+/* ---------- Reveal (self-check answers) ---------------------------------- */
+
+details.reveal {
+  margin: 1.1rem 0;
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  background: var(--paper);
+  font-family: var(--sans);
+  font-size: .93rem;
+}
+details.reveal > summary {
+  cursor: pointer;
+  padding: .62rem .95rem;
+  font-weight: 600;
+  font-size: .86rem;
+  color: var(--ink-soft);
+  list-style: none;
+  user-select: none;
+}
+details.reveal > summary::-webkit-details-marker { display: none; }
+details.reveal > summary::before {
+  content: "\25B8";
+  display: inline-block;
+  width: 1em;
+  color: var(--ink-faint);
+  transition: transform .12s;
+}
+details.reveal[open] > summary::before { transform: rotate(90deg); }
+details.reveal[open] > summary { border-bottom: 1px solid var(--rule-soft); }
+details.reveal > .body { padding: .95rem 1.05rem 1.05rem; }
+details.reveal > .body > :last-child { margin-bottom: 0; }
+
+/* ---------- File / citation links ---------------------------------------- */
+
+.ref {
+  margin: 2.75rem 0 0;
+  padding: 1.05rem 1.2rem;
+  border: 1px solid var(--rule-soft);
+  border-radius: 5px;
+  background: var(--paper-warm);
+  font-family: var(--sans);
+  font-size: .875rem;
+  line-height: 1.55;
+}
+.ref .label {
+  display: block;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: .45rem;
+}
+.ref ul { margin: 0; padding-left: 1.1rem; }
+.ref li { margin: .28rem 0; }
+
+/* ---------- Ask box ------------------------------------------------------ */
+
+.ask {
+  margin: 2.25rem 0 0;
+  padding: 1.1rem 1.25rem;
+  border: 1px dashed var(--rule);
+  border-radius: 5px;
+  font-family: var(--sans);
+  font-size: .9rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+.ask strong { color: var(--ink); }
+
+/* ---------- Lesson nav --------------------------------------------------- */
+
+.lesson-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 3.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--rule);
+  font-family: var(--sans);
+  font-size: .85rem;
+}
+.lesson-nav a { border-bottom: none; }
+.lesson-nav .next { margin-left: auto; text-align: right; }
+.lesson-nav .prev, .lesson-nav .next { flex: 0 1 auto; }
+.lesson-nav .placeholder { color: var(--ink-faint); }
+
+/* ---------- Motion & forced colours -------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .callout, .quiz, .ref, .ask, .layers, details.reveal {
+    border: 1px solid CanvasText;
+  }
+  .quiz button.opt.correct { outline: 2px solid Highlight; }
+  .quiz button.opt.wrong   { outline: 2px solid LinkText; }
+}
+
+/* ---------- Print -------------------------------------------------------- */
+
+@page { margin: 18mm 16mm; }
+
+@media print {
+  /* Always print the light scheme, even when reading in dark. */
+  :root {
+    color-scheme: light;
+    --paper:        #ffffff;
+    --paper-warm:   #fbfaf8;
+    --code-bg:      #f5f6f8;
+    --ink:          #1a1a1a;
+    --ink-soft:     #4a4f57;
+    --ink-faint:    #676c72;
+    --rule:         #dcdfe4;
+    --rule-soft:    #eceef1;
+    --rule-strong:  #858c94;
+    --accent:       #1f5f8b;
+    --accent-soft:  #e8f0f6;
+    --good:         #1f6f43;
+    --good-soft:    #e6f2ec;
+    --warn:         #8a5a00;
+    --warn-soft:    #fbf1de;
+    --bad:          #9b2226;
+    --bad-soft:     #fbeaea;
+    --code-ink:     #2b3138;
+    --syn-comment:  #666b71;
+    --syn-keyword:  #8250df;
+    --syn-string:   #0a3069;
+    --syn-func:     #0550ae;
+  }
+
+  body { font-size: 11pt; line-height: 1.5; background: #fff; }
+  .lesson { max-width: none; padding: 0; margin-left: 0; }
+  /* Navigation chrome is screen furniture; a printed lesson should be the
+     lesson only. */
+  .sidebar, .sb-toggle, .sb-close, .ask, .lesson-nav, .theme-toggle { display: none !important; }
+  h2 { page-break-after: avoid; border-top: 0; margin-top: 1.5rem; }
+  h3 { page-break-after: avoid; }
+  pre, table, .callout, .quiz, .layers, .diagram-fallback { page-break-inside: avoid; }
+  .quiz button.opt { background: #fff; }
+  .quiz .feedback { display: block !important; border: 1px solid #ccc; }
+  details.reveal > .body { display: block; }
+  a { color: inherit; border-bottom: 0; }
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: .82em;
+    color: #777;
+    word-break: break-all;
+  }
+}

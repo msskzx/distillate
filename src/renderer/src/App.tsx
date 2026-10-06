@@ -8,9 +8,8 @@ import { StatusBadge } from './components/StatusBadge'
 import { DropdownMenu } from './components/DropdownMenu'
 import { SelectMenu } from './components/SelectMenu'
 import { mutedScrollbarsClass } from './scrollbar'
-import { LessonsView } from './components/LessonsView'
 
-type View = 'queue' | 'reviewed' | 'lessons'
+type View = 'queue' | 'reviewed'
 
 type Draft = {
   title: string
@@ -319,13 +318,6 @@ export function App() {
           >
             <Archive size={15} /> Distilled
           </button>
-          <button
-            type="button"
-            onClick={() => setView('lessons')}
-            className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${view === 'lessons' ? 'bg-cyan-300 text-slate-950' : 'text-zinc-400 hover:text-white'}`}
-          >
-            Learn
-          </button>
         </nav>
         <DropdownMenu
           label="Settings"
@@ -342,7 +334,7 @@ export function App() {
         </div>
       </header>
 
-      {view === 'lessons' ? <LessonsView /> : <section className="grid min-h-0 grid-cols-[360px_minmax(0,1fr)]">
+      <section className="grid min-h-0 grid-cols-[360px_minmax(0,1fr)]">
         <aside className="grid min-h-0 grid-rows-[auto_1fr_auto] border-r border-zinc-800 bg-zinc-950">
           <div className="grid gap-3 border-b border-zinc-800 p-4">
             <label className="relative">
@@ -622,7 +614,7 @@ export function App() {
             </div>
           )}
         </article>
-      </section>}
+      </section>
     </main>
   )
 }
