@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Distillate Lessons — AI Agent Architecture & Practice</title>
+  <link rel="stylesheet" href="lessons/assets/lesson.css">
+  <script src="lessons/assets/theme.js"></script>
+  <script src="lessons/assets/curriculum.js"></script>
+  <script src="lessons/assets/sidebar.js"></script>
+</head>
+<body>
+<nav class="sidebar" id="sidebar-nav" data-sidebar aria-label="Lessons"></nav>
+<button type="button" class="sb-toggle" data-sidebar-toggle aria-expanded="false" aria-controls="sidebar-nav">Lessons</button>
+<main class="lesson-shell">
+  <p class="eyebrow">Distillate · Engineering Knowledge</p>
+  <h1>Distillate Lessons</h1>
+
+  <div class="banner">
+    <strong>Curriculum:</strong> Practical, high-leverage mental models for building, running, and reviewing AI agent loops in production.
+  </div>
+
+  <p>
+    Distillate captures verified engineering challenges and reusable patterns solved during agentic pair programming. These lessons unpack the architectural realities of autonomous workflows:
+  </p>
+
+  <div class="layers">
+    <div class="layer">
+      <span class="n">01</span>
+      <div>
+        <a href="lessons/0001-agents-are-action-loops.html"><strong>Lesson 1: Practical Lessons for Using Agents Well</strong></a>
+        <p style="margin: .25rem 0 0; font-size: .9rem; color: var(--ink-soft);">
+          Understand when a task requires an agent action loop versus a static prompt, managing context budgets, and packaging reusable skills.
+        </p>
+      </div>
+    </div>
+    <div class="layer">
+      <span class="n">02</span>
+      <div>
+        <a href="lessons/0002-inside-the-agent-harness.html"><strong>Lesson 2: Inside the Agent Harness</strong></a>
+        <p style="margin: .25rem 0 0; font-size: .9rem; color: var(--ink-soft);">
+          How the ReAct execution harness runs internally, skills architecture, MCP tools & resources, subagent concurrency, and graduated autonomy sandboxes.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <nav class="lesson-nav" style="margin-top: 3rem;">
+    <span>Distillate Learning Curriculum</span>
+  </nav>
+</main>
+
+<button data-theme-toggle type="button" class="fixed right-4 bottom-4 z-10 print:hidden rounded border border-[var(--rule-strong)] bg-[var(--paper)] px-3 py-2 font-sans text-xs font-semibold text-[var(--ink)] shadow-sm hover:bg-[var(--paper-warm)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]" style="position: fixed; right: 1rem; bottom: 1rem; z-index: 100; border: 1px solid var(--rule-strong); background: var(--paper); color: var(--ink); padding: 0.5rem 0.75rem; border-radius: 4px; font-family: var(--sans); font-size: 0.75rem; font-weight: 600; cursor: pointer;"></button>
+</body>
+</html>

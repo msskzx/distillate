@@ -1,0 +1,27 @@
+/* ==========================================================================
+   Distillate Lessons — curriculum manifest
+   The single ordered list of artifacts. The sidebar is generated from this,
+   so adding a lesson means adding one entry here.
+   ========================================================================== */
+
+window.TICKET_CRAFTER_CURRICULUM = [
+  {
+    group: "AI Agent Lessons",
+    items: [
+      {
+        id: "0001",
+        file: "lessons/0001-agents-are-action-loops.html",
+        title: "Practical Lessons for Using Agents Well",
+        architecture: "Current",
+        blurb: "Understand when a task needs an agent loop, context budgets, and repeatable skills."
+      },
+      {
+        id: "0002",
+        file: "lessons/0002-inside-the-agent-harness.html",
+        title: "Inside the Agent Harness",
+        architecture: "Current",
+        blurb: "ReAct loops, skills packaging, subagent isolation, sandboxes, and MCP tools."
+      }
+    ]
+  }
+];

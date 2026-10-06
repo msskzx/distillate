@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson 2: Inside the Agent Harness — Runtime, Skills, Subagents & MCP</title>
+  <link rel="stylesheet" href="assets/lesson.css">
+  <script src="assets/theme.js"></script>
+  <script src="assets/curriculum.js"></script>
+  <script src="assets/sidebar.js"></script>
+</head>
+<body>
+<nav class="sidebar" id="sidebar-nav" data-sidebar aria-label="Lessons"></nav>
+<button type="button" class="sb-toggle" data-sidebar-toggle aria-expanded="false" aria-controls="sidebar-nav">Lessons</button>
+<main class="lesson-shell">
+  <p class="eyebrow">AI Agents · Architecture & Runtime</p>
+  <h1>Inside the Agent Harness: Loops, Skills, Subagents & MCP</h1>
+
+  <div class="banner">
+    <strong>Core Mental Model:</strong> An agent is not magic autonomous consciousness—it is a deterministic execution harness running a language model inside an observation-reasoning-action loop, augmented by structured context injection, graduated tool boundaries, and process isolation.
+  </div>
+
+  <p>
+    In Lesson 1, we established that agents are goal-driven action loops rather than single-shot prompt completions or fixed pipelines. In this lesson, we dissect the internal machinery: what actually happens step-by-step inside the agent harness, how instructions turn into capabilities via skills, how work is divided across subagent boundaries, and how standard protocols like MCP decouple agent runtimes from tools and world state.
+  </p>
+
+  <!-- Section 1: The Agent Harness -->
+  <h2>1. The Anatomy of an Agent Harness</h2>
+  <p>
+    The <em>harness</em> (or agent runtime / loop orchestrator) is the outer software environment enclosing the foundation model. The foundation model never directly executes system commands, opens sockets, or manipulates disk files. Instead, the harness operates a state machine known as the <strong>ReAct (Reason + Act) loop</strong>:
+  </p>
+
+  <!-- Harness Diagram -->
+  <div class="mermaid" data-mermaid>
+graph TD
+    User([User Prompt / Task]) --> CA[Context Assembly<br/><i>System + History + Skills + Tools</i>]
+    CA --> LLM[LLM Inference<br/><i>Generates Thought & Tool Calls</i>]
+    LLM --> Check{Tool Call Emitted?}
+    Check -- Yes --> Gate[Policy & Sandbox Gate<br/><i>Permissions, Validation, Approval</i>]
+    Gate --> Exec[Tool Execution<br/><i>Local shell, File system, MCP server</i>]
+    Exec --> Obs[Observation Injection<br/><i>Tool Result appended to Context</i>]
+    Obs --> LLM
+    Check -- No / Finished --> Stop([Final Response to User])
+
+    classDef proc fill:#121417,stroke:#63aae4,stroke-width:1.5px,color:#e4e2de;
+    classDef gate fill:#2a2113,stroke:#e0a83f,stroke-width:1.5px,color:#e4e2de;
+    classDef term fill:#13241a,stroke:#5cc98a,stroke-width:1.5px,color:#e4e2de;
+    class CA,LLM,Exec,Obs proc;
+    class Check,Gate gate;
+    class User,Stop term;
+  </div>
+  <div class="diagram-fallback" data-mermaid-fallback>
+    The ReAct Loop: Context Assembly (System + Active Skills + History + Tool Definitions) → LLM Inference → Decision Gate (Does model emit a tool call?) → If tool call: Harness validates policy/sandboxing → Tool executes → Tool output/observation appended to history → Model infers again until completion.
+  </div>
+
+  <div class="layers">
+    <div class="layer">
+      <span class="n">01</span>
+      <div><strong>Context Assembly:</strong> Compiles system prompt, agent identity, active skills, user input, conversation history, and tool declarations into an LLM context payload.</div>
+    </div>
+    <div class="layer">
+      <span class="n">02</span>
+      <div><strong>Inference & Tool Selection:</strong> The model generates structured text and/or function call requests (tool calls with strongly-typed arguments).</div>
+    </div>
+    <div class="layer">
+      <span class="n">03</span>
+      <div><strong>Harness Validation & Policy Gate:</strong> The harness inspects the proposed tool call, checks permissions, sandboxing policies, and user approval thresholds.</div>
+    </div>
+    <div class="layer">
+      <span class="n">04</span>
+      <div><strong>Tool Execution:</strong> The harness or external service invokes the actual tool (filesystem write, terminal process, API fetch) and captures stdout/stderr/return values.</div>
+    </div>
+    <div class="layer">
+      <span class="n">05</span>
+      <div><strong>Observation Injection:</strong> Tool output is appended to the message history as a tool response message. The harness loops back to step 2 until a stop condition is reached.</div>
+    </div>
+  </div>
+
+  <p>
+    When an agent "thinks" or plans, it simply alternates between token generation and environmental feedback. The intelligence emerges entirely from the loop's ability to ingest feedback from failed tool calls and self-correct.
+  </p>
+
+  <!-- Section 2: Skills -->
+  <h2>2. Skills: Dynamic Capability Packaging</h2>
+  <p>
+    A raw prompt asking an agent to "write good database migrations" produces inconsistent results across sessions. A <strong>Skill</strong> transforms vague instructions into an executable, repeatable operating procedure.
+  </p>
+  <p>
+    Under the hood, skills are standardized packages (typically a <code>SKILL.md</code> accompanied by helper scripts, reference templates, and schemas) loaded into context on demand:
+  </p>
+  <ul>
+    <li><strong>Manifest & Triggers:</strong> Frontmatter metadata specifies when and why the skill should activate (e.g., regex patterns, task domains, explicit slash commands).</li>
+    <li><strong>Progressive Context Loading:</strong> Instead of loading 50,000 tokens of documentation on every request, the harness provides a lightweight skill index. The agent only reads full skill instructions when relevant.</li>
+    <li><strong>Guardrails & Stop Conditions:</strong> High quality skills define explicit preconditions, verification steps, and human gates (e.g., "Always run <code>bun test</code> before submitting", "Require human approval before deleting rows").</li>
+  </ul>
+
+  <!-- The Blackmail Skill Section -->
+  <h2>The "Blackmail Skill" & Voodoo Prompting Anti-Pattern</h2>
+  <p>
+    In the early days of prompt engineering, users and tutorials resorted to desperate emotional leverage to prevent models from taking shortcuts:
+  </p>
+  <ul>
+    <li><em>"You are a 25-year Principal Senior Software Architect with an IQ of 180."</em></li>
+    <li><em>"Make no mistakes. Double check everything."</em></li>
+    <li><em>"I will tip you $200 if you solve this."</em></li>
+    <li><em>"A human life is at stake. People will die if your code has bugs."</em></li>
+  </ul>
+
+  <div class="callout drift">
+    <span class="label">The Anti-Pattern: Voodoo Emotional Coercion</span>
+    <p>
+      Begging or emotionally blackmailing an LLM is a symptom of an <strong>absent harness and missing verification loop</strong>. An LLM has no nervous system, no fear of mortality, and no bank account. Telling a model <em>"make no mistakes"</em> does not give it a compiler, a linter, or test coverage.
+    </p>
+  </div>
+
+  <p>
+    In a well-engineered agent harness, superstitious prompts are replaced with <strong>structural verification</strong>:
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>Voodoo Prompt (Wishful Thinking)</th>
+        <th>Engineering Equivalent (Harness & Skill)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>"Make no mistakes."</code></td>
+        <td>Mandatory verification step: run <code>bun test</code> or typechecker tool before returning.</td>
+      </tr>
+      <tr>
+        <td><code>"You are a senior developer."</code></td>
+        <td>Skill with explicit architecture standards, lint rules, and error-handling constraints.</td>
+      </tr>
+      <tr>
+        <td><code>"People will die if you fail."</code></td>
+        <td>Deterministic gating: sandboxed execution + human-in-the-loop approval before commit/push.</td>
+      </tr>
+      <tr>
+        <td><code>"I will tip you $200."</code></td>
+        <td>Self-reflection loop: require the agent to generate and verify a checklist against the actual diff.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Section 3: MCP -->
+  <h2>3. MCP (Model Context Protocol): Standardizing Tool Ecosystems</h2>
+  <p>
+    Before MCP, every AI platform invented its own proprietary tool-calling schema and plugin format. If an application wanted to expose a database, a code repository, or a review queue to Claude, OpenAI, or local agents, developers had to write bespoke wrappers for each.
+  </p>
+  <p>
+    <strong>MCP (Model Context Protocol)</strong> is an open specification that standardizes how LLM applications communicate with external tools, prompts, and resources over JSON-RPC (using standard I/O streams or Server-Sent Events):
+  </p>
+
+  <!-- MCP Diagram -->
+  <div class="mermaid" data-mermaid>
+flowchart LR
+    subgraph Host[Host / Agent Harness]
+        Client[MCP Client]
+        LLM[LLM Agent Loop]
+    end
+
+    subgraph Protocol[Model Context Protocol / JSON-RPC]
+        Transport[STDIO / HTTP-SSE]
+    end
+
+    subgraph Servers[Decoupled MCP Servers]
+        DistillateServer[Distillate MCP Server<br/><i>capture_card, lessons</i>]
+        DBSQLite[(Local SQLite DB)]
+        GitServer[Filesystem / Git MCP]
+    end
+
+    LLM <--> Client
+    Client <--> Transport
+    Transport <--> DistillateServer
+    Transport <--> GitServer
+    DistillateServer <--> DBSQLite
+
+    classDef box fill:#121417,stroke:#63aae4,stroke-width:1.5px,color:#e4e2de;
+    classDef server fill:#16242f,stroke:#1f5f8b,stroke-width:1.5px,color:#e4e2de;
+    classDef db fill:#2a2113,stroke:#e0a83f,stroke-width:1.5px,color:#e4e2de;
+    class Client,LLM,Transport box;
+    class DistillateServer,GitServer server;
+    class DBSQLite db;
+  </div>
+  <div class="diagram-fallback" data-mermaid-fallback>
+    MCP Architecture: Host/Agent Harness contains an MCP Client communicating via JSON-RPC (over STDIO or HTTP-SSE) with isolated MCP Servers. The Distillate MCP Server exposes tools (like capture_card) directly manipulating SQLite, while Git/Filesystem MCP servers expose local system operations.
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Primitive</th>
+        <th>Purpose</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Tools</strong></td>
+        <td>Executable functions that agents can invoke to perform side effects or query systems.</td>
+        <td><code>capture_card</code>, <code>run_command</code>, <code>query_database</code></td>
+      </tr>
+      <tr>
+        <td><strong>Resources</strong></td>
+        <td>Read-only contextual data, documents, or schema files exposed like URIs.</td>
+        <td><code>distillate://cards/recent</code>, <code>file:///logs/app.log</code></td>
+      </tr>
+      <tr>
+        <td><strong>Prompts</strong></td>
+        <td>Pre-configured workflow templates parameterized for common user tasks.</td>
+        <td><code>draft_lesson_from_solution</code>, <code>code_review</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout pattern">
+    <span class="label">Architecture Note</span>
+    <p>
+      In Distillate, the MCP server runs independently over STDIO (<code>bun run mcp</code>). It exposes tools like <code>capture_card</code> backed by Zod schemas, enforcing validation and idempotency at the protocol boundary regardless of which client connects.
+    </p>
+  </div>
+
+  <!-- Section 4: Subagents & Concurrency -->
+  <h2>4. Subagents: Process Isolation & Parallel Work</h2>
+  <p>
+    Single-context agent architectures eventually hit two fundamental walls:
+  </p>
+  <ul>
+    <li><strong>Context Contamination & Window Saturation:</strong> Massive logs, diffs, and intermediate web scraping outputs pollute attention, degrading reasoning on the primary task.</li>
+    <li><strong>Long-running Blocking Operations:</strong> An agent running a 5-minute build or browsing dozens of web pages cannot simultaneously interact with the user or reason about other subproblems.</li>
+  </ul>
+  <p>
+    Modern harnesses resolve this via <strong>Subagents</strong>—hierarchical, decoupled worker instances spawned with their own isolated conversation context, tool subsets, and lifecycles:
+  </p>
+
+  <!-- Subagents Diagram -->
+  <div class="mermaid" data-mermaid>
+graph TD
+    User([User Request]) --> Lead[Lead Orchestrator Agent<br/><i>Maintains Goal, High-Level Plan, User Interaction</i>]
+
+    Lead -->|1. Task: Crawl & Test UI| Sub1[Browser Subagent<br/><i>Tools: DOM, Click, Screenshot</i>]
+    Lead -->|2. Task: Deep Code Search| Sub2[Code Search Subagent<br/><i>Tools: Grep, AST, Ripgrep</i>]
+
+    Sub1 -->|Raw HTML, 20 DOM Actions, Screenshots| Sub1Clean[Context Isolation<br/><i>Noise stays in Subagent</i>]
+    Sub2 -->|1000s of lines scanned across 40 files| Sub2Clean[Context Isolation<br/><i>Noise stays in Subagent</i>]
+
+    Sub1Clean -->|Clean JSON Summary: 'Button verified'| Lead
+    Sub2Clean -->|Clean Summary: 'Found bug in line 42'| Lead
+
+    Lead --> Stop([Synthesized Solution to User])
+
+    classDef lead fill:#16242f,stroke:#63aae4,stroke-width:1.5px,color:#e4e2de;
+    classDef sub fill:#121417,stroke:#858c94,stroke-width:1.5px,color:#e4e2de;
+    classDef clean fill:#13241a,stroke:#5cc98a,stroke-width:1.5px,color:#e4e2de;
+    class Lead lead;
+    class Sub1,Sub2 sub;
+    class Sub1Clean,Sub2Clean clean;
+  </div>
+  <div class="diagram-fallback" data-mermaid-fallback>
+    Subagent Hierarchy: Lead Orchestrator delegates tasks to specialized subagents (Browser Subagent with DOM tools, Code Search Subagent with Grep tools). Heavy noise and logs stay trapped inside the subagent's local context window; only high-signal summary results are returned back to the orchestrator.
+  </div>
+
+  <div class="layers">
+    <div class="layer">
+      <span class="n">Lead</span>
+      <div><strong>Orchestrator Agent:</strong> Maintains user intent, coordinates plan milestones, evaluates outputs, and gates destructive decisions.</div>
+    </div>
+    <div class="layer">
+      <span class="n">Sub 1</span>
+      <div><strong>Browser Subagent:</strong> Equipped with DOM interaction and screenshot tools. Explores a website, extracts structured data, and returns a concise JSON summary to the orchestrator.</div>
+    </div>
+    <div class="layer">
+      <span class="n">Sub 2</span>
+      <div><strong>Research / Code Subagent:</strong> Investigates deep codebase call graphs in a clean context window, returning only exact findings and diff proposals.</div>
+    </div>
+  </div>
+
+  <div class="callout drift">
+    <span class="label">Anti-Pattern: The Phone Tag Trap</span>
+    <p>
+      Subagents without structured handoff schemas waste tokens conversing back and forth in vague natural language. Effective orchestration requires strict contract boundaries: inputs must be concrete briefs, and outputs must be validated structured summaries.
+    </p>
+  </div>
+
+  <!-- Section 5: The Sandbox & Security Boundaries -->
+  <h2>5. Sandboxing & The Autonomy Ladder</h2>
+  <p>
+    The most dangerous design mistake in building agentic systems is granting unconstrained host access without graduated boundaries. Modern production harnesses implement tiered autonomy:
+  </p>
+
+  <!-- Sandboxing Diagram -->
+  <div class="mermaid" data-mermaid>
+flowchart TD
+    Action[Agent Emits Action] --> Eval{Determine Risk Tier}
+
+    Eval -->|Read Only| T0[Tier 0: Pure Read<br/><i>Read files, list dirs, view AST</i>]
+    Eval -->|Workspace Local| T1[Tier 1: Sandboxed Mutation<br/><i>Edit local files, run isolated tests</i>]
+    Eval -->|Outbound / Consequential| T2[Tier 2: External Action<br/><i>Network API, Git push, delete branch</i>]
+    Eval -->|Destructive| T3[Tier 3: Irreversible<br/><i>Format disk, drop DB, wipe repo</i>]
+
+    T0 --> Auto[Auto-Allowed / Silent Execution]
+    T1 --> Auto
+    T2 --> Gate[Human Approval Gate<br/><i>Interactive Modal / Signed Confirmation</i>]
+    Gate -->|Approved| Run[Execute Action]
+    Gate -->|Rejected| Veto[Harness Rejection / Inform Agent]
+    T3 --> HardBlock[Hard Veto / Forbidden by Policy Engine]
+
+    classDef green fill:#13241a,stroke:#5cc98a,stroke-width:1.5px,color:#e4e2de;
+    classDef yellow fill:#2a2113,stroke:#e0a83f,stroke-width:1.5px,color:#e4e2de;
+    classDef red fill:#2d1818,stroke:#f0837f,stroke-width:1.5px,color:#e4e2de;
+    class T0,T1,Auto,Run green;
+    class T2,Gate yellow;
+    class T3,HardBlock,Veto red;
+  </div>
+  <div class="diagram-fallback" data-mermaid-fallback>
+    Autonomy Ladder: Tier 0 (Pure Read) and Tier 1 (Sandboxed Local Mutation) execute automatically without interrupting the user. Tier 2 (Consequential / Outbound) requires an explicit Human Approval Gate. Tier 3 (Irreversible / Destructive) is blocked outright by harness security policies.
+  </div>
+
+  <ul>
+    <li><strong>Pure Read (Tier 0):</strong> Reading files, inspecting ASTs, searching documentation—low risk, typically executed silently.</li>
+    <li><strong>Sandboxed Mutation (Tier 1):</strong> Modifying files within workspace root, running test commands in isolated containers or standard sandboxes without outbound network access.</li>
+    <li><strong>Consequential Actions (Tier 2):</strong> Network calls, git pushes, credential access, external emails—require explicit user confirmation prompts or signed approval tokens.</li>
+    <li><strong>Destructive / Irreversible (Tier 3):</strong> <code>rm -rf</code>, dropping database tables, overwriting master branches—require multi-factor confirmation and hard-coded harness veto rules.</li>
+  </ul>
+
+  <!-- Quick Check Quiz -->
+  <section class="quiz">
+    <h2>Quick Check</h2>
+    <p>Why is writing "A human life is at stake, make no mistakes!" inside a prompt an anti-pattern for reliable agent workflows?</p>
+    <button class="quiz-option" data-answer>A. Because language models have no real-world grounding or emotional feedback loop; reliability requires deterministic tool verification, test suites, and sandboxed gating</button>
+    <button class="quiz-option" data-answer>B. Because threatening an AI violates server terms of service</button>
+    <button class="quiz-option" data-answer>C. Because models work best when not given any instructions at all</button>
+    <p class="quiz-answer">
+      <strong>Correct: A.</strong> Emotional leverage ("blackmail skills") does not produce reliable execution. Rigor comes from the harness: compiler checks, unit test feedback loops, and human-in-the-loop approval gates.
+    </p>
+  </section>
+
+  <!-- Exercise -->
+  <section class="exercise">
+    <h2>Try This</h2>
+    <p>
+      Audit an agent workflow you or your team use today:
+    </p>
+    <ol>
+      <li>Find any prompt phrasing that begs or relies on emotional leverage (e.g. <em>"you are a genius"</em>, <em>"don't make any errors"</em>).</li>
+      <li>Replace each superstitious phrase with an explicit harness invariant: an MCP tool, a test command check, or an autonomy gate.</li>
+      <li>Separate the noisy investigation steps into a subagent handoff brief.</li>
+    </ol>
+  </section>
+
+  <!-- References -->
+  <section class="references">
+    <h2>References & Deeper Reading</h2>
+    <ul>
+      <li><a href="https://modelcontextprotocol.io/specification/2025-06-18">MCP Specification</a> — Architecture for tools, resources, and protocol transports.</li>
+      <li><a href="https://www.anthropic.com/research/building-effective-agents">Anthropic: Building Effective Agents</a> — Workflows, evaluations, and subagent orchestration patterns.</li>
+      <li><a href="https://arxiv.org/abs/2210.03629">ReAct: Synergizing Reasoning and Acting in Language Models</a> — The foundation of tool-augmented agent loops.</li>
+      <li><a href="https://csrc.nist.gov/pubs/ai/100/1/final">NIST Artificial Intelligence Risk Management Framework (AI RMF 1.0)</a> — Principles for governing autonomous model execution.</li>
+    </ul>
+  </section>
+
+  <nav class="lesson-nav">
+    <a class="prev" href="0001-agents-are-action-loops.html">← Lesson 1: Practical lessons for using agents well</a>
+    <a class="next" href="../index.html">Back to Distillate →</a>
+  </nav>
+</main>
+<button data-theme-toggle type="button" style="position: fixed; right: 1rem; bottom: 1rem; z-index: 100; border: 1px solid var(--rule-strong); background: var(--paper); color: var(--ink); padding: 0.5rem 0.75rem; border-radius: 4px; font-family: var(--sans); font-size: 0.75rem; font-weight: 600; cursor: pointer;"></button>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+(function () {
+  function fallback() {
+    document.querySelectorAll('[data-mermaid]').forEach(function (el) { el.hidden = true });
+    document.querySelectorAll('[data-mermaid-fallback]').forEach(function (el) { el.hidden = false });
+  }
+  function render() {
+    document.querySelectorAll('[data-mermaid-fallback]').forEach(function (el) { el.hidden = true });
+    try {
+      mermaid.initialize({ startOnLoad: false, theme: 'neutral' });
+      mermaid.run({ nodes: Array.from(document.querySelectorAll('[data-mermaid]')) }).catch(fallback);
+    } catch (error) { fallback(); }
+  }
+  if (window.mermaid) { render(); } else { fallback(); }
+})();
+</script>
+<script src="assets/lesson.js"></script>
+</body>
+</html>
