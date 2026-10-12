@@ -56,6 +56,12 @@ window.TICKET_CRAFTER_CURRICULUM = [
         title: "Sandboxing: Isolation Boundaries for Agent Execution",
         architecture: "Current",
         blurb: "Filesystem isolation, network restrictions, resource limits, syscall filtering, and container runtime comparisons."
+      },
+      { id: "0008", file: "lessons/0008-world-models.html", title: "World Models: Learning to Simulate Consequences", architecture: "Current", blurb: "Latent states, learned dynamics, imagined rollouts, and planning." },
+      { id: "0009", file: "lessons/0009-latent-dynamics.html", title: "Latent Dynamics: What the Model Must Remember", architecture: "Current", blurb: "Markov state, memory, stochastic latents, and predictive losses." },
+      { id: "0010", file: "lessons/0010-planning-with-world-models.html", title: "Planning with World Models", architecture: "Current", blurb: "Receding-horizon control, tree search, and model exploitation."
+      },
+      { id: "0011", file: "lessons/0011-dream-rsi.html", title: "Dream-RSI: Replay Worlds for Recursive Self-Improvement", architecture: "Current", blurb: "How discovery histories become replay simulators for improving exploration policies."
       }
     ]
   }

@@ -1,0 +1,13 @@
+# Dream-RSI replay worlds
+
+## Learned
+
+Dream-RSI uses a recorded discovery tree as an empirical world: alternative exploration policies can traverse different stored branches and receive already-recorded outcomes without rerunning the expensive agent or evaluator. The improved policy is then deployed online, generating new trees for later replay.
+
+## Key distinction
+
+Unlike Dreamer, which learns a parametric latent dynamics model, Dream-RSI replays a finite realized search space. Its simulator is grounded but cannot predict outcomes outside the recorded tree.
+
+## Open question
+
+How should a system detect when replay-policy improvements are overfitting historical trees and need fresh online exploration?
