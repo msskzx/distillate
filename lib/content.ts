@@ -29,14 +29,20 @@ export type Record = Page & { project: string };
 
 const root = path.join(process.cwd(), "content");
 
-const folders = (dir: string) =>
-  fs
-    .readdirSync(dir, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
-    .sort();
+const lessonFolder = /^(\d{4})-[a-z0-9-]+$/;
+const pageFolder = /^[a-z][a-z-]*$/;
+const recordFile = /^\d{4}-[a-z0-9-]+\.mdx$/;
 
-function check(meta: PageMeta | undefined, where: string, kind: "track" | "page" | "lesson" | "record"): PageMeta {
+export function entries(dir: string, allowedFiles: (name: string) => boolean = () => false) {
+  const folders: string[] = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (entry.isDirectory()) folders.push(entry.name);
+    else if (!allowedFiles(entry.name)) throw new Error(`${path.relative(process.cwd(), dir)}/${entry.name}: unexpected file`);
+  }
+  return folders.sort();
+}
+
+export function check(meta: PageMeta | undefined, where: string, kind: "track" | "page" | "lesson" | "record"): PageMeta {
   const fail = (problem: string) => {
     throw new Error(`${where}: ${problem}`);
   };
@@ -55,17 +61,14 @@ async function loadTrack(slug: string): Promise<Track> {
   const track = (await import(`../content/lessons/${slug}/track.mdx`)) as Module;
   const lessons: Page[] = [];
   const pages: Page[] = [];
-  for (const name of folders(path.join(root, "lessons", slug))) {
-    const mod = (await import(`../content/lessons/${slug}/${name}/index.mdx`)) as Module;
-    const isLesson = /^\d{4}-/.test(name);
+  for (const name of entries(path.join(root, "lessons", slug), (file) => file === "track.mdx")) {
     const where = `content/lessons/${slug}/${name}/index.mdx`;
-    const page = {
-      slug: name,
-      href: `/${slug}/${name}`,
-      meta: check(mod.meta, where, isLesson ? "lesson" : "page"),
-      Content: mod.default,
-    };
-    (isLesson ? lessons : pages).push(page);
+    const numbered = lessonFolder.exec(name);
+    if (!numbered && !pageFolder.test(name)) throw new Error(`${where}: folder must be NNNN-slug or a lowercase page name`);
+    const mod = (await import(`../content/lessons/${slug}/${name}/index.mdx`)) as Module;
+    const meta = check(mod.meta, where, numbered ? "lesson" : "page");
+    if (numbered && meta.number !== Number(numbered[1])) throw new Error(`${where}: meta.number does not match the folder`);
+    (numbered ? lessons : pages).push({ slug: name, href: `/${slug}/${name}`, meta, Content: mod.default });
   }
   lessons.sort((a, b) => a.meta.number! - b.meta.number!);
   return {
@@ -79,17 +82,17 @@ async function loadTrack(slug: string): Promise<Track> {
 }
 
 export async function tracks(): Promise<Track[]> {
-  return Promise.all(folders(path.join(root, "lessons")).map(loadTrack));
+  const slugs = entries(path.join(root, "lessons"));
+  if (slugs.includes("records")) throw new Error("content/lessons/records: a track cannot be named records");
+  return Promise.all(slugs.map(loadTrack));
 }
 
 export async function records(): Promise<Record[]> {
   const all: Record[] = [];
-  for (const project of folders(path.join(root, "records"))) {
-    const files = fs
-      .readdirSync(path.join(root, "records", project))
-      .filter((file) => file.endsWith(".mdx"))
-      .sort();
-    for (const file of files) {
+  for (const project of entries(path.join(root, "records"))) {
+    const dir = path.join(root, "records", project);
+    if (entries(dir, (file) => recordFile.test(file)).length) throw new Error(`content/records/${project}: records cannot be nested`);
+    for (const file of fs.readdirSync(dir).sort()) {
       const slug = file.replace(/\.mdx$/, "");
       const mod = (await import(`../content/records/${project}/${slug}.mdx`)) as Module;
       all.push({

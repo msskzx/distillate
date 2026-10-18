@@ -32,13 +32,15 @@ export function Quiz({
       <p className="mb-4 text-stone-700 dark:text-stone-300">{question}</p>
       <ol className="m-0 list-none space-y-2 p-0">
         {options.map((option, i) => (
-          <li key={option}>
+          <li key={i}>
             <button
               type="button"
               disabled={picked !== undefined}
               onClick={() => setPicked(i)}
               className={`w-full rounded border border-stone-300 px-3 py-2 text-start text-sm hover:border-amber-500 disabled:cursor-default dark:border-stone-700 ${state(i)}`}
             >
+              {picked !== undefined && i === correct && <span aria-label="Correct answer">✓ </span>}
+              {picked !== undefined && i === picked && i !== correct && <span aria-label="Your answer, wrong">✗ </span>}
               {option}
             </button>
           </li>

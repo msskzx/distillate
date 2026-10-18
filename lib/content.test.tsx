@@ -38,7 +38,7 @@ describe("content", () => {
     expect(html).toContain("<table>");
   });
 
-  it.each(pages.map((page) => [page.href, page] as const))("renders %s without page-level styling", (_, page) => {
+  it.each(pages.map((page) => [page.href, page] as const))("renders %s", (_, page) => {
     const html = renderToStaticMarkup(<page.Content components={components} />);
     expect(html.length).toBeGreaterThan(0);
     expect(html).not.toContain("$\\to$");

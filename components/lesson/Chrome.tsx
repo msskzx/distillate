@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 
 export type IndexGroup = { label: string; links: { href: string; label: string }[] };
 
+const wide = 1280;
+
 const button =
   "rounded border border-stone-300 bg-stone-50/90 px-3 py-1.5 text-stone-600 backdrop-blur hover:border-amber-500 hover:text-amber-700 dark:border-stone-700 dark:bg-stone-950/90 dark:text-stone-400 dark:hover:text-amber-400";
 const link =
@@ -35,11 +37,12 @@ export function Chrome({ groups }: { groups: IndexGroup[] }) {
 
   useEffect(() => {
     const stored = recall("lessonIndex");
-    setOpen(stored ? stored === "open" : innerWidth >= 1024);
+    setOpen(innerWidth >= wide && (stored ?? "open") === "open");
     setDark(document.documentElement.classList.contains("dark"));
   }, []);
 
   useEffect(() => {
+    if (innerWidth < wide) setOpen(false);
     setSections(
       [...document.querySelectorAll<HTMLHeadingElement>("main h2[id]")].map((h) => ({
         id: h.id,
