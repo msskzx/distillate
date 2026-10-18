@@ -126,8 +126,8 @@ afterEach(() => {
   container.remove();
 });
 
-function render() {
-  act(() => root.render(<RecordSearch records={records} />));
+function render(graph = false) {
+  act(() => root.render(<RecordSearch records={records} graph={graph} />));
 }
 
 function field<T extends HTMLElement>(label: string): T {
@@ -287,5 +287,44 @@ describe("RecordSearch", () => {
         nav.currentSearch = url.split("?")[1] ?? "";
       });
     }
+  });
+});
+
+
+describe("RecordSearch graph mode", () => {
+  function graphNodes(): HTMLButtonElement[] {
+    return Array.from(container.querySelectorAll("button")).filter((button) =>
+      records.some((record) => `${button.getAttribute("aria-label") ?? ""} ${button.textContent}`.includes(record.title)),
+    );
+  }
+
+  it("retains every graph node while text search reports the matching count", () => {
+    render(true);
+    typeInto(field<HTMLInputElement>("Search records"), "jitters");
+    expect(graphNodes()).toHaveLength(records.length);
+    expect(container.textContent).toContain("1 of 3 records");
+    expect(nav.replace.mock.lastCall![0]).toBe("/records?q=jitters");
+  });
+
+  it.each([
+    ["Filter by topic", "data-sync"],
+    ["Filter by kind", "detour"],
+    ["Filter by outcome", "open"],
+    ["Filter by project", "distillate"],
+  ])("retains all graph nodes when %s narrows the matches", (label, value) => {
+    render(true);
+    changeSelect(field<HTMLSelectElement>(label), value);
+    render(true);
+    expect(graphNodes()).toHaveLength(records.length);
+    expect(container.textContent).toContain("1 of 3 records");
+    const classes = new Set(graphNodes().map((button) => button.className));
+    expect(classes.size).toBeGreaterThan(1);
+  });
+
+  it("reports zero matching records while retaining the entire graph", () => {
+    render(true);
+    typeInto(field<HTMLInputElement>("Search records"), "absent search phrase");
+    expect(container.textContent).toContain("0 of 3 records");
+    expect(graphNodes()).toHaveLength(records.length);
   });
 });

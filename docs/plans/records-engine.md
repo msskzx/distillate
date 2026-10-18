@@ -69,7 +69,7 @@ A controlled list in `content/topics.json`, starting with: `evidence-model`, `so
 
 ### Exclusions
 
-- The discovery-tree view, the manuscript UI and dreaming. They come after there is enough history.
+- The manuscript UI, dreaming and an inferred attempt history. A searchable graph of explicit record relationships is covered by [the record graph plan](records-graph.md).
 - Embedding search. Revisit if text search misses variants that topics should have caught.
 - A write API. Records arrive by PR.
 
