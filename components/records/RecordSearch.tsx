@@ -19,9 +19,7 @@ export function RecordSearch({ records }: { records: IndexedRecord[] }) {
   const pushed = useRef<string[]>([]);
   if (urlQ !== seenQ) {
     setSeenQ(urlQ);
-    const at = pushed.current.indexOf(urlQ);
-    if (at >= 0) pushed.current = pushed.current.slice(at + 1);
-    else {
+    if (!pushed.current.includes(urlQ)) {
       pushed.current = [];
       setQ(urlQ);
     }
@@ -44,7 +42,7 @@ export function RecordSearch({ records }: { records: IndexedRecord[] }) {
       if (value) next.set(key, value);
       else next.delete(key);
     }
-    pushed.current.push(typed);
+    pushed.current = [...pushed.current.slice(-19), typed];
     const search = next.toString();
     router.replace(search ? `${pathname}?${search}` : pathname, { scroll: false });
   };
