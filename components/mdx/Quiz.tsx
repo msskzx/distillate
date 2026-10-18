@@ -21,15 +21,15 @@ export function Quiz({
   const correct = answer - 1;
   const state = (i: number) => {
     if (picked === undefined) return "";
-    if (i === correct) return "border-green-600 bg-green-50 dark:bg-green-950";
-    if (i === picked) return "border-red-600 bg-red-50 dark:bg-red-950";
+    if (i === correct) return "border-green-700 text-green-800 dark:border-green-400 dark:text-green-300";
+    if (i === picked) return "border-red-700 text-red-800 dark:border-red-400 dark:text-red-300";
     return "";
   };
 
   return (
-    <section className="not-prose my-8 rounded border border-stone-300 p-5 dark:border-stone-700 print:hidden">
-      <h3 className="mb-2 mt-0 font-semibold">{title}</h3>
-      <p className="mb-4 text-stone-700 dark:text-stone-300">{question}</p>
+    <section className="not-prose my-8 border-y border-rule py-5 print:hidden">
+      <h3 className="mb-2 mt-0 text-lg font-normal tracking-[0.1em] text-accent [font-variant:all-small-caps]">{title}</h3>
+      <p className="mb-4 mt-0">{question}</p>
       <ol className="m-0 list-none space-y-2 p-0">
         {options.map((option, i) => (
           <li key={i}>
@@ -37,7 +37,7 @@ export function Quiz({
               type="button"
               disabled={picked !== undefined}
               onClick={() => setPicked(i)}
-              className={`w-full rounded border border-stone-300 px-3 py-2 text-start text-sm hover:border-amber-500 disabled:cursor-default dark:border-stone-700 ${state(i)}`}
+              className={`w-full rounded-sm border border-rule bg-transparent px-3 py-2 text-start text-base text-ink hover:border-accent disabled:cursor-default disabled:hover:border-rule ${state(i)}`}
             >
               {picked !== undefined && i === correct && (
                 <>
@@ -57,7 +57,7 @@ export function Quiz({
         ))}
       </ol>
       {picked !== undefined && (
-        <p role="status" className="mt-4 text-sm text-stone-600 dark:text-stone-400">
+        <p role="status" className="mb-0 mt-4 text-base italic text-ink-soft">
           {picked === correct ? right : wrong}
         </p>
       )}

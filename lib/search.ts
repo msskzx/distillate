@@ -48,3 +48,5 @@ export function queryFrom(params: URLSearchParams): Query {
   }
   return query;
 }
+
+export const marks: Record<string, string> = { solved: "✓", failed: "✗", partial: "◐", open: "○" };

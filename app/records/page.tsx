@@ -8,7 +8,7 @@ export const metadata = { title: "Records" };
 export default function RecordsPage() {
   return (
     <Article
-      eyebrow="Records"
+      strip={[{ label: "Records" }, { label: `${recordIndex.length} entries` }]}
       title="Records"
       lead="Challenges, obstacles and detours met during work, each with its outcome, the conditions it held under and its evidence. Agents search the same records through /api/records."
     >

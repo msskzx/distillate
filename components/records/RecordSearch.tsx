@@ -3,11 +3,10 @@
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
-import { filterKeys, queryFrom, searchRecords, type IndexedRecord } from "@/lib/search";
+import { filterKeys, marks, queryFrom, searchRecords, type IndexedRecord } from "@/lib/search";
 
-const marks: Record<string, string> = { solved: "✓", failed: "✗", partial: "◐", open: "○" };
 const field =
-  "rounded border border-stone-300 bg-stone-50 px-2 py-1 text-sm dark:border-stone-700 dark:bg-stone-900";
+  "rounded-sm border border-rule bg-paper px-2 py-1 text-base text-ink placeholder:italic placeholder:text-ink-soft focus:border-accent focus:outline-none";
 
 export function RecordSearch({ records }: { records: IndexedRecord[] }) {
   const params = useSearchParams();
@@ -78,7 +77,7 @@ export function RecordSearch({ records }: { records: IndexedRecord[] }) {
           </select>
         ))}
       </form>
-      <p role="status" className="mt-4 text-sm text-stone-600 dark:text-stone-400">
+      <p role="status" className="mt-4 text-base italic text-ink-soft">
         {results.length} of {records.length} records
       </p>
       <RecordRows records={results} />
@@ -88,16 +87,16 @@ export function RecordSearch({ records }: { records: IndexedRecord[] }) {
 
 export function RecordRows({ records }: { records: IndexedRecord[] }) {
   return (
-    <ol className="mt-2 divide-y divide-stone-200 dark:divide-stone-800">
+    <ol className="m-0 mt-2 list-none p-0">
       {records.map((record) => (
-        <li key={record.id} className="py-3">
-          <Link href={record.href} className="group flex gap-3">
-            <span aria-hidden="true" className="w-4 shrink-0 text-amber-700 dark:text-amber-500">
+        <li key={record.id} className="m-0 border-b border-rule p-0 py-2.5">
+          <Link href={record.href} className="group grid grid-cols-[1.75rem_minmax(0,1fr)] gap-2 text-ink no-underline">
+            <span aria-hidden="true" className="text-center text-[1.15rem] leading-snug text-accent">
               {marks[record.outcome]}
             </span>
             <span className="min-w-0">
-              <span className="block group-hover:text-amber-700 dark:group-hover:text-amber-400">{record.problem}</span>
-              <span className="mt-1 block font-mono text-xs text-stone-500 dark:text-stone-400">
+              <span className="block leading-snug group-hover:text-accent">{record.problem}</span>
+              <span className="mt-1 block font-mono text-xs text-ink-soft">
                 <span className="sr-only">Outcome: </span>
                 {record.outcome} · {record.kind} · {record.project} · {record.date}
               </span>

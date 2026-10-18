@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { components } from "@/mdx-components";
 import { Article } from "@/components/lesson/Article";
-import { findLesson, lessonLabel, number, tracks } from "@/lib/content";
+import { findLesson, tracks } from "@/lib/content";
 
 export const dynamicParams = false;
 
@@ -26,25 +26,31 @@ export default async function LessonPage({ params }: Params) {
   if (!found) notFound();
   const { track, page, previous, next } = found;
   const { meta } = page;
-  const eyebrow = meta.number
-    ? `Lesson ${number(meta.number)} · ${track.meta.title} · ${meta.disclosure}`
-    : track.meta.title;
+  const strip = meta.number
+    ? [
+        { label: track.meta.title },
+        { label: `Lesson ${meta.number}` },
+        { label: meta.disclosure!, marked: true },
+        { label: `from ${meta.sourceProject}` },
+      ]
+    : [{ label: track.meta.title }];
+  const label = (lesson: typeof page) => lesson.meta.label ?? lesson.meta.title;
 
   return (
-    <Article eyebrow={eyebrow} title={meta.title}>
+    <Article strip={strip} title={meta.title} lead={meta.number ? meta.summary : undefined}>
       <page.Content components={components} />
       {(previous || next) && (
-        <nav aria-label="Lesson navigation" className="not-prose mt-16 flex justify-between gap-4 border-t border-stone-300 pt-6 text-sm dark:border-stone-700">
+        <nav aria-label="Lesson navigation" className="not-prose mt-16 flex justify-between gap-4 border-t border-rule pt-4 text-base">
           {previous ? (
-            <Link href={previous.href} className="text-amber-700 hover:underline dark:text-amber-400">
-              ← {lessonLabel(previous)}
+            <Link href={previous.href} className="text-accent hover:underline">
+              ← {label(previous)}
             </Link>
           ) : (
             <span />
           )}
           {next && (
-            <Link href={next.href} className="text-end text-amber-700 hover:underline dark:text-amber-400">
-              {lessonLabel(next)} →
+            <Link href={next.href} className="text-end text-accent hover:underline">
+              {label(next)} →
             </Link>
           )}
         </nav>

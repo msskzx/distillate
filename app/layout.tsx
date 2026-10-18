@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Chrome } from "@/components/lesson/Chrome";
-import { lessonLabel, tracks } from "@/lib/content";
+import { tracks } from "@/lib/content";
+import { amiri, garamond, plexMono } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,18 +17,22 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     label: track.meta.title,
     links: [
       { href: track.href, label: "About this track" },
-      ...track.lessons.map((lesson) => ({ href: lesson.href, label: lessonLabel(lesson) })),
+      ...track.lessons.map((lesson) => ({
+        href: lesson.href,
+        label: lesson.meta.label ?? lesson.meta.title,
+        number: lesson.meta.number,
+      })),
       ...track.pages.map((page) => ({ href: page.href, label: page.meta.title })),
     ],
   }));
   groups.push({ label: "Records", links: [{ href: "/records", label: "All records" }] });
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`${garamond.variable} ${amiri.variable} ${plexMono.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: theme }} />
       </head>
-      <body className="bg-stone-50 font-serif text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100">
+      <body className="bg-paper font-serif text-ink antialiased">
         <Chrome groups={groups} />
         {children}
       </body>

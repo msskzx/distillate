@@ -5,16 +5,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export type IndexGroup = { label: string; links: { href: string; label: string }[] };
+export type IndexGroup = { label: string; links: { href: string; label: string; number?: number }[] };
 
 const wide = 1280;
 
 const button =
-  "rounded border border-stone-300 bg-stone-50/90 px-3 py-1.5 text-stone-600 backdrop-blur hover:border-amber-500 hover:text-amber-700 dark:border-stone-700 dark:bg-stone-950/90 dark:text-stone-400 dark:hover:text-amber-400";
-const link =
-  "block rounded px-2 py-1 text-sm text-stone-600 hover:bg-amber-100 hover:text-amber-900 dark:text-stone-400 dark:hover:bg-amber-950 dark:hover:text-amber-200";
-const current = "bg-amber-100 font-semibold text-amber-900 dark:bg-amber-950 dark:text-amber-200";
-const heading = "mb-1 mt-4 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-amber-700 dark:text-amber-500";
+  "rounded-sm border border-rule bg-transparent px-3 py-0.5 text-[0.95rem] text-ink-soft hover:border-accent hover:text-accent";
+const link = "flex gap-2 py-0.5 leading-snug text-ink hover:text-accent";
+const current = "text-accent";
+const heading = "mb-1.5 mt-5 text-[0.9rem] tracking-[0.12em] text-accent [font-variant:all-small-caps] first:mt-0";
+const numeral = "w-5 flex-none text-end text-ink-soft [font-variant-numeric:lining-nums_tabular-nums]";
 
 function recall(key: string) {
   try {
@@ -34,7 +34,7 @@ export function Chrome({ groups }: { groups: IndexGroup[] }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
   const [dark, setDark] = useState(false);
-  const [sections, setSections] = useState<{ id: string; label: string }[]>([]);
+  const [sections, setSections] = useState<{ id: string; label: string; number: string }[]>([]);
 
   useEffect(() => {
     const stored = recall("lessonIndex");
@@ -45,12 +45,17 @@ export function Chrome({ groups }: { groups: IndexGroup[] }) {
   useEffect(() => {
     if (innerWidth < wide) setOpen(false);
     setSections(
-      [...document.querySelectorAll<HTMLHeadingElement>("main h2[id]")].map((h) => ({
+      [...document.querySelectorAll<HTMLHeadingElement>("main h2[id]")].map((h, i) => ({
         id: h.id,
-        label: h.textContent ?? "",
+        label: h.dataset.label ?? h.textContent ?? "",
+        number: h.dataset.number ?? String(i + 1),
       })),
     );
   }, [path]);
+
+  useEffect(() => {
+    document.documentElement.dataset.index = open ? "open" : "closed";
+  }, [open]);
 
   const toggleIndex = () => {
     remember("lessonIndex", open ? "closed" : "open");
@@ -65,19 +70,13 @@ export function Chrome({ groups }: { groups: IndexGroup[] }) {
 
   return (
     <>
-      <div className="fixed inset-x-0 top-0 z-20 flex items-start justify-between gap-2 p-3 print:hidden">
+      <div className="fixed inset-x-0 top-0 z-20 flex items-center justify-between gap-2 border-b border-rule bg-paper/95 px-4 py-2.5 print:hidden">
         <div className="flex gap-2">
-          <button
-            type="button"
-            aria-controls="index"
-            aria-expanded={open}
-            onClick={toggleIndex}
-            className={`${button} font-mono text-xs uppercase tracking-wider`}
-          >
-            Index
+          <button type="button" aria-controls="index" aria-expanded={open} onClick={toggleIndex} className={button}>
+            Contents
           </button>
-          <Link href="/" className={`${button} flex items-center gap-2 font-mono text-xs uppercase tracking-wider`}>
-            <Image src="/logo.png" alt="" width={16} height={16} className="rounded-sm" priority />
+          <Link href="/" className={`${button} flex items-center gap-2`}>
+            <Image src="/logo.png" alt="" width={18} height={18} className="rounded-[3px]" priority />
             Distillate
           </Link>
         </div>
@@ -85,7 +84,7 @@ export function Chrome({ groups }: { groups: IndexGroup[] }) {
           type="button"
           onClick={toggleTheme}
           aria-label={dark ? "Switch to light theme" : "Switch to dark theme"}
-          className={`${button} text-sm`}
+          className={button}
         >
           {dark ? "☀" : "☾"}
         </button>
@@ -93,26 +92,40 @@ export function Chrome({ groups }: { groups: IndexGroup[] }) {
       <nav
         id="index"
         aria-label="Lesson index"
-        className={`fixed inset-y-0 start-0 z-10 w-64 overflow-y-auto border-e border-stone-200 bg-stone-100/95 px-3 pb-8 pt-16 backdrop-blur dark:border-stone-800 dark:bg-stone-900/95 print:hidden ${open ? "" : "hidden"}`}
+        className={`fixed bottom-0 start-0 top-[3.25rem] z-10 w-64 overflow-y-auto border-e border-rule bg-paper px-4 pb-8 pt-5 text-base print:hidden ${open ? "" : "hidden"}`}
       >
         {groups.map((group) => (
           <div key={group.label}>
             <p className={heading}>{group.label}</p>
-            {group.links.map((each) => (
-              <Link key={each.href} href={each.href} className={`${link} ${each.href === path ? current : ""}`}>
-                {each.label}
-              </Link>
-            ))}
+            <ol className="m-0 list-none p-0">
+              {group.links.map((each) => (
+                <li key={each.href}>
+                  <Link
+                    href={each.href}
+                    aria-current={each.href === path ? "page" : undefined}
+                    className={`${link} ${each.href === path ? current : ""}`}
+                  >
+                    <span className={numeral}>{each.href === path ? "❧" : each.number}</span>
+                    <span className={each.number === undefined ? "italic" : undefined}>{each.label}</span>
+                  </Link>
+                </li>
+              ))}
+            </ol>
           </div>
         ))}
         {sections.length > 0 && (
           <div>
             <p className={heading}>On this page</p>
-            {sections.map((section) => (
-              <a key={section.id} href={`#${section.id}`} className={link}>
-                {section.label}
-              </a>
-            ))}
+            <ol className="m-0 list-none p-0">
+              {sections.map((section) => (
+                <li key={section.id}>
+                  <a href={`#${section.id}`} className={link}>
+                    <span className={numeral}>{section.number}</span>
+                    <span>{section.label}</span>
+                  </a>
+                </li>
+              ))}
+            </ol>
           </div>
         )}
       </nav>

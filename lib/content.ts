@@ -129,6 +129,4 @@ export async function findLesson(trackSlug: string, slug: string) {
   };
 }
 
-export const number = (n: number) => String(n).padStart(4, "0");
 
-export const lessonLabel = (lesson: Page) => `${number(lesson.meta.number!)} · ${lesson.meta.label ?? lesson.meta.title}`;
