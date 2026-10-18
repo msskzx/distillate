@@ -3,6 +3,15 @@ export const meta = {
   summary: "The production build passed while every lesson page in dev failed with an error about React internals.",
   disclosure: "open",
   sourceProject: "distillate",
+  kind: "obstacle",
+  problem: "A Next.js dev server fails on MDX pages with a React internals error while the production build passes.",
+  approach: "Set pageExtensions to only ts and tsx so MDX files outside app/ would not become routes; found the dev build compiled .mdx against userland React because Next's alias condition is built from pageExtensions. Adding mdx to pageExtensions held.",
+  outcome: "solved",
+  conditions: "Next.js App Router site with MDX content under content/ outside app/, pageExtensions set in next.config.ts.",
+  evidence: 'Fix in next.config.ts (pageExtensions: ["ts", "tsx", "mdx"]); alias rules in node_modules/next/dist/build/create-compiler-aliases.js',
+  implication: "When a change touches next.config.ts, open one page of each kind in the dev server before calling it done.",
+  date: "2026-10-18",
+  topics: ["build-tooling"],
 };
 
 Lessons live under `content/`, outside `app/`, so `pageExtensions` was set to `["ts", "tsx"]` to keep

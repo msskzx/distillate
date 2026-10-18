@@ -1,0 +1,32 @@
+export const meta = {
+  title: "Notes",
+  summary: "Study notes from working through the world-models track: what was learned, the key distinction, and the questions left open.",
+};
+
+## World-models foundation
+
+### Learned
+
+A world model is an internal simulator, usually operating in a learned latent state rather than raw observations. Its value is not perfect realism; it is sufficiently accurate prediction of consequences for the agent's decisions. Planning can happen by searching or optimizing through imagined trajectories.
+
+### Key distinction
+
+MuZero demonstrates that a planning model need not reconstruct the world. It can learn only the representation, dynamics, reward, value, and policy signals needed by its planner.
+
+### Open questions
+
+How do latent dynamics models preserve long-term information? When should an agent trust imagination versus collect more real data?
+
+## Dream-RSI replay worlds
+
+### Learned
+
+Dream-RSI uses a recorded discovery tree as an empirical world: alternative exploration policies can traverse different stored branches and receive already-recorded outcomes without rerunning the expensive agent or evaluator. The improved policy is then deployed online, generating new trees for later replay.
+
+### Key distinction
+
+Unlike Dreamer, which learns a parametric latent dynamics model, Dream-RSI replays a finite realized search space. Its simulator is grounded but cannot predict outcomes outside the recorded tree.
+
+### Open question
+
+How should a system detect when replay-policy improvements are overfitting historical trees and need fresh online exploration?

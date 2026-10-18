@@ -3,6 +3,15 @@ export const meta = {
   summary: "While four subagents converted lessons, the coordinator committed the deletion of the folder one of them was reading from.",
   disclosure: "open",
   sourceProject: "distillate",
+  kind: "detour",
+  problem: "A coordinator agent changed or deleted files that a running subagent was told to read.",
+  approach: "Four subagents converted lessons in parallel while the coordinator ran git rm -r on the folder they read from. One subagent recovered the sources from the earlier commit with git archive and finished.",
+  outcome: "solved",
+  conditions: "Four parallel subagents converting namaq lessons to MDX from one live checkout while the coordinator edited the same checkout.",
+  evidence: "namaq commit 773a035d removing docs/lessons/; subagent report of reading from git archive 607669f6",
+  implication: "Hand a subagent a snapshot (a commit hash or a scratchpad copy), and do not delete or move anything a running subagent was told to read.",
+  date: "2026-10-18",
+  topics: ["agent-review"],
 };
 
 Four subagents converted namaq's lessons to MDX in parallel, each told to read the old HTML from
