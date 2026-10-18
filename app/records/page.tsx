@@ -1,33 +1,20 @@
-import Link from "next/link";
+import { Suspense } from "react";
 import { Article } from "@/components/lesson/Article";
-import { records } from "@/lib/content";
+import { RecordRows, RecordSearch } from "@/components/records/RecordSearch";
+import { recordIndex } from "@/lib/recordIndex";
 
 export const metadata = { title: "Records" };
 
-export default async function RecordsPage() {
-  const all = await records();
-  const projects = [...new Set(all.map((record) => record.project))];
-
+export default function RecordsPage() {
   return (
     <Article
       eyebrow="Records"
       title="Records"
-      lead="Short notes of instructive events during work: what happened, the evidence, and the check that would have caught it."
+      lead="Challenges, obstacles and detours met during work, each with its outcome, the conditions it held under and its evidence. Agents search the same records through /api/records."
     >
-      {projects.map((project) => (
-        <section key={project}>
-          <h2>{project}</h2>
-          <ol className="list-none ps-0">
-            {all
-              .filter((record) => record.project === project)
-              .map((record) => (
-                <li key={record.slug} className="ps-0">
-                  <Link href={record.href}>{record.meta.title}</Link>
-                </li>
-              ))}
-          </ol>
-        </section>
-      ))}
+      <Suspense fallback={<div className="not-prose"><RecordRows records={recordIndex} /></div>}>
+        <RecordSearch records={recordIndex} />
+      </Suspense>
     </Article>
   );
 }
