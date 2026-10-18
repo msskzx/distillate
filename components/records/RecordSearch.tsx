@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
+import { RecordGraph } from "./RecordGraph";
 import { filterKeys, marks, queryFrom, searchRecords, type IndexedRecord } from "@/lib/search";
 
 const field =
   "rounded-sm border border-rule bg-paper px-2 py-1 text-base text-ink placeholder:italic placeholder:text-ink-soft focus:border-accent focus:outline-none";
 
-export function RecordSearch({ records }: { records: IndexedRecord[] }) {
+export function RecordSearch({ records, graph = false }: { records: IndexedRecord[]; graph?: boolean }) {
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -80,7 +81,7 @@ export function RecordSearch({ records }: { records: IndexedRecord[] }) {
       <p role="status" className="mt-4 text-base italic text-ink-soft">
         {results.length} of {records.length} records
       </p>
-      <RecordRows records={results} />
+      {graph ? <RecordGraph records={records} matches={results} /> : <RecordRows records={results} />}
     </div>
   );
 }
