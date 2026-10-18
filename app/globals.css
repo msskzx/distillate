@@ -13,13 +13,13 @@
 }
 
 .dark {
-  --paper: #1c1712;
-  --paper-deep: #262019;
+  --paper: #0b0b0b;
+  --paper-deep: #181818;
   --ink: #ece2cd;
   --ink-soft: #ad9c82;
   --rule: #4b3f31;
   --accent: #e3906f;
-  --accent-wash: #3a2519;
+  --accent-wash: #1f1f1f;
   color-scheme: dark;
 }
 

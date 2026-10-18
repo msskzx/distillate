@@ -1,0 +1,33 @@
+export const meta = {
+  title: "Arabic inside English prose has no element to style, so the font itself had to be larger",
+  summary: "Inline Arabic in MDX paragraphs carries no markup, so setting it larger than the English needed size-adjust on a self-hosted Arabic face.",
+  disclosure: "open",
+  sourceProject: "distillate",
+  kind: "obstacle",
+  problem: "Setting Arabic words larger than the English around them when they sit inline in prose with no element, class or lang attribute to target.",
+  approach: "Put the Arabic face after the English serif in one font stack so Arabic glyphs fall back to it, and self-hosted its Arabic subset through next/font/local with a size-adjust declaration, since next/font/google takes no declarations.",
+  outcome: "solved",
+  conditions: "Next.js 15 next/font; MDX lessons may not carry class, className or style; Amiri's Arabic subset from Google Fonts; inline Arabic in lessons such as text-to-evidence 0006.",
+  evidence: "app/fonts.ts (amiri, size-adjust 140%); app/globals.css (--font-serif)",
+  implication: "Size a script that appears inline by the font's size-adjust, not by markup; a value near 122% still read smaller than the English, 140% matched the intent.",
+  date: "2026-10-18",
+  topics: ["ui-rtl"],
+};
+
+The restyle asked for Arabic set larger than English. Blocks were easy: `ArabicQuote` is a
+component and takes its own size. Most Arabic in the lessons is inline, though, inside an English
+sentence, such as the lemmas «كلا، إن، لا، ما» in lesson 6. Lessons may not carry `class`,
+`className` or `style`, and the words carry no `lang`, so there is no element to give a size.
+
+The size went into the font instead. The serif stack lists EB Garamond first and Amiri second, so
+every Arabic glyph falls back to Amiri. A `size-adjust` declaration on Amiri's `@font-face` scales
+only those glyphs. `next/font/google` has no option for declarations, so Amiri's Arabic subset is
+self-hosted under `app/fonts/` with its licence and loaded through `next/font/local`, which does.
+The first value, 122%, still read smaller than the English beside it in a screenshot; 140% matched.
+
+**Evidence:** <RepoLink repo="distillate" path="app/fonts.ts" /> and the `--font-serif` token in
+<RepoLink repo="distillate" path="app/globals.css" />.
+
+**Implications:** when one script appears inline in another's prose and the content cannot carry
+markup, scale it with the face's `size-adjust` and check the result in a screenshot rather than by
+the number.

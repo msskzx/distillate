@@ -18,5 +18,5 @@ export const amiri = localFont({
   variable: "--font-amiri",
   display: "swap",
   adjustFontFallback: false,
-  declarations: [{ prop: "size-adjust", value: "122%" }],
+  declarations: [{ prop: "size-adjust", value: "140%" }],
 });
