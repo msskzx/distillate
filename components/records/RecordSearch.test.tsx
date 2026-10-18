@@ -251,4 +251,41 @@ describe("RecordSearch", () => {
     expect(listedHrefs()).toEqual([detour.href]);
     expect(field<HTMLSelectElement>("Filter by kind").value).toBe("detour");
   });
+
+  it("keeps the typed text when a filter changes before the URL catches up", () => {
+    render();
+    nav.replace.mockImplementationOnce(() => {});
+    typeInto(field<HTMLInputElement>("Search records"), "jitters");
+    const kind = field<HTMLSelectElement>("Filter by kind");
+    changeSelect(kind, optionValueByText(kind, "obstacle"));
+    const url = new URL(nav.replace.mock.lastCall![0], "https://example.test");
+    expect(url.searchParams.get("q")).toBe("jitters");
+    expect(url.searchParams.get("kind")).toBe("obstacle");
+  });
+
+  it("clears the search box when the URL loses its query after mount", () => {
+    nav.currentSearch = "q=jitters";
+    render();
+    expect(listedHrefs()).toEqual([obstacle.href]);
+    nav.currentSearch = "";
+    render();
+    expect(field<HTMLInputElement>("Search records").value).toBe("");
+    expect(listedHrefs()).toEqual(newestFirst);
+  });
+
+  it("keeps the latest typed text when the URL arrives one keystroke behind", () => {
+    render();
+    nav.replace.mockImplementation(() => {});
+    try {
+      typeInto(field<HTMLInputElement>("Search records"), "ji");
+      typeInto(field<HTMLInputElement>("Search records"), "jit");
+      nav.currentSearch = "q=ji";
+      render();
+      expect(field<HTMLInputElement>("Search records").value).toBe("jit");
+    } finally {
+      nav.replace.mockImplementation((url: string) => {
+        nav.currentSearch = url.split("?")[1] ?? "";
+      });
+    }
+  });
 });

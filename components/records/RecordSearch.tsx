@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { filterKeys, queryFrom, searchRecords, type IndexedRecord } from "@/lib/search";
 
 const marks: Record<string, string> = { solved: "✓", failed: "✗", partial: "◐", open: "○" };
@@ -13,7 +13,19 @@ export function RecordSearch({ records }: { records: IndexedRecord[] }) {
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const [q, setQ] = useState(params.get("q") ?? "");
+  const urlQ = params.get("q") ?? "";
+  const [q, setQ] = useState(urlQ);
+  const [seenQ, setSeenQ] = useState(urlQ);
+  const pushed = useRef<string[]>([]);
+  if (urlQ !== seenQ) {
+    setSeenQ(urlQ);
+    const at = pushed.current.indexOf(urlQ);
+    if (at >= 0) pushed.current = pushed.current.slice(at + 1);
+    else {
+      pushed.current = [];
+      setQ(urlQ);
+    }
+  }
   const query = { ...queryFrom(params), q };
   const results = searchRecords(records, query);
   const options = {
@@ -25,8 +37,14 @@ export function RecordSearch({ records }: { records: IndexedRecord[] }) {
 
   const update = (key: string, value: string) => {
     const next = new URLSearchParams(params);
-    if (value) next.set(key, value);
-    else next.delete(key);
+    const typed = key === "q" ? value : q.trim();
+    if (typed) next.set("q", typed);
+    else next.delete("q");
+    if (key !== "q") {
+      if (value) next.set(key, value);
+      else next.delete(key);
+    }
+    pushed.current.push(typed);
     const search = next.toString();
     router.replace(search ? `${pathname}?${search}` : pathname, { scroll: false });
   };
@@ -65,24 +83,30 @@ export function RecordSearch({ records }: { records: IndexedRecord[] }) {
       <p role="status" className="mt-4 text-sm text-stone-600 dark:text-stone-400">
         {results.length} of {records.length} records
       </p>
-      <ol className="mt-2 divide-y divide-stone-200 dark:divide-stone-800">
-        {results.map((record) => (
-          <li key={record.id} className="py-3">
-            <Link href={record.href} className="group flex gap-3">
-              <span aria-hidden="true" className="w-4 shrink-0 text-amber-700 dark:text-amber-500">
-                {marks[record.outcome]}
-              </span>
-              <span className="min-w-0">
-                <span className="block group-hover:text-amber-700 dark:group-hover:text-amber-400">{record.problem}</span>
-                <span className="mt-1 block font-mono text-xs text-stone-500 dark:text-stone-400">
-                  <span className="sr-only">Outcome: </span>
-                  {record.outcome} · {record.kind} · {record.project} · {record.date}
-                </span>
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ol>
+      <RecordRows records={results} />
     </div>
+  );
+}
+
+export function RecordRows({ records }: { records: IndexedRecord[] }) {
+  return (
+    <ol className="mt-2 divide-y divide-stone-200 dark:divide-stone-800">
+      {records.map((record) => (
+        <li key={record.id} className="py-3">
+          <Link href={record.href} className="group flex gap-3">
+            <span aria-hidden="true" className="w-4 shrink-0 text-amber-700 dark:text-amber-500">
+              {marks[record.outcome]}
+            </span>
+            <span className="min-w-0">
+              <span className="block group-hover:text-amber-700 dark:group-hover:text-amber-400">{record.problem}</span>
+              <span className="mt-1 block font-mono text-xs text-stone-500 dark:text-stone-400">
+                <span className="sr-only">Outcome: </span>
+                {record.outcome} · {record.kind} · {record.project} · {record.date}
+              </span>
+            </span>
+          </Link>
+        </li>
+      ))}
+    </ol>
   );
 }
