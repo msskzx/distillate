@@ -63,9 +63,16 @@ body {
   --tw-prose-pre-bg: var(--paper-deep);
   --tw-prose-th-borders: var(--ink-soft);
   --tw-prose-td-borders: var(--rule);
+}
+
+article.prose {
   font-size: 1.1875rem;
   line-height: 1.6;
   counter-reset: section gloss;
+}
+
+article.prose:has(h2[data-number]) h2:not([data-number])::before {
+  display: none;
 }
 
 .prose :where(h1, h2, h3, h4) {
@@ -126,7 +133,7 @@ body {
 }
 
 @media (min-width: 1280px) {
-  html[data-index="open"] body > main {
+  html[data-index="open"] body > main.leaf {
     margin-inline-start: max(17rem, calc((100% - 54rem) / 2));
   }
 }

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export type IndexGroup = { label: string; links: { href: string; label: string; number?: number }[] };
 
@@ -33,10 +33,16 @@ function remember(key: string, value: string) {
 export function Chrome({ groups }: { groups: IndexGroup[] }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
+  const ready = useRef(false);
   const [dark, setDark] = useState(false);
   const [sections, setSections] = useState<{ id: string; label: string; number: string }[]>([]);
 
   useEffect(() => {
+    if (ready.current) document.documentElement.dataset.index = open ? "open" : "closed";
+  }, [open]);
+
+  useEffect(() => {
+    ready.current = true;
     const stored = recall("lessonIndex");
     setOpen(innerWidth >= wide && (stored ?? "open") === "open");
     setDark(document.documentElement.classList.contains("dark"));
@@ -45,17 +51,17 @@ export function Chrome({ groups }: { groups: IndexGroup[] }) {
   useEffect(() => {
     if (innerWidth < wide) setOpen(false);
     setSections(
-      [...document.querySelectorAll<HTMLHeadingElement>("main h2[id]")].map((h, i) => ({
-        id: h.id,
-        label: h.dataset.label ?? h.textContent ?? "",
-        number: h.dataset.number ?? String(i + 1),
-      })),
+      (() => {
+        const headings = [...document.querySelectorAll<HTMLHeadingElement>("main h2[id]")];
+        const authored = headings.some((h) => h.dataset.number);
+        return headings.map((h, i) => ({
+          id: h.id,
+          label: h.dataset.label ?? h.textContent ?? "",
+          number: h.dataset.number ?? (authored ? "" : String(i + 1)),
+        }));
+      })(),
     );
   }, [path]);
-
-  useEffect(() => {
-    document.documentElement.dataset.index = open ? "open" : "closed";
-  }, [open]);
 
   const toggleIndex = () => {
     remember("lessonIndex", open ? "closed" : "open");

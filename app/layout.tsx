@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: "Lessons and records of what agents learned while working.",
 };
 
-const theme = `try{var t=localStorage.getItem('lessonTheme');document.documentElement.classList.toggle('dark',t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches)}catch(e){document.documentElement.classList.toggle('dark',matchMedia('(prefers-color-scheme: dark)').matches)}`;
+const theme = `try{document.documentElement.dataset.index=innerWidth>=1280&&localStorage.getItem('lessonIndex')!=='closed'?'open':'closed'}catch(e){}try{var t=localStorage.getItem('lessonTheme');document.documentElement.classList.toggle('dark',t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches)}catch(e){document.documentElement.classList.toggle('dark',matchMedia('(prefers-color-scheme: dark)').matches)}`;
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const groups = (await tracks()).map((track) => ({

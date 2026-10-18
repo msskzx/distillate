@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 export const prose = "prose max-w-none font-serif";
 
-export const leaf = "mx-auto max-w-[36rem] px-4 pb-24 pt-20 lg:max-w-[54rem] lg:pe-[17rem]";
+export const leaf = "leaf mx-auto max-w-[36rem] px-4 pb-24 pt-20 lg:max-w-[54rem] lg:pe-[17rem]";
 
 export type StripItem = { label: string; marked?: boolean };
 
