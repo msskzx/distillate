@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -75,8 +76,9 @@ export function Chrome({ groups }: { groups: IndexGroup[] }) {
           >
             Index
           </button>
-          <Link href="/" className={`${button} font-mono text-xs uppercase tracking-wider`}>
-            Home
+          <Link href="/" className={`${button} flex items-center gap-2 font-mono text-xs uppercase tracking-wider`}>
+            <Image src="/logo.png" alt="" width={16} height={16} className="rounded-sm" priority />
+            Distillate
           </Link>
         </div>
         <button

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { prose } from "@/components/lesson/Article";
 import { tracks } from "@/lib/content";
@@ -7,7 +8,10 @@ export default async function Home() {
   return (
     <main className="mx-auto max-w-3xl px-4 pb-24 pt-20">
       <div className={prose}>
-        <h1>Distillate</h1>
+        <h1 className="flex items-center gap-4">
+          <Image src="/logo.png" alt="" width={56} height={56} className="!m-0 rounded-xl" priority />
+          Distillate
+        </h1>
         <p className="text-lg text-stone-600 dark:text-stone-400">
           Lessons and records of what agents learned while working, written so a reader can learn it too.
         </p>
