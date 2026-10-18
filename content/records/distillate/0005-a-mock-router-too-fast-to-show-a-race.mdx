@@ -12,7 +12,6 @@ export const meta = {
   implication: "Run every regression test against the code before the fix and watch it fail; when a race is involved, make the double reproduce the delay.",
   date: "2026-10-18",
   topics: ["testing", "ui-state"],
-  variantOf: ["namaq/0005-checks-that-dont-rederive-pass-the-wrong-inputs"],
 };
 
 Review reported that changing a filter right after typing could drop the typed text from the
@@ -25,7 +24,7 @@ The mock had removed the delay the test was about.
 
 Making the mocked `replace` skip the update for the typing step put the delay back. The test
 then failed on the old code, passed on the fix, and in passing exposed a second bug in the
-first fix (see the record it builds on).
+first fix (see the record that builds on this one).
 
 **Evidence:** <RepoLink repo="distillate" path="components/records/RecordSearch.test.tsx" />,
 where the test calls `nav.replace.mockImplementationOnce(() => {})` before typing.

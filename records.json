@@ -71,8 +71,10 @@
       "topics": [
         "testing"
       ],
+      "variantOf": [
+        "namaq/0005-checks-that-dont-rederive-pass-the-wrong-inputs"
+      ],
       "buildsOn": [],
-      "variantOf": [],
       "text": "The record schema requires a date in YYYY-MM-DD form. The first check matched the pattern and called Date.parse , treating NaN as invalid. The test for \"not a real calendar date\" used 2026-13-45 , which every parser rejects, so it passed. The reviewer tried 2026-02-30 . Date.parse returned a timestamp for March 2: the engine rolls an overflowing day into the next month instead of refusing it. Any record could have claimed a day that never happened. The fix parses the string as UTC midnight and requires toISOString .slice 0, 10 to give back the same string. A rolled-over date comes back different and fails. Evidence: lib/records.ts checkRecord , and the tests for 2026-02-30 and 2026-04-31 in lib/records.test.ts. Implications: a date check is only as good as the cases it is shown to reject. Include a day that overflows its month, since that is the case lenient parsers accept."
     },
     {
@@ -125,11 +127,9 @@
         "testing",
         "ui-state"
       ],
-      "variantOf": [
-        "namaq/0005-checks-that-dont-rederive-pass-the-wrong-inputs"
-      ],
       "buildsOn": [],
-      "text": "Review reported that changing a filter right after typing could drop the typed text from the URL. The test written for it typed, changed a filter, and checked the URL. It passed on the fixed code, and it also passed on the old code. The mock for next/navigation updated the search string inside router.replace , so the next render already saw the new URL. In the browser, replace lands later, which is the whole bug. The mock had removed the delay the test was about. Making the mocked replace skip the update for the typing step put the delay back. The test then failed on the old code, passed on the fix, and in passing exposed a second bug in the first fix see the record it builds on . Evidence: components/records/RecordSearch.test.tsx, where the test calls nav.replace.mockImplementationOnce = {} before typing. Implications: a test that has not been seen to fail on the old code has not been shown to test anything. For timing bugs, the double has to keep the timing."
+      "variantOf": [],
+      "text": "Review reported that changing a filter right after typing could drop the typed text from the URL. The test written for it typed, changed a filter, and checked the URL. It passed on the fixed code, and it also passed on the old code. The mock for next/navigation updated the search string inside router.replace , so the next render already saw the new URL. In the browser, replace lands later, which is the whole bug. The mock had removed the delay the test was about. Making the mocked replace skip the update for the typing step put the delay back. The test then failed on the old code, passed on the fix, and in passing exposed a second bug in the first fix see the record that builds on this one . Evidence: components/records/RecordSearch.test.tsx, where the test calls nav.replace.mockImplementationOnce = {} before typing. Implications: a test that has not been seen to fail on the old code has not been shown to test anything. For timing bugs, the double has to keep the timing."
     },
     {
       "id": "distillate/0006-a-trailing-slash-let-a-symlink-into-the-commit",

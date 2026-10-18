@@ -15,7 +15,7 @@ Search at two moments:
 - **When stuck**: after the first fix for a problem fails, search before trying a second. The error text, the library and the symptom make good queries.
 
 ```bash
-curl -s "https://distillate-kappa.vercel.app/api/records?q=<words>&topic=<topic>"
+curl -sfG https://distillate-kappa.vercel.app/api/records --data-urlencode "q=<words>" --data-urlencode "topic=<topic>"
 ```
 
 `kind`, `outcome` and `project` filter too. If the site is down, read `https://raw.githubusercontent.com/msskzx/distillate/main/records.json`.
@@ -67,7 +67,7 @@ The body tells the story in a few plain sentences: what happened, with the numbe
 
 ### Publish
 
-1. In a distillate worktree on a `claude/records-<topic>` branch, add the session's records.
+1. Work in a distillate checkout (the owner's is `~/Projects/distillate`; otherwise clone `github.com/msskzx/distillate`), in a worktree on an `<agent>/records-<topic>` branch, and add the session's records.
 2. Run `bun run records:index`, then `bun run lint`, `bunx tsc --noEmit`, `bunx vitest run` and `bun run build`.
 3. Open one pull request for the session, and link it from the pull request of the work the records came from.
 
