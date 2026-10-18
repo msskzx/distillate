@@ -1,0 +1,79 @@
+export const meta = {
+  title: "Source pipeline card",
+  summary: "Every artifact a source passes through, from a printed page in سير أعلام النبلاء to a citation on a profile.",
+};
+
+Every artifact a source passes through, from a printed page in
+سير أعلام النبلاء to a citation on a profile.
+
+## The chain
+
+| Authored file | Postgres model | Where it shows |
+|---|---|---|
+| `batch.json → sources[]`<br />edition, editor, publisher, `volumes[]` | `HistoricalSource`<br />`SourceVolume` | `/sources` shelf — one card per *edition*, not per work |
+| `batch.json → accounts[]`<br />`subjectSlug`, `extractionUrl`, `volumeNumber`, `notInSource[]` | `SourceAccount` | `/sources/[slug]` contents — the work's entry for one subject |
+| `accounts/<subject>/NNN.md`<br />+ `NNN.notes.md` | `SourceAccountPage`<br />(`bodyMarkdown`, `notesMarkdown`) | The reader, one printed page at a time |
+| `pages[].passages[].anchor`<br />e.g. `135-p2` | `SourcePassage` | The link target a citation lands on |
+| `claims[]`<br />`assertion`, `field`, `confidence`, `reviewStatus` | `HistoricalClaim` | Evidence behind a profile value, at whatever review status is honest |
+| `claims[].citations[]`<br />`passageAnchor`, `excerptArabic`, `pageReference` | `Citation` | The pinpoint link from a value into the passage that proves it |
+| `summary.md` | `ReviewBatch` | Review summary; not reader-facing |
+
+## Commands
+
+```bash
+npm run history:validate -- data/history/batches/<batch>   # structure, anchors, provenance
+npm run history:import   -- data/history/batches/<batch>   # dry run: prints the plan
+npm run history:import   -- <batch> --apply                # writes; needs the approved revision
+npm run history:review   -- <batch> --apply                # sets reviewStatus; separate gate
+npm run catalog:ledger   -- --batch <batch>                # legacy values the batch walked past
+```
+
+<Callout tone="note" title="Two gates, neither implying the other.">
+
+Publishing records the current revision
+in `batch.json`, which is what lets `--apply` write. Marking reviewed sets
+each claim's `reviewStatus` and needs the user to say so explicitly. A published batch
+whose claims are all `NOT_REVIEWED` is a normal state
+(<RepoLink repo="namaq" path="docs/adr/0008-separate-review-from-visibility.md">ADR 0008</RepoLink>).
+
+</Callout>
+
+## Rules that decide what may exist
+
+### A claim must back a value the model holds
+
+A profile field, a title, a participation, an event link, or a person relation — otherwise
+`history:validate` rejects it. The pages already preserve the text, so a claim naming
+nothing is a second copy of it.
+
+### The files are authority; a row is a copy
+
+<RepoLink repo="namaq" path="docs/adr/0010-author-historical-data-under-data.md">ADR 0010</RepoLink>. Never edit the
+database; edit the files and re-import.
+
+### Evidence role lives on the citation, not the work
+
+<RepoLink repo="namaq" path="docs/adr/0011-classify-the-role-of-cited-evidence.md">ADR 0011</RepoLink>. Shamela is a
+delivery host, not an evidence class — which is also why it is never the thing a citation rests
+on.
+
+### One citation is one meaningful selection
+
+Page turns, paragraph boundaries and footnote placement do not create citations. Join
+fragments, use a page range across printed pages, ellipse omitted text.
+
+### A multi-volume source needs `volumeNumber`
+
+Set on the account (or on a page, where an entry crosses a binding). Nothing infers it, and a
+batch missing it still validates clean — the entry just files under "no assigned volume".
+
+## The seam to remember
+
+An anchor is paired to its paragraph **by position**, not by any marker in the
+markdown: `passageExcerpts` in <RepoLink repo="namaq" path="src/lib/history/batchSchema.ts" />
+splits the body on blank lines and zips the list. Insert a paragraph mid-page and every later
+anchor now excerpts different text. See
+[lesson 0001](/text-to-evidence/0001-where-text-becomes-citable).
+
+Card for [the design mission](/text-to-evidence). Ask your teacher when any row here
+stops matching the code.

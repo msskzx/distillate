@@ -1,77 +1,42 @@
 {
   "name": "distillate",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "Local-first review queue for noteworthy challenges solved by AI agents",
+  "description": "Lessons and records of what agents learned while working",
   "author": "Muhammad Khattab",
-  "main": "./out/main/index.js",
   "scripts": {
-    "dev": "electron-vite dev",
-    "build": "electron-vite build",
-    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
-    "test": "bun test",
-    "mcp": "bun run src/mcp/server.ts",
-    "postinstall": "bun run node_modules/electron/install.js",
-    "package:win": "bun run build && electron-builder --win nsis",
-    "package:portable": "bun run build && electron-builder --win portable"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
-    "@modelcontextprotocol/server": "latest",
-    "lucide-react": "latest",
-    "react": "latest",
-    "react-dom": "latest",
-    "zod": "latest"
+    "@mdx-js/loader": "3.1.0",
+    "@mdx-js/react": "3.1.0",
+    "@next/mdx": "15.3.8",
+    "mermaid": "11.4.1",
+    "next": "15.3.8",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "remark-gfm": "4.0.0"
   },
   "devDependencies": {
-    "@happy-dom/global-registrator": "latest",
-    "@tailwindcss/vite": "latest",
-    "@testing-library/dom": "latest",
-    "@testing-library/react": "latest",
-    "@testing-library/user-event": "latest",
-    "@types/bun": "latest",
-    "@types/node": "latest",
-    "@types/react": "latest",
-    "@types/react-dom": "latest",
-    "@vitejs/plugin-react": "latest",
-    "electron": "latest",
-    "electron-builder": "latest",
-    "electron-vite": "latest",
-    "tailwindcss": "latest",
-    "typescript": "latest",
-    "vite": "latest"
-  },
-  "build": {
-    "appId": "com.distillate.desktop",
-    "productName": "Distillate",
-    "directories": {
-      "output": "release"
-    },
-    "files": [
-      "out/**/*",
-      "package.json"
-    ],
-    "asar": true,
-    "win": {
-      "target": [
-        "nsis",
-        "portable"
-      ],
-      "icon": "build/icon.ico",
-      "artifactName": "Distillate-${version}-Setup.${ext}"
-    },
-    "nsis": {
-      "oneClick": false,
-      "perMachine": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": "always",
-      "createStartMenuShortcut": true,
-      "shortcutName": "Distillate",
-      "runAfterFinish": true,
-      "deleteAppDataOnUninstall": false
-    },
-    "portable": {
-      "artifactName": "Distillate.${ext}"
-    }
+    "@eslint/eslintrc": "3.3.1",
+    "@mdx-js/rollup": "3.1.0",
+    "@tailwindcss/postcss": "4.1.11",
+    "@tailwindcss/typography": "0.5.16",
+    "@types/mdx": "2.0.13",
+    "@types/node": "20.19.7",
+    "@types/react": "19.1.8",
+    "@types/react-dom": "19.1.6",
+    "eslint": "9.31.0",
+    "eslint-config-next": "15.3.5",
+    "jsdom": "25.0.1",
+    "tailwindcss": "4.1.11",
+    "typescript": "5.8.3",
+    "vitest": "4.1.10"
   }
 }

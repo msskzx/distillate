@@ -1,0 +1,154 @@
+export const meta = {
+  title: "The Anatomy of the Agent Harness: Runtime Mechanics & Execution Invariants",
+  label: "Anatomy of the agent harness",
+  summary: "The harness runtime as a state machine: context compaction, tool interception, error recovery and event-driven design.",
+  number: 6,
+  disclosure: "open",
+  sourceProject: "distillate",
+};
+
+<Callout tone="insight">
+**The Core Axiom:** The foundation model provides the statistical probability distribution over next tokens. The harness provides literally everything else: deterministic state transitions, memory compaction, tool dispatch, exception handling, and safety boundaries.
+</Callout>
+
+In Lesson 2, we introduced the high-level concept of the agent harness alongside skills, subagents, and MCP. But in real-world systems engineering, the harness is not just a lightweight wrapper script around an API call—it is an operating-system-level process supervisor.
+
+This lesson takes a microscope to the **harness runtime engine**: the exact step-by-step state machine, event streams, context compaction strategies, tool execution interception, and failure recovery mechanics that separate fragile prompt chains from resilient production systems.
+
+## 1. The Harness as a Finite State Machine (FSM)
+
+To build or debug an agent harness, you must treat it not as a conversation, but as a formal discrete-event state machine with strict transition guards:
+
+<Mermaid
+  alt="Harness FSM: Idle → Context Assembling → Calling LLM → Parsing Output. If tool emitted → Tool Validating → Executing Tool → Observation Injected → Compaction check → back to Calling LLM. If text only → Stopping → Idle. If parsing fails → Recovering → Calling LLM."
+  chart={`stateDiagram-v2
+    [*] --> Idle : Awaiting User Input
+    Idle --> Assembling : Event user_prompt_received
+    Assembling --> CallingLLM : Payload compiled & budgeted
+    CallingLLM --> ParsingOutput : Stream complete / Tokens received
+
+    state ParsingOutput <<choice>>
+    ParsingOutput --> ToolValidating : Function call / Tool block detected
+    ParsingOutput --> Stopping : Stop condition / Text response only
+    ParsingOutput --> Recovering : Malformed JSON / Schema violation
+
+    ToolValidating --> ExecutingTool : Policy Gate Passed (Auto or Approved)
+    ToolValidating --> Idle : Rejected by Policy / User Denied
+
+    ExecutingTool --> InjectingObservation : stdout / stderr captured
+    ExecutingTool --> ToolFailing : Timeout / Crash / Non-zero exit
+
+    ToolFailing --> InjectingObservation : Error formatted as feedback
+    InjectingObservation --> Compacting : Check context budget threshold
+    Compacting --> CallingLLM : Ready for next loop iteration
+
+    Recovering --> CallingLLM : Synthetic correction prompt injected
+    Stopping --> Idle : Delivered final response`}
+/>
+
+- **State 1** — **Context Assembly & Budgeting:** Resolves system instructions, appends history, injects active tools, and trims tokens to stay within the model's sliding window.
+- **State 2** — **LLM Inference Streaming:** Dispatches HTTP/gRPC request to model provider; parses server-sent token events in real time.
+- **State 3** — **Grammar & Schema Validation:** Verifies that emitted tool calls match exact JSON Schema specifications before host execution.
+- **State 4** — **Policy Interception & Gating:** Checks security policy (sandbox boundary, read-only vs destructive mutations, interactive user approval).
+- **State 5** — **Dispatch & Execution:** Spawns sandboxed sub-process, communicates over STDIO with MCP servers, or executes internal system routines.
+- **State 6** — **Feedback Injection:** Captures process exit codes, stdout, or stderr, and formats them into a synthetic message for the model.
+
+## 2. Context Budgeting: Sliding Windows & Pruning Algorithms
+
+An agent loop running across 40 steps easily generates millions of cumulative tokens. If the harness naively appends every tool output into conversation history, three fatal failures occur:
+
+- **Attention Dilution ("Lost in the Middle"):** As context grows, models miss critical instructions placed between massive stdout logs.
+- **Exponential Latency & API Cost:** Cost scales quadratically with history length on non-cached models.
+- **Hard Context Window Crash:** The harness throws an unrecoverable `context_length_exceeded` error.
+
+| Compaction Strategy | How the Harness Implements It | Trade-off / Failure Mode |
+| --- | --- | --- |
+| **Naive FIFO Truncation** | Drops the oldest messages when context exceeds a high-water mark (e.g. 80% of window). | Disastrous: deletes the initial user goal and original system prompt constraints. |
+| **Tool Result Pruning** | Replaces verbose intermediate tool outputs (e.g. 5,000-line test runs or file dumps) from previous turns with a 1-line tombstone: `[Output truncated: 520 lines pruned]`. | High leverage: preserves all user intent and decisions while purging 90% of token deadweight. |
+| **Hierarchical Summarization (Checkpointing)** | Spawns a background summarizer model to compress turns 1–20 into an immutable 300-word "Handoff State Brief", replacing the entire history slice. | Slight latency pause at compaction boundary; loss of low-level syntactic details. |
+
+## 3. Tool Interception, Sandboxing & Idempotency
+
+A production harness must never blindly execute a command just because the model asked for it. The harness acts as a **hypervisor** between the LLM and the host operating system.
+
+<Mermaid
+  alt="Harness Interception Pipeline: Tool Call → Schema Validation (Zod) → Path Traversal Guards → Idempotency check → Approval Gate. If passed → Sandboxed Process executes → Result captured. If denied → Rejection message injected back to model."
+  chart={`flowchart LR
+    LLMRequest["Model Emits Tool Call<br/><code>replace_file_content(...)</code>"] --> Interceptor["Harness Tool Interceptor"]
+
+    subgraph Checks[Harness Policy Checks]
+        SchemaCheck["Schema Validation (Zod)"]
+        BoundaryCheck["Path Traversal Guard (Path must be inside workspace)"]
+        IdempotentCheck["Idempotency Filter (Has this exact edit run already?)"]
+        ApprovalCheck{"Consequential? (Requires User Modal)"}
+    end
+
+    Interceptor --> SchemaCheck
+    SchemaCheck --> BoundaryCheck
+    BoundaryCheck --> IdempotentCheck
+    IdempotentCheck --> ApprovalCheck
+
+    ApprovalCheck -->|Auto / Approved| Sandbox["Sandboxed Process Worker"]
+    ApprovalCheck -->|User Rejected| Rejection["Inject Veto to LLM: 'Action denied by user'"]
+
+    Sandbox --> ExecutionResult["Captured Result (exit code, stdout, diff)"]
+
+    classDef proc fill:#16242f,stroke:#63aae4,stroke-width:1.5px,color:#e4e2de;
+    classDef check fill:#2a2113,stroke:#e0a83f,stroke-width:1.5px,color:#e4e2de;
+    classDef safe fill:#13241a,stroke:#5cc98a,stroke-width:1.5px,color:#e4e2de;
+    classDef veto fill:#2d1818,stroke:#f0837f,stroke-width:1.5px,color:#e4e2de;
+    class LLMRequest,Interceptor,Sandbox proc;
+    class SchemaCheck,BoundaryCheck,IdempotentCheck,ApprovalCheck check;
+    class ExecutionResult safe;
+    class Rejection veto;`}
+/>
+
+<Callout tone="note" title="The Idempotency Key Invariant">
+In Distillate's MCP server, notice how `capture_card` accepts an `idempotency_key`. If an agent loops or retries following a network hiccup, the harness guarantees that identical submissions never generate duplicate database records.
+</Callout>
+
+## 4. Error Recovery: The Harness as a Teacher
+
+When a tool call fails, a bad harness crashes. An amateur harness echoes a generic error string. A **mature harness transforms errors into structured actionable guidance**.
+
+- **Failure 1** — **JSON Parse / Schema Violation:** Instead of halting, the harness synthesizes a correction: *"Your tool call failed schema validation: parameter 'target_file' must be an absolute path, received 'foo.js'. Please retry with absolute path."*
+- **Failure 2** — **Non-Zero Process Exit (Build / Lint Failure):** The harness extracts the exact compiler error and line number, injecting it directly into the next prompt turn. The model is forced to recognize that its previous hypothesis was falsified by reality.
+- **Failure 3** — **Infinite Loop Detection (Ping-Ponging):** If the model attempts the exact same failing tool call three consecutive times with identical arguments, the harness forcibly trips a circuit breaker: *"Execution aborted: detected 3 identical repetitive tool calls without progress. Formulate an alternative strategy."*
+
+## 5. Event-Driven & Streaming Harness Architectures
+
+Early agent experiments ran synchronous loops: blocking the main thread while the model inferred, then blocking while the tool ran. In interactive environments (like Antigravity or Electron apps like Distillate), this freezes the UI and makes real-time cancellation impossible.
+
+Modern harnesses use **reactive, event-driven architectures**:
+
+- **Token-by-token Tool Streaming:** The harness parses tool call parameters incrementally while tokens stream, allowing validation to begin before generation finishes.
+- **Abort Controllers:** The user can hit "Stop" at any microsecond; the harness terminates child shell processes, halts the socket stream, and returns the workspace to a clean state.
+- **Async Subprocess Spawning:** Commands that take minutes (e.g. `bun install`, running browser agents) are pushed to background task runners, pinging the harness via asynchronous message queues when complete.
+
+<Quiz
+  title="Quick Check"
+  question="What is the most effective harness strategy to prevent context window saturation during a long multi-step debugging session?"
+  options={[
+    "Deleting the initial system prompt to save space",
+    "Pruning verbose historical tool outputs (replacing 5,000-line test outputs with concise summaries) while preserving original instructions, decisions, and current state",
+    "Increasing temperature to generate shorter responses",
+  ]}
+  answer={2}
+  right="Correct: B. The initial system prompt and core requirements must remain fixed. The vast majority of token bloat comes from intermediate tool dumps (logs, grep results, test runs) that have already served their purpose. Pruning these intermediate outputs frees context without losing user intent."
+  wrong="Correct: B. The initial system prompt and core requirements must remain fixed. The vast majority of token bloat comes from intermediate tool dumps (logs, grep results, test runs) that have already served their purpose. Pruning these intermediate outputs frees context without losing user intent."
+/>
+
+<Callout tone="note" title="Try This: Trace Your Harness">
+Inspect your current agent environment or codebase:
+
+1. Where does the loop state live? Is it an in-memory array, or persisted to disk (e.g. SQLite / JSON lines)?
+2. What happens if a tool call takes 60 seconds? Does it lock the process or run as an asynchronous task?
+3. What guard rails prevent the model from modifying files outside of the target workspace?
+</Callout>
+
+## References & Deeper Reading
+
+- [ReAct: Synergizing Reasoning and Acting in Language Models (Yao et al.)](https://arxiv.org/abs/2210.03629) — Foundational paper formalizing thought-action-observation traces.
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/specification/2025-06-18) — Protocol architecture for decoupled tool invocation.
+- [Anthropic: Building Effective Agents](https://www.anthropic.com/research/building-effective-agents) — Production guidance on agent loops, evaluation, and harness orchestrators.
+- [OpenAI Function Calling & Tool Use Guide](https://platform.openai.com/docs/guides/function-calling) — Schema specifications and tool interception patterns.

@@ -1,0 +1,20 @@
+export const meta = {
+  title: "The coordinator deleted the folder a subagent was converting",
+  summary: "While four subagents converted lessons, the coordinator committed the deletion of the folder one of them was reading from.",
+  disclosure: "open",
+  sourceProject: "distillate",
+};
+
+Four subagents converted namaq's lessons to MDX in parallel, each told to read the old HTML from
+namaq's `docs/lessons/`. While they ran, the coordinator moved on to the namaq half of the move and
+ran `git rm -r docs/lessons` in the same checkout. One subagent found its sources gone halfway through
+lesson 0001. It recovered them from the commit before the deletion with `git archive` and finished, and
+the text-parity check later showed nothing lost. A less careful agent would have reported "files not
+found" or, worse, converted from memory.
+
+**Evidence:** namaq commit `773a035d` removing `docs/lessons/`, made while the `text-to-evidence`
+conversion was still running; that subagent's report of reading from `git archive 607669f6`.
+
+**Implications:** a delegated task's inputs are frozen until it reports back. Hand a subagent a
+snapshot (a commit hash, or a copy in the scratchpad), not a live path in a checkout someone else
+is editing, and do not delete or move anything a running subagent was told to read.

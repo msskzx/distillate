@@ -1,0 +1,63 @@
+export const meta = {
+  title: "Latent Dynamics: What the Model Must Remember",
+  label: "Latent Dynamics",
+  summary: "A latent state is useful when it is approximately Markov: the current latent and action contain enough information to predict relevant consequences.",
+  number: 2,
+  disclosure: "open",
+  sourceProject: "distillate",
+};
+
+*World models · representation learning*
+
+<Callout tone="insight" title="Core insight">
+
+A latent state is useful when it is approximately Markov: the current latent and action contain enough information to predict relevant consequences.
+
+</Callout>
+
+If two hidden situations map to the same latent but require different actions, prediction fails. Memory repairs information lost by partial observation.
+
+## The Markov target
+
+The goal is that the next latent depends on the current latent and action, not the entire history. Recurrent state-space models track context; stochastic latents represent uncertainty over futures.
+
+## Two halves of one state
+
+The recurrent state-space model (RSSM) of [PlaNet](https://arxiv.org/abs/1811.04551) splits its state in two. A deterministic part, computed by a recurrent network, carries memory forward. A stochastic part is sampled from a distribution conditioned on that memory. An encoder estimates the stochastic part from the memory and the current observation, and the observation, reward and next-state models read from the pair.
+
+Each half covers for the other. The PlaNet authors report that a purely deterministic model "prevents the model from capturing multiple futures and makes it easy for the planner to exploit inaccuracies," while a purely stochastic one "makes it difficult to remember information over multiple time steps." In their experiments the stochastic path was essential: without it the agent did not learn at all.
+
+## Training signals
+
+Training can combine reconstruction, next-state prediction, reward prediction, consistency, and regularization. The best loss is the one that preserves information needed for decisions.
+
+In PlaNet's variational bound, each time step pays for two things. A reconstruction term asks the latent to explain the observation. A KL term asks the encoder's estimate of the latent to stay close to what the transition model predicted from the previous step; reward prediction is added the same way. Because the KL is applied one step at a time, the transition model is never directly trained on multi-step predictions. PlaNet adds *latent overshooting*, which applies KL terms to predictions several steps ahead, to repair that. Its authors note that the final RSSM agent does not need it and that it slightly reduced performance for that model, though it helped others.
+
+[Dreamer](https://arxiv.org/abs/1912.01603) keeps the same ingredients: reconstruction terms for observations and rewards plus a KL regularizer scaled by a coefficient β, set to 1 for its continuous-control tasks.
+
+## A worked example
+
+This example is constructed for the lesson and is not taken from a paper. A ball rolls toward a wall and a single frame shows it a short way off. The frame does not say whether it is moving left or right.
+
+1. A model whose latent is a function of that one frame maps both situations to the same latent. Whatever action it is given, it must predict one future for two different ones. That is the first sentence of this lesson, as a failure.
+2. Add the previous latent as input. The deterministic half now carries the last frame's position, so the difference between two frames, the velocity, is recoverable. The two situations separate.
+3. Suppose the ball may bounce unpredictably off the wall. A deterministic next state must pick one outcome, or an average of them. The stochastic half lets the model sample a bounce left or a bounce right.
+
+Step 2 is what memory repairs, and step 3 is what the stochastic latent is for.
+
+<Callout tone="warning" title="Diagnostic">
+
+When a rollout fails, ask: did the model forget hidden state, or learn the wrong transition?
+
+</Callout>
+
+**Retrieval:** “Markov” does not mean deterministic or pixel-perfect. It means the current representation is sufficient for useful future prediction.
+
+<Quiz title="Retrieval check" question="Why does the RSSM keep both a deterministic and a stochastic part of its state?" options={["The deterministic part remembers across time steps and the stochastic part represents several possible futures.", "The stochastic part is cheaper to compute, so the deterministic part is only a backup.", "Together they let the model reconstruct pixels exactly."]} answer={1} right="Correct. PlaNet reports that purely deterministic models cannot capture multiple futures and purely stochastic ones struggle to remember across steps." wrong="Not quite. The two halves cover for each other: memory from the recurrent part, uncertainty over futures from the sampled part." />
+
+## Primary sources
+
+- [Hafner et al., Learning Latent Dynamics for Planning from Pixels (PlaNet)](https://arxiv.org/abs/1811.04551), for the RSSM, its training bound and latent overshooting.
+- [Hafner et al., Dream to Control](https://arxiv.org/abs/1912.01603), for Dreamer's loss terms.
+
+[Back to Lesson 1](/world-models/0001-world-models) · Ask me about RSSMs or Dreamer losses.

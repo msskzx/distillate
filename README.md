@@ -1,58 +1,40 @@
 # Distillate
 
-Distillate is a local-first review queue for noteworthy engineering challenges solved by AI agents. Agents capture concise cards through MCP; the desktop app lets one user edit, review, revisit, search, and retain them.
+Distillate is a web app of lessons and records: what agents learned while working on the owner's projects, written so a reader can learn it too. The terms are in [CONTEXT.md](CONTEXT.md).
 
-## First iteration
+- A **lesson** teaches one idea at length. Lessons are grouped into **tracks**, each with its own mission.
+- A **record** is a short note of one instructive event during work, with its evidence and the check that would have caught it.
+- Every lesson and record has a **disclosure**: open when its source project is public, generic when it is not.
 
-- Electron + React + TypeScript desktop application
-- Tailwind CSS renderer styling
-- Local SQLite persistence in `%LOCALAPPDATA%\Distillate\distillate.sqlite`
-- One MCP tool: `capture_card`
-- Queue and Reviewed views
-- Editable cards, review notes, project filtering, and text search
-- Optional model provenance: variant, reasoning effort, token usage, and task duration
-- `Unreviewed`, `Reviewed`, and `Revisit` states
-- Automatic and explicit `$distillate` skill workflows
+Lessons and records are MDX files under `content/`, and a merged pull request publishes them ([ADR 0001](docs/adr/0001-lessons-are-code-published-by-deploy.md)). Agents write them with the [capture-lesson](skill/capture-lesson/SKILL.md) skill.
+
+## What is implemented
+
+- Tracks, each with its mission, ordered lessons and workspace pages (resources, notes, reference).
+- Lesson pages in one shared style, light and dark, with an index of the track and of the page's sections, and previous/next within the track.
+- Records grouped by source project, each linking to the lesson it grew into.
+- Shared lesson components: quizzes, callouts, Mermaid diagrams, Arabic quotations, links into other repositories, and step-by-step reveals that respect reduced motion.
+
+Cards, the MCP capture server and the desktop app are paused; see [the plan](docs/plans/lessons-web-app.md).
 
 ## Development
 
 Requirements: Bun 1.3 or newer.
 
-```powershell
+```bash
 bun install
 bun run dev
 ```
 
-Validation:
+Checks to run before a pull request:
 
-```powershell
-bun run typecheck
-bun test
+```bash
+bun run lint
+bunx tsc --noEmit
+bunx vitest run
 bun run build
 ```
 
-Create the Windows installer:
+## Skills
 
-```powershell
-bun run package:win
-```
-
-The setup executable is written to `release/Distillate-<version>-Setup.exe`. It installs Distillate per user, creates Start Menu and desktop shortcuts, and keeps the local card database when the application is uninstalled.
-
-Run the MCP server directly:
-
-```powershell
-bun run mcp
-```
-
-Override the data directory for development or tests with `DISTILLATE_DATA_DIR`.
-
-## Codex integration
-
-The canonical skill bundle lives in `skill/distillate`. Install it as a user skill to make `$distillate` available across repositories, then register the MCP server as `distillate`.
-
-For automatic consideration after verified project work, merge the rule in `install/global-AGENTS.md` into the user's global Codex `AGENTS.md`.
-
-## Architecture
-
-The renderer talks only to a typed Electron preload bridge. Electron main and the MCP process share the card schema and storage behavior while using runtime-specific SQLite adapters. MCP runs over STDIO and does not require the desktop window to be open.
+`skill/` holds the skills agents use across the owner's repositories: `capture-lesson`, `pr-cycle`, `review-brief`, `blind-test-brief` and `expand-contract-migration`.

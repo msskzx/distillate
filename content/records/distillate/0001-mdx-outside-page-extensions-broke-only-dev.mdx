@@ -1,0 +1,26 @@
+export const meta = {
+  title: "Leaving mdx out of pageExtensions broke only the dev server",
+  summary: "The production build passed while every lesson page in dev failed with an error about React internals.",
+  disclosure: "open",
+  sourceProject: "distillate",
+};
+
+Lessons live under `content/`, outside `app/`, so `pageExtensions` was set to `["ts", "tsx"]` to keep
+MDX files from becoming routes by accident. `next build` passed and rendered every page. `next dev`
+failed on every lesson with `Cannot read properties of undefined (reading 'recentlyCreatedOwnerStacks')`,
+an error from React's development JSX runtime that says nothing about MDX or configuration.
+
+The compiled lesson chunk imported `node_modules/react/jsx-dev-runtime.js`, the userland React, while
+the page around it ran on the React that Next vendors. Next aliases `react/jsx-runtime` to its own copy
+only for files that match its code condition, and that condition is built from `pageExtensions`. An
+`.mdx` file outside the list was compiled but never aliased. Production uses the plain JSX runtime,
+which does not touch the field, so only development broke.
+
+**Evidence:** `.next/server/_rsc_content_lessons_..._index_mdx.js` importing `(rsc)/./node_modules/react/jsx-runtime.js`;
+the alias rules in `node_modules/next/dist/build/create-compiler-aliases.js`; the fix in `next.config.ts`
+(`pageExtensions: ["ts", "tsx", "mdx"]`).
+
+**Implications:** a green `next build` does not show that `next dev` works. When a change touches
+`next.config.ts`, open one page of each kind in the dev server before calling it done. An error from
+deep inside React that mentions internals usually means two copies of React met, so check which
+`react` each chunk imports before reading the stack.

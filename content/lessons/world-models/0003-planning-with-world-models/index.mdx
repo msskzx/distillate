@@ -1,0 +1,64 @@
+export const meta = {
+  title: "Planning with World Models",
+  label: "Planning",
+  summary: "Predict candidate futures, score them, act briefly in reality, then update from what actually happened.",
+  number: 3,
+  disclosure: "open",
+  sourceProject: "distillate",
+};
+
+*World models · decision making*
+
+<Callout tone="insight" title="Core insight">
+
+Predict candidate futures, score them, act briefly in reality, then update from what actually happened.
+
+</Callout>
+
+## Three uses
+
+- **Model-predictive control:** optimize a short sequence, execute its first action, and re-plan.
+- **Tree search:** branch over actions and back up predicted values, as in MuZero.
+- **Latent actor-critic:** learn policy and value from imagined trajectories, as in Dreamer.
+
+### Model-predictive control in PlaNet
+
+[PlaNet](https://arxiv.org/abs/1811.04551) plans with the cross-entropy method. It starts with a Gaussian belief over action sequences, samples candidate sequences, scores each by summing the rewards the model predicts along a sampled latent trajectory, keeps the best, and refits the Gaussian to them. It repeats this a fixed number of times and takes the mean for the current step as its action. After each real observation it replans from scratch, with the belief reset.
+
+In the main experiments the horizon was 12 steps, with 10 iterations of 1000 candidates each, refitting to the best 100. In a study with the true simulator on one task, a horizon of 6 was not sufficient and much longer horizons hurt performance.
+
+### Tree search in MuZero
+
+[MuZero](https://arxiv.org/abs/1911.08265) learns three functions. A representation function encodes past observations into a hidden state. A dynamics function takes a hidden state and an action and returns an immediate reward and the next hidden state. A prediction function returns a policy and a value from a hidden state. Monte Carlo tree search runs inside this model: it selects actions by maximizing an upper confidence bound, expands a leaf by calling the prediction and dynamics functions, and backs the values up the tree.
+
+Nothing forces the hidden state to capture what is needed to rebuild the observation, or to match the true environment state. The paper states there is "no direct constraint or requirement" for that, and the state's only job is to predict policies, values and rewards. The network is trained by unrolling it 5 hypothetical steps against trajectories from a replay buffer.
+
+### Latent actor-critic in Dreamer
+
+[Dreamer](https://arxiv.org/abs/1912.01603) does not plan when it acts. It trains an action model and a value model on trajectories imagined inside the learned latent dynamics, over a horizon of 15 steps for continuous tasks and 10 for discrete ones. The value targets mix k-step estimates, and the policy learns by propagating gradients of those values back through the imagined trajectory, with the world model held fixed. At decision time it simply runs the learned policy; PlaNet, in the paper's words, "selects actions by online planning instead of learning a policy."
+
+## Why re-plan?
+
+Long open-loop plans trust too many predictions. Feedback lets reality correct model error before the next action.
+
+## Failure mode
+
+An optimizer can exploit blind spots in the model and hallucinate reward. Short horizons, uncertainty penalties, ensembles, and diverse data reduce—but do not eliminate—this risk.
+
+## A worked example
+
+Take PlaNet's settings from above for one decision. In each of 10 iterations the planner samples 1000 action sequences of length 12 and scores each with the model, so it scores 10,000 imagined futures. It keeps the 100 best from each iteration and refits its belief to them, so later iterations sample near the promising ones. It then sends only the first action to the environment. The environment returns a new observation, the belief resets, and the whole procedure runs again for the next action.
+
+Nearly all of those 10,000 futures are thrown away, and eleven of the twelve planned actions are never executed. That is the price of letting reality correct the model at every step.
+
+**Retrieval:** Receding-horizon control executes only the first action so it can observe reality again.
+
+<Quiz title="Retrieval check" question="What most separates Dreamer from PlaNet at the moment an action is chosen?" options={["Dreamer plans online with the cross-entropy method; PlaNet runs a learned policy.", "PlaNet plans online; Dreamer runs a policy it learned from imagined trajectories.", "Neither uses a learned model when acting."]} answer={2} right="Correct. PlaNet selects actions by online planning, while Dreamer learns an action model in imagination and acts with it." wrong="Not quite. It is the other way round: PlaNet plans at decision time, and Dreamer learns a policy from imagined trajectories." />
+
+## Primary sources
+
+- [Hafner et al., Learning Latent Dynamics for Planning from Pixels (PlaNet)](https://arxiv.org/abs/1811.04551)
+- [Schrittwieser et al., Mastering Atari, Go, Chess and Shogi by Planning with a Learned Model (MuZero)](https://arxiv.org/abs/1911.08265)
+- [Hafner et al., Dream to Control](https://arxiv.org/abs/1912.01603)
+
+[Back to Lesson 1](/world-models/0001-world-models) · Ask me to compare Dreamer and MuZero mathematically.

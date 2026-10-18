@@ -1,0 +1,159 @@
+export const meta = {
+  title: "Real-World Engineering Skills: From Unslop to Deep Architecture Refactoring",
+  label: "Real-world engineering skills",
+  summary: "What battle-tested production agent skills look like, from style filters to specification pipelines and architecture analysis.",
+  number: 5,
+  disclosure: "open",
+  sourceProject: "distillate",
+};
+
+<Callout tone="insight">
+**Core Insight:** Prompts tell an AI what you wish it would do. Skills give an agent an explicit state machine, operational invariants, stable vocabulary, and a deterministic definition of done.
+</Callout>
+
+In Lesson 1 and Lesson 2, we introduced the concept of skills: reusable, version-controlled markdown packages that shape how agents think and act. But what does a battle-tested production skill look like in practice?
+
+This lesson dissects the most influential open-source agent skills in modern software engineering—from style-purging filters like Cursor's `unslop` to Matt Pocock's masterclass engineering suite: `grill-with-docs`, `to-spec`, `to-tickets`, `improve-codebase-architecture`, and `codebase-design`.
+
+## 1. The Anatomy of Real-World Skills
+
+Real-world skills fall along a spectrum ranging from **Constraint Filters** (deterministic style/tone enforcement) to **Cognitive Interviewers** (extracting implicit design decisions) to **Architectural Engines** (analyzing module depth and connascence).
+
+- **Type 1** — **Deterministic Filters (e.g. `unslop`):** Applies zero-shot structural rules to strip out LLM hallucinations, chatbot sycophancy, superficial phrasing, and telltale prose patterns.
+- **Type 2** — **Interactive Interviewers (e.g. `grill-with-docs`):** Relentlessly probes user assumptions along a dependency decision tree before writing a single line of production code.
+- **Type 3** — **State Synthesizers (e.g. `to-spec`, `to-tickets`):** Compresses messy multi-turn conversations into durable decision records and single-context tracer-bullet tickets.
+- **Type 4** — **Architectural Examiners (e.g. `codebase-design`, `improve-codebase-architecture`):** Applies foundational computer science principles (Parnas information hiding, John Ousterhout deep modules, connascence coupling) to inspect code.
+
+## 2. Case Study: `unslop` (Cursor Plugin Stack)
+
+Created for the Cursor editor plugin ecosystem, [`unslop`](https://github.com/cursor/plugins/blob/main/pstack/skills/unslop/SKILL.md) is designed to eradicate "AI tells" from documentation, code comments, and technical summaries.
+
+Notice how `unslop` rejects vague advice like *"write naturally"*. Instead, it provides a numbered catalog of specific syntactic violations:
+
+- **Rule 3** — **Superficial `-ing` phrases:** Ban *"highlighting..."*, *"ensuring..."*, *"fostering..."*, *"showcasing..."*. Delete or expand with concrete evidence.
+- **Rule 7** — **AI Vocabulary:** Purge *crucial, delve, enduring, enhance, interplay, intricate, landscape (abstract), pivotal, tapestry, testament, vibrant*. Replace with simple nouns and verbs.
+- **Rule 8** — **Fancy ways to say "is":** Replace *"serves as"*, *"stands as"*, *"boasts"* with direct *"is"* or *"has"*.
+- **Rule 22** — **Sycophantic Chatbot Tone:** Strip out *"Great question! You're absolutely right!"*, *"I hope this helps!"*. Respond directly with the data.
+
+<Callout tone="note" title="Why Stable Rule IDs Matter">
+In `unslop`, each pattern has a stable numeric ID (e.g., Rule 7, Rule 13). When code reviewers or other skills audit an agent's output, they cite the specific rule number (*"Violates unslop Rule 7: remove 'delve'"*) rather than arguing subjective writing preferences.
+</Callout>
+
+## 3. The Specification Pipeline: `grill-with-docs` → `to-spec` → `to-tickets`
+
+Matt Pocock’s engineering suite illustrates how multiple skills link together to form an end-to-end software development lifecycle for autonomous agents.
+
+<Mermaid
+  alt="The Matt Pocock Workflow: Vague Idea → grill-with-docs interviews user and generates ADRs and GLOSSARY.md → to-spec synthesizes the final decisions into a specification issue → to-tickets decomposes the spec into vertical tracer-bullet slices sized for single context windows."
+  chart={`flowchart TD
+    Idea([Vague Feature Idea / User Request]) --> Grill["grill-with-docs<br/><i>Relentless Socratic Interview</i>"]
+
+    Grill -->|Updates in Real-Time| Docs[("ADRs & GLOSSARY.md<br/><i>Decisions & Domain Terms</i>")]
+    Grill -->|All Prerequisites Satisfied| Spec["to-spec<br/><i>Synthesizes Thread into Spec</i>"]
+
+    Spec -->|Formal Single Spec File| Tickets["to-tickets<br/><i>Vertical Tracer-Bullet Slices</i>"]
+
+    Tickets --> Ticket1["Ticket 1 (Schema + API + UI slice)"]
+    Tickets --> Ticket2["Ticket 2 (Edges + Tests slice)"]
+
+    classDef proc fill:#16242f,stroke:#63aae4,stroke-width:1.5px,color:#e4e2de;
+    classDef store fill:#2a2113,stroke:#e0a83f,stroke-width:1.5px,color:#e4e2de;
+    classDef out fill:#13241a,stroke:#5cc98a,stroke-width:1.5px,color:#e4e2de;
+    class Grill,Spec,Tickets proc;
+    class Docs store;
+    class Ticket1,Ticket2 out;`}
+/>
+
+### A. `grill-with-docs`: The Active Interviewer
+
+Most developers make the mistake of asking an LLM to immediately generate code. `grill-with-docs` forbids immediate implementation.
+
+- It traverses a **decision tree**: only asking questions whose prerequisites have already been answered.
+- It produces tangible collateral as it goes: drafting `ADR-001.md` (Architecture Decision Records) and appending definitions to `GLOSSARY.md`.
+
+### B. `to-spec`: Capturing the Cleared Path
+
+When a task spans multiple agent sessions, conversation history explodes. `to-spec` halts discovery and creates a frozen specification:
+
+- It does not ask new questions; it synthesizes existing consensus.
+- It produces a self-contained specification that a brand-new agent session with zero memory can execute with full fidelity.
+
+### C. `to-tickets`: Vertical Slices over Horizontal Layers
+
+Horizontal slicing (e.g. "Ticket 1: write all schemas", "Ticket 2: write all endpoints", "Ticket 3: write all frontend") is an AI anti-pattern: nothing works until the very end, and error states accumulate silently.
+
+- **Tracer Bullets:** `to-tickets` enforces vertical slices. Each ticket delivers a complete end-to-end path (Schema + Route + UI + Test) for a single capability.
+- **Context-Sized:** Every ticket is explicitly scoped to be completable inside a single fresh context window.
+
+## 4. Architectural Skills: `codebase-design` & `improve-codebase-architecture`
+
+The most advanced skills don't just format text; they encode rigorous software engineering theory into the agent's analytical lens.
+
+### `codebase-design`: Deep Modules & Information Hiding
+
+Based on John Ousterhout’s *A Philosophy of Software Design* and David Parnas’s classic paper on modularization, this skill arms the agent with an unambiguous design rubric:
+
+<Mermaid
+  alt="Deep vs Shallow Modules: A shallow module exposes a large, complex interface with very little hidden implementation. A deep module exposes a small, simple interface while hiding extensive internal implementation complexity."
+  chart={`flowchart LR
+    subgraph Shallow[Shallow Module Anti-Pattern]
+        SInterface["Large Interface (20 exposed methods, complex flags)"]
+        SImpl["Thin Implementation (Barely does any work)"]
+        SInterface --- SImpl
+    end
+
+    subgraph Deep[Deep Module Best Practice]
+        DInterface["Small Interface (1 simple method call)"]
+        DImpl["Massive Implementation (Hides state, retries, locks, concurrency)"]
+        DInterface === DImpl
+    end
+
+    classDef bad fill:#2d1818,stroke:#f0837f,stroke-width:1.5px,color:#e4e2de;
+    classDef good fill:#13241a,stroke:#5cc98a,stroke-width:1.5px,color:#e4e2de;
+    class SInterface,SImpl bad;
+    class DInterface,DImpl good;`}
+/>
+
+- **Deep Module:** High leverage. A small, clean interface hiding immense internal complexity, state management, or concurrency.
+- **The Seam Rule:** *"One adapter is a hypothetical seam. Two adapters make a real seam."* Forbids agents from introducing speculative abstractions before a second live consumer exists.
+- **The Deletion Test:** Can an entire capability be deleted in a single commit by deleting its module folder without modifying callers across five other domains?
+
+### `improve-codebase-architecture`: Hunting Connascence
+
+This skill directs the agent to scan codebases for leaking concerns using **Connascence** (the degree to which a change in one component forces a change in another):
+
+| Connascence Type | What It Means | How the Skill Fixes It |
+| --- | --- | --- |
+| **Connascence of Name** | Modules must agree on symbol names. | Acceptable at module boundaries; standard refactor. |
+| **Connascence of Execution** | Order of operations matters (Function A must be called before Function B). | Encapsulate the sequence inside a single deep method so callers cannot get the order wrong. |
+| **Connascence of Algorithm** | Two modules must share an identical calculation (e.g. hashing, checksums, token encoding). | Extract algorithm into one single-purpose module; eliminate duplication. |
+
+<Quiz
+  title="Quick Check"
+  question={'Why does to-tickets recommend breaking plans into vertical "tracer bullet" slices rather than horizontal architectural layers?'}
+  options={[
+    "Because horizontal layers take less tokens to explain",
+    "Because vertical slices deliver working end-to-end functionality (schema to UI) sized to fit within a single fresh context window, catching integration failures early",
+    "Because databases should never have schemas",
+  ]}
+  answer={2}
+  right="Correct: B. Horizontal slicing leaves verification until the end of the project. Vertical tracer-bullets guarantee that every ticket produces a testable, end-to-end slice that fits inside an agent's context budget."
+  wrong="Correct: B. Horizontal slicing leaves verification until the end of the project. Vertical tracer-bullets guarantee that every ticket produces a testable, end-to-end slice that fits inside an agent's context budget."
+/>
+
+<Callout tone="note" title="Try This: Author a Production Skill">
+Pick an unwritten convention in your team's codebase (e.g. how API errors are formatted, how caching keys are constructed, or how database queries are paginated):
+
+1. Author a `SKILL.md` with frontmatter (`name`, `description`, `triggers`).
+2. Replace vague advice (*"write clean code"*) with 3 numbered, verifiable invariants.
+3. Include an explicit gate condition (e.g., *"Require unit test covering cache invalidation before reporting completion"*).
+</Callout>
+
+## References & Primary Skill Repositories
+
+- [Cursor Plugins: unslop/SKILL.md](https://github.com/cursor/plugins/blob/main/pstack/skills/unslop/SKILL.md) — The canonical pattern-removal filter for technical prose.
+- [Matt Pocock: grill-with-docs/SKILL.md](https://github.com/mattpocock/skills/blob/main/skills/engineering/grill-with-docs/SKILL.md) — Socratic design interviews that generate ADRs and domain glossaries.
+- [Matt Pocock: to-spec/SKILL.md](https://github.com/mattpocock/skills/blob/main/skills/engineering/to-spec/SKILL.md) — Synthesizing multi-turn conversations into frozen specification issues.
+- [Matt Pocock: to-tickets/SKILL.md](https://github.com/mattpocock/skills/blob/main/skills/engineering/to-tickets/SKILL.md) — Decomposing specs into context-sized vertical tracer-bullet tasks.
+- [Matt Pocock: improve-codebase-architecture/SKILL.md](https://github.com/mattpocock/skills/blob/main/skills/engineering/improve-codebase-architecture/SKILL.md) — Parnas secrets and Connascence coupling analysis.
+- [Matt Pocock: codebase-design/SKILL.md](https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/SKILL.md) — Deep module design vocabulary and architectural seams.
