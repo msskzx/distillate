@@ -133,11 +133,16 @@ article.prose:has(h2[data-number]) h2:not([data-number])::before {
 }
 
 @media (min-width: 1280px) {
+  .leaf { --page-width: 66rem; }
+  .leaf-wide { --page-width: 100rem; }
+  .home { --page-width: 60rem; }
+
   html[data-index="open"] #index {
     display: block;
   }
 
-  html[data-index="open"] body > main.leaf {
-    margin-inline-start: max(17rem, calc((100% - 54rem) / 2));
+  html[data-index="open"] body > main:is(.leaf, .home) {
+    width: calc(100% - 16rem);
+    margin-inline-start: max(16rem, calc((100% - var(--page-width)) / 2 + 8rem));
   }
 }

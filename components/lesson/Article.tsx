@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 export const prose = "prose max-w-none font-serif";
 
-export const leaf = "leaf mx-auto max-w-[36rem] px-4 pb-24 pt-20 lg:max-w-[54rem] lg:pe-[17rem]";
+export const leaf = "leaf mx-auto max-w-[50rem] px-4 pb-24 pt-20 lg:max-w-[66rem] lg:pe-[17rem]";
 
 export type StripItem = { label: string; marked?: boolean };
 
@@ -28,16 +28,18 @@ export function Article({
   title,
   lead,
   aside,
+  wide = false,
   children,
 }: {
   strip: StripItem[];
   title: string;
   lead?: string;
   aside?: ReactNode;
+  wide?: boolean;
   children: ReactNode;
 }) {
   return (
-    <main className={leaf}>
+    <main className={wide ? "leaf leaf-wide mx-auto max-w-[100rem] px-4 pb-24 pt-20" : leaf}>
       <article className={prose}>
         <header className="not-prose mb-8">
           <Strip items={strip} />

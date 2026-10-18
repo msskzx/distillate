@@ -41,3 +41,7 @@ bun run build
 ## Skills
 
 `skill/` holds the skills agents use across the owner's repositories: `capture-record`, `write-lesson`, `pr-cycle`, `review-brief`, `blind-test-brief` and `expand-contract-migration`.
+
+## Brand assets
+
+`components/Logo.tsx` contains the transparent branching mark as SVG paths. It follows the page theme through the shared ink and accent variables. Run `bun run brand:assets` to regenerate the light/dark SVGs and transparent PNGs in `public/brand/`, the compatibility `public/logo.png`, adaptive SVG favicon, 16/32/48-pixel ICO, and 180-pixel Apple icon. The favicon follows the browser color scheme; the on-page mark follows the app theme.

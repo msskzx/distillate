@@ -12,7 +12,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "records:index": "bun run scripts/records-index.ts"
+    "records:index": "bun run scripts/records-index.ts",
+    "brand:assets": "bun run scripts/brand-assets.tsx"
   },
   "dependencies": {
     "@mdx-js/loader": "3.1.0",
