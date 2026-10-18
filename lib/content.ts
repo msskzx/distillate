@@ -36,6 +36,7 @@ const recordFile = /^\d{4}-[a-z0-9-]+\.mdx$/;
 export function entries(dir: string, allowedFiles: (name: string) => boolean = () => false) {
   const folders: string[] = [];
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (entry.name.startsWith(".")) continue;
     if (entry.isDirectory()) folders.push(entry.name);
     else if (!allowedFiles(entry.name)) throw new Error(`${path.relative(process.cwd(), dir)}/${entry.name}: unexpected file`);
   }
@@ -92,7 +93,7 @@ export async function records(): Promise<Record[]> {
   for (const project of entries(path.join(root, "records"))) {
     const dir = path.join(root, "records", project);
     if (entries(dir, (file) => recordFile.test(file)).length) throw new Error(`content/records/${project}: records cannot be nested`);
-    for (const file of fs.readdirSync(dir).sort()) {
+    for (const file of fs.readdirSync(dir).filter((name) => !name.startsWith(".")).sort()) {
       const slug = file.replace(/\.mdx$/, "");
       const mod = (await import(`../content/records/${project}/${slug}.mdx`)) as Module;
       all.push({

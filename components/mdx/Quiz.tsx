@@ -39,8 +39,18 @@ export function Quiz({
               onClick={() => setPicked(i)}
               className={`w-full rounded border border-stone-300 px-3 py-2 text-start text-sm hover:border-amber-500 disabled:cursor-default dark:border-stone-700 ${state(i)}`}
             >
-              {picked !== undefined && i === correct && <span aria-label="Correct answer">✓ </span>}
-              {picked !== undefined && i === picked && i !== correct && <span aria-label="Your answer, wrong">✗ </span>}
+              {picked !== undefined && i === correct && (
+                <>
+                  <span aria-hidden="true">✓ </span>
+                  <span className="sr-only">Correct answer: </span>
+                </>
+              )}
+              {picked !== undefined && i === picked && i !== correct && (
+                <>
+                  <span aria-hidden="true">✗ </span>
+                  <span className="sr-only">Your answer, wrong: </span>
+                </>
+              )}
               {option}
             </button>
           </li>

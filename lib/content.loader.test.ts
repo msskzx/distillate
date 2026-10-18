@@ -22,6 +22,10 @@ describe("entries", () => {
     expect(() => entries(tree(["0008-x.mdx"]))).toThrow(/unexpected file/);
   });
 
+  it("skips dotfiles such as .DS_Store", () => {
+    expect(entries(tree([".DS_Store", "a/"]))).toEqual(["a"]);
+  });
+
   it("accepts a file it was told to allow", () => {
     expect(entries(tree(["track.mdx", "0001-x/"]), (file) => file === "track.mdx")).toEqual(["0001-x"]);
   });
