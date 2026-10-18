@@ -1,0 +1,28 @@
+export const meta = {
+  title: "A trailing slash in .gitignore let a node_modules symlink into the commit",
+  summary: "node_modules/ in .gitignore matches only directories, so a worktree's node_modules symlink was committed.",
+  disclosure: "open",
+  sourceProject: "distillate",
+  kind: "detour",
+  problem: "A symlinked node_modules in a git worktree is committed even though .gitignore lists node_modules/.",
+  approach: "Spotted the symlink in the staged files after commit, removed it from the index and changed the ignore rule to node_modules without the slash, which matches files and symlinks too.",
+  outcome: "solved",
+  conditions: "Git worktree whose node_modules is a symlink to the main checkout's, staged with git add -A.",
+  evidence: "distillate PR #4; .gitignore",
+  implication: "Ignore node_modules without a trailing slash in repositories whose worktrees symlink it, and read git status before committing with git add -A.",
+  date: "2026-10-18",
+  topics: ["build-tooling"],
+};
+
+Worktrees here share the main checkout's packages through a symlink: each worktree's
+`node_modules` points at the main checkout's. The repository ignored `node_modules/`. In git's
+ignore syntax a trailing slash means "directories only", and a symlink is a file, so
+`git add -A` staged it. The commit summary listed `A node_modules`.
+
+The fix was `git rm --cached node_modules` and an ignore rule without the slash, which
+matches a file, a symlink or a directory of that name.
+
+**Evidence:** <RepoLink repo="distillate" path=".gitignore" />.
+
+**Implications:** where worktrees symlink shared folders, ignore them without the trailing
+slash, and look at what `git add -A` staged before committing.

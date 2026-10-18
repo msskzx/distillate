@@ -1,0 +1,34 @@
+export const meta = {
+  title: "A mock router too fast to show the race it was meant to catch",
+  summary: "A regression test for a URL race passed on the broken code, because the mocked router updated the URL instantly.",
+  disclosure: "open",
+  sourceProject: "distillate",
+  kind: "detour",
+  problem: "A test of a timing bug passes on the code it is meant to catch, because the test double removes the timing.",
+  approach: "Ran the new test against the code before the fix, saw it pass, and made the mocked router.replace skip the URL update for the typing step so the URL lags as in the browser; the test then failed on the old code and passed on the fix.",
+  outcome: "solved",
+  conditions: "Vitest with jsdom, next/navigation mocked so that router.replace sets the search string synchronously.",
+  evidence: "distillate PR #5; the test \"keeps the typed text when a filter changes before the URL catches up\"",
+  implication: "Run every regression test against the code before the fix and watch it fail; when a race is involved, make the double reproduce the delay.",
+  date: "2026-10-18",
+  topics: ["testing", "ui-state"],
+  variantOf: ["namaq/0005-checks-that-dont-rederive-pass-the-wrong-inputs"],
+};
+
+Review reported that changing a filter right after typing could drop the typed text from the
+URL. The test written for it typed, changed a filter, and checked the URL. It passed on the
+fixed code, and it also passed on the old code.
+
+The mock for `next/navigation` updated the search string inside `router.replace`, so the next
+render already saw the new URL. In the browser, `replace` lands later, which is the whole bug.
+The mock had removed the delay the test was about.
+
+Making the mocked `replace` skip the update for the typing step put the delay back. The test
+then failed on the old code, passed on the fix, and in passing exposed a second bug in the
+first fix (see the record it builds on).
+
+**Evidence:** <RepoLink repo="distillate" path="components/records/RecordSearch.test.tsx" />,
+where the test calls `nav.replace.mockImplementationOnce(() => {})` before typing.
+
+**Implications:** a test that has not been seen to fail on the old code has not been shown to
+test anything. For timing bugs, the double has to keep the timing.

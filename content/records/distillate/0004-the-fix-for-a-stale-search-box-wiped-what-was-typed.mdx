@@ -1,0 +1,39 @@
+export const meta = {
+  title: "The fix for a stale search box wiped what the reader was typing",
+  summary: "Resyncing a search box from the URL treated the URL's own lag as an outside change and reset the box mid-typing.",
+  disclosure: "open",
+  sourceProject: "distillate",
+  kind: "detour",
+  problem: "Keeping a text input that writes to the URL in step with the URL when the URL also changes from outside, such as back navigation or a link.",
+  approach: "First reset the box whenever the URL's q differed from the last value written, which wiped text while router.replace lagged behind typing; now the component remembers the values it wrote and resets only for a value it never wrote.",
+  outcome: "solved",
+  conditions: "Next.js 15 App Router client component using useSearchParams and router.replace, where the URL updates after the input's own state.",
+  evidence: "distillate PR #5; components/records/RecordSearch.tsx and its tests",
+  implication: "A component that writes to the URL must tell its own pending writes apart from outside navigation; test it with a URL that arrives one keystroke behind.",
+  date: "2026-10-18",
+  topics: ["ui-state", "testing"],
+  buildsOn: ["distillate/0005-a-mock-router-too-fast-to-show-a-race"],
+};
+
+The records search box keeps its text in React state and writes it to the URL as `q`. Review
+found that the box kept "highlight" after the reader followed a link to `/records`, because
+the state was read from the URL only on mount.
+
+The first fix compared the URL's `q` on every render with the last value the component had
+written, and reset the box when they differed. Writing the regression test showed what that
+did while typing: `router.replace` lands after the input's own re-render, so for a moment the
+URL still holds the previous text, which differs from what was just written, and the box was
+reset to it. A fast typist would have watched letters vanish.
+
+The fix that held keeps a short list of values the component wrote. When the URL's `q`
+changes to one of them, it is the component's own write arriving late and is ignored. Any
+other value came from outside, so the box takes it. The check only reads the list and clears
+it, so running it twice in one render changes nothing.
+
+**Evidence:** <RepoLink repo="distillate" path="components/records/RecordSearch.tsx" />; the
+tests "keeps the latest typed text when the URL arrives one keystroke behind" and "clears the
+search box when the URL loses its query after mount" in
+<RepoLink repo="distillate" path="components/records/RecordSearch.test.tsx" />.
+
+**Implications:** two-way sync between an input and the URL needs to know which changes are
+its own. Test it with the URL lagging, not only with the URL updating at once.
