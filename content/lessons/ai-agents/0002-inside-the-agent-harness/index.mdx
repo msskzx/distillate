@@ -1,0 +1,235 @@
+export const meta = {
+  title: "Inside the Agent Harness: Loops, Skills, Subagents & MCP",
+  label: "Inside the agent harness",
+  summary: "What happens step by step inside an agent harness, and how skills, subagents, MCP and sandbox tiers fit around the model.",
+  number: 2,
+  disclosure: "open",
+  sourceProject: "distillate",
+};
+
+<Callout tone="insight">
+**Core Mental Model:** An agent is not magic autonomous consciousness—it is a deterministic execution harness running a language model inside an observation-reasoning-action loop, augmented by structured context injection, graduated tool boundaries, and process isolation.
+</Callout>
+
+In Lesson 1, we established that agents are goal-driven action loops rather than single-shot prompt completions or fixed pipelines. In this lesson, we dissect the internal machinery: what actually happens step-by-step inside the agent harness, how instructions turn into capabilities via skills, how work is divided across subagent boundaries, and how standard protocols like MCP decouple agent runtimes from tools and world state.
+
+## 1. The Anatomy of an Agent Harness
+
+The *harness* (or agent runtime / loop orchestrator) is the outer software environment enclosing the foundation model. The foundation model never directly executes system commands, opens sockets, or manipulates disk files. Instead, the harness operates a state machine known as the **ReAct (Reason + Act) loop**:
+
+<Mermaid
+  alt="The ReAct Loop: Context Assembly (System + Active Skills + History + Tool Definitions) → LLM Inference → Decision Gate (Does model emit a tool call?) → If tool call: Harness validates policy/sandboxing → Tool executes → Tool output/observation appended to history → Model infers again until completion."
+  chart={`graph TD
+    User([User Prompt / Task]) --> CA[Context Assembly<br/><i>System + History + Skills + Tools</i>]
+    CA --> LLM[LLM Inference<br/><i>Generates Thought & Tool Calls</i>]
+    LLM --> Check{Tool Call Emitted?}
+    Check -- Yes --> Gate[Policy & Sandbox Gate<br/><i>Permissions, Validation, Approval</i>]
+    Gate --> Exec[Tool Execution<br/><i>Local shell, File system, MCP server</i>]
+    Exec --> Obs[Observation Injection<br/><i>Tool Result appended to Context</i>]
+    Obs --> LLM
+    Check -- No / Finished --> Stop([Final Response to User])
+
+    classDef proc fill:#121417,stroke:#63aae4,stroke-width:1.5px,color:#e4e2de;
+    classDef gate fill:#2a2113,stroke:#e0a83f,stroke-width:1.5px,color:#e4e2de;
+    classDef term fill:#13241a,stroke:#5cc98a,stroke-width:1.5px,color:#e4e2de;
+    class CA,LLM,Exec,Obs proc;
+    class Check,Gate gate;
+    class User,Stop term;`}
+/>
+
+- **01** — **Context Assembly:** Compiles system prompt, agent identity, active skills, user input, conversation history, and tool declarations into an LLM context payload.
+- **02** — **Inference & Tool Selection:** The model generates structured text and/or function call requests (tool calls with strongly-typed arguments).
+- **03** — **Harness Validation & Policy Gate:** The harness inspects the proposed tool call, checks permissions, sandboxing policies, and user approval thresholds.
+- **04** — **Tool Execution:** The harness or external service invokes the actual tool (filesystem write, terminal process, API fetch) and captures stdout/stderr/return values.
+- **05** — **Observation Injection:** Tool output is appended to the message history as a tool response message. The harness loops back to step 2 until a stop condition is reached.
+
+When an agent "thinks" or plans, it simply alternates between token generation and environmental feedback. The intelligence emerges entirely from the loop's ability to ingest feedback from failed tool calls and self-correct.
+
+## 2. Skills: Dynamic Capability Packaging
+
+A raw prompt asking an agent to "write good database migrations" produces inconsistent results across sessions. A **Skill** transforms vague instructions into an executable, repeatable operating procedure.
+
+Under the hood, skills are standardized packages (typically a `SKILL.md` accompanied by helper scripts, reference templates, and schemas) loaded into context on demand:
+
+- **Manifest & Triggers:** Frontmatter metadata specifies when and why the skill should activate (e.g., regex patterns, task domains, explicit slash commands).
+- **Progressive Context Loading:** Instead of loading 50,000 tokens of documentation on every request, the harness provides a lightweight skill index. The agent only reads full skill instructions when relevant.
+- **Guardrails & Stop Conditions:** High quality skills define explicit preconditions, verification steps, and human gates (e.g., "Always run `bun test` before submitting", "Require human approval before deleting rows").
+
+## The "Blackmail Skill" & Voodoo Prompting Anti-Pattern
+
+In the early days of prompt engineering, users and tutorials resorted to desperate emotional leverage to prevent models from taking shortcuts:
+
+- *"You are a 25-year Principal Senior Software Architect with an IQ of 180."*
+- *"Make no mistakes. Double check everything."*
+- *"I will tip you $200 if you solve this."*
+- *"A human life is at stake. People will die if your code has bugs."*
+
+<Callout tone="warning" title="The Anti-Pattern: Voodoo Emotional Coercion">
+Emotional prompting can influence model behavior, and some studies have even measured performance improvements from motivational or emotional stimuli. But these effects are model-, task-, and prompt-dependent and should not be confused with reliability mechanisms.
+
+An LLM does not literally fear consequences or value a $200 tip. More importantly, telling a model *"make no mistakes"* does not give it a compiler, linter, test suite, or feedback loop.
+
+Prompt pressure may change behavior; a harness verifies behavior.
+
+If correctness matters, replace emotional coercion with executable checks, tool feedback, tests, and retry/repair loops.
+</Callout>
+
+In a well-engineered agent harness, superstitious prompts are replaced with **structural verification**:
+
+| Voodoo Prompt (Wishful Thinking) | Engineering Equivalent (Harness & Skill) |
+| --- | --- |
+| `"Make no mistakes."` | Mandatory verification step: run `bun test` or typechecker tool before returning. |
+| `"You are a senior developer."` | Skill with explicit architecture standards, lint rules, and error-handling constraints. |
+| `"People will die if you fail."` | Deterministic gating: sandboxed execution + human-in-the-loop approval before commit/push. |
+| `"I will tip you $200."` | Self-reflection loop: require the agent to generate and verify a checklist against the actual diff. |
+
+## 3. MCP (Model Context Protocol): Standardizing Tool Ecosystems
+
+Before MCP, every AI platform invented its own proprietary tool-calling schema and plugin format. If an application wanted to expose a database, a code repository, or a review queue to Claude, OpenAI, or local agents, developers had to write bespoke wrappers for each.
+
+**MCP (Model Context Protocol)** is an open specification that standardizes how LLM applications communicate with external tools, prompts, and resources over JSON-RPC (using standard I/O streams or Server-Sent Events):
+
+<Mermaid
+  alt="MCP Architecture: Host/Agent Harness contains an MCP Client communicating via JSON-RPC (over STDIO or HTTP-SSE) with isolated MCP Servers. The Distillate MCP Server exposes tools (like capture_card) directly manipulating SQLite, while Git/Filesystem MCP servers expose local system operations."
+  chart={`flowchart LR
+    subgraph Host[Host / Agent Harness]
+        Client[MCP Client]
+        LLM[LLM Agent Loop]
+    end
+
+    subgraph Protocol[Model Context Protocol / JSON-RPC]
+        Transport[STDIO / HTTP-SSE]
+    end
+
+    subgraph Servers[Decoupled MCP Servers]
+        DistillateServer[Distillate MCP Server<br/><i>capture_card, lessons</i>]
+        DBSQLite[(Local SQLite DB)]
+        GitServer[Filesystem / Git MCP]
+    end
+
+    LLM <--> Client
+    Client <--> Transport
+    Transport <--> DistillateServer
+    Transport <--> GitServer
+    DistillateServer <--> DBSQLite
+
+    classDef box fill:#121417,stroke:#63aae4,stroke-width:1.5px,color:#e4e2de;
+    classDef server fill:#16242f,stroke:#1f5f8b,stroke-width:1.5px,color:#e4e2de;
+    classDef db fill:#2a2113,stroke:#e0a83f,stroke-width:1.5px,color:#e4e2de;
+    class Client,LLM,Transport box;
+    class DistillateServer,GitServer server;
+    class DBSQLite db;`}
+/>
+
+| Primitive | Purpose | Example |
+| --- | --- | --- |
+| **Tools** | Executable functions that agents can invoke to perform side effects or query systems. | `capture_card`, `run_command`, `query_database` |
+| **Resources** | Read-only contextual data, documents, or schema files exposed like URIs. | `distillate://cards/recent`, `file:///logs/app.log` |
+| **Prompts** | Pre-configured workflow templates parameterized for common user tasks. | `draft_lesson_from_solution`, `code_review` |
+
+<Callout tone="note" title="Architecture Note">
+In Distillate, the MCP server runs independently over STDIO (`bun run mcp`). It exposes tools like `capture_card` backed by Zod schemas, enforcing validation and idempotency at the protocol boundary regardless of which client connects.
+</Callout>
+
+## 4. Subagents: Process Isolation & Parallel Work
+
+Single-context agent architectures eventually hit two fundamental walls:
+
+- **Context Contamination & Window Saturation:** Massive logs, diffs, and intermediate web scraping outputs pollute attention, degrading reasoning on the primary task.
+- **Long-running Blocking Operations:** An agent running a 5-minute build or browsing dozens of web pages cannot simultaneously interact with the user or reason about other subproblems.
+
+Modern harnesses resolve this via **Subagents**—hierarchical, decoupled worker instances spawned with their own isolated conversation context, tool subsets, and lifecycles:
+
+<Mermaid
+  alt="Subagent Hierarchy: Lead Orchestrator delegates tasks to specialized subagents (Browser Subagent with DOM tools, Code Search Subagent with Grep tools). Heavy noise and logs stay trapped inside the subagent's local context window; only high-signal summary results are returned back to the orchestrator."
+  chart={`graph TD
+    User([User Request]) --> Lead[Lead Orchestrator Agent<br/><i>Maintains Goal, High-Level Plan, User Interaction</i>]
+
+    Lead -->|1. Task: Crawl & Test UI| Sub1[Browser Subagent<br/><i>Tools: DOM, Click, Screenshot</i>]
+    Lead -->|2. Task: Deep Code Search| Sub2[Code Search Subagent<br/><i>Tools: Grep, AST, Ripgrep</i>]
+
+    Sub1 -->|Raw HTML, 20 DOM Actions, Screenshots| Sub1Clean[Context Isolation<br/><i>Noise stays in Subagent</i>]
+    Sub2 -->|1000s of lines scanned across 40 files| Sub2Clean[Context Isolation<br/><i>Noise stays in Subagent</i>]
+
+    Sub1Clean -->|Clean JSON Summary: 'Button verified'| Lead
+    Sub2Clean -->|Clean Summary: 'Found bug in line 42'| Lead
+
+    Lead --> Stop([Synthesized Solution to User])
+
+    classDef lead fill:#16242f,stroke:#63aae4,stroke-width:1.5px,color:#e4e2de;
+    classDef sub fill:#121417,stroke:#858c94,stroke-width:1.5px,color:#e4e2de;
+    classDef clean fill:#13241a,stroke:#5cc98a,stroke-width:1.5px,color:#e4e2de;
+    class Lead lead;
+    class Sub1,Sub2 sub;
+    class Sub1Clean,Sub2Clean clean;`}
+/>
+
+- **Lead** — **Orchestrator Agent:** Maintains user intent, coordinates plan milestones, evaluates outputs, and gates destructive decisions.
+- **Sub 1** — **Browser Subagent:** Equipped with DOM interaction and screenshot tools. Explores a website, extracts structured data, and returns a concise JSON summary to the orchestrator.
+- **Sub 2** — **Research / Code Subagent:** Investigates deep codebase call graphs in a clean context window, returning only exact findings and diff proposals.
+
+<Callout tone="warning" title="Anti-Pattern: The Phone Tag Trap">
+Subagents without structured handoff schemas waste tokens conversing back and forth in vague natural language. Effective orchestration requires strict contract boundaries: inputs must be concrete briefs, and outputs must be validated structured summaries.
+</Callout>
+
+## 5. Sandboxing & The Autonomy Ladder
+
+The most dangerous design mistake in building agentic systems is granting unconstrained host access without graduated boundaries. Modern production harnesses implement tiered autonomy:
+
+<Mermaid
+  alt="Autonomy Ladder: Tier 0 (Pure Read) and Tier 1 (Sandboxed Local Mutation) execute automatically without interrupting the user. Tier 2 (Consequential / Outbound) requires an explicit Human Approval Gate. Tier 3 (Irreversible / Destructive) is blocked outright by harness security policies."
+  chart={`flowchart TD
+    Action[Agent Emits Action] --> Eval{Determine Risk Tier}
+
+    Eval -->|Read Only| T0[Tier 0: Pure Read<br/><i>Read files, list dirs, view AST</i>]
+    Eval -->|Workspace Local| T1[Tier 1: Sandboxed Mutation<br/><i>Edit local files, run isolated tests</i>]
+    Eval -->|Outbound / Consequential| T2[Tier 2: External Action<br/><i>Network API, Git push, delete branch</i>]
+    Eval -->|Destructive| T3[Tier 3: Irreversible<br/><i>Format disk, drop DB, wipe repo</i>]
+
+    T0 --> Auto[Auto-Allowed / Silent Execution]
+    T1 --> Auto
+    T2 --> Gate[Human Approval Gate<br/><i>Interactive Modal / Signed Confirmation</i>]
+    Gate -->|Approved| Run[Execute Action]
+    Gate -->|Rejected| Veto[Harness Rejection / Inform Agent]
+    T3 --> HardBlock[Hard Veto / Forbidden by Policy Engine]
+
+    classDef green fill:#13241a,stroke:#5cc98a,stroke-width:1.5px,color:#e4e2de;
+    classDef yellow fill:#2a2113,stroke:#e0a83f,stroke-width:1.5px,color:#e4e2de;
+    classDef red fill:#2d1818,stroke:#f0837f,stroke-width:1.5px,color:#e4e2de;
+    class T0,T1,Auto,Run green;
+    class T2,Gate yellow;
+    class T3,HardBlock,Veto red;`}
+/>
+
+- **Pure Read (Tier 0):** Reading files, inspecting ASTs, searching documentation—low risk, typically executed silently.
+- **Sandboxed Mutation (Tier 1):** Modifying files within workspace root, running test commands in isolated containers or standard sandboxes without outbound network access.
+- **Consequential Actions (Tier 2):** Network calls, git pushes, credential access, external emails—require explicit user confirmation prompts or signed approval tokens.
+- **Destructive / Irreversible (Tier 3):** `rm -rf`, dropping database tables, overwriting master branches—require multi-factor confirmation and hard-coded harness veto rules.
+
+<Quiz
+  title="Quick Check"
+  question={'Why is writing "A human life is at stake, make no mistakes!" inside a prompt an anti-pattern for reliable agent workflows?'}
+  options={[
+    "Because language models have no real-world grounding or emotional feedback loop; reliability requires deterministic tool verification, test suites, and sandboxed gating",
+    "Because threatening an AI violates server terms of service",
+    "Because models work best when not given any instructions at all",
+  ]}
+  answer={1}
+  right={'Correct: A. Emotional leverage ("blackmail skills") does not produce reliable execution. Rigor comes from the harness: compiler checks, unit test feedback loops, and human-in-the-loop approval gates.'}
+  wrong={'Correct: A. Emotional leverage ("blackmail skills") does not produce reliable execution. Rigor comes from the harness: compiler checks, unit test feedback loops, and human-in-the-loop approval gates.'}
+/>
+
+<Callout tone="note" title="Try This">
+Audit an agent workflow you or your team use today:
+
+1. Find any prompt phrasing that begs or relies on emotional leverage (e.g. *"you are a genius"*, *"don't make any errors"*).
+2. Replace each superstitious phrase with an explicit harness invariant: an MCP tool, a test command check, or an autonomy gate.
+3. Separate the noisy investigation steps into a subagent handoff brief.
+</Callout>
+
+## References & Deeper Reading
+
+- [MCP Specification](https://modelcontextprotocol.io/specification/2025-06-18) — Architecture for tools, resources, and protocol transports.
+- [Anthropic: Building Effective Agents](https://www.anthropic.com/research/building-effective-agents) — Workflows, evaluations, and subagent orchestration patterns.
+- [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629) — The foundation of tool-augmented agent loops.
+- [NIST Artificial Intelligence Risk Management Framework (AI RMF 1.0)](https://csrc.nist.gov/pubs/ai/100/1/final) — Principles for governing autonomous model execution.

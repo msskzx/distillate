@@ -1,0 +1,91 @@
+export const meta = {
+  title: "Dream-RSI: Replay Worlds for Recursive Self-Improvement",
+  label: "Dream-RSI",
+  summary: "Dream-RSI turns completed discovery histories into replay simulators that test exploration policies before spending money on new online searches.",
+  number: 4,
+  disclosure: "open",
+  sourceProject: "distillate",
+};
+
+*World models · agentic discovery · recursive self-improvement*
+
+<Callout tone="insight" title="Core insight">
+
+Dream-RSI turns completed discovery histories into replay simulators. It can test many alternative exploration policies against recorded outcomes before spending money on new online searches.
+
+</Callout>
+
+[Dream-RSI](https://arxiv.org/abs/2609.14858) addresses a meta-level problem: not how to improve the solution generator directly, but how to improve the policy that decides which branches to explore, how much to parallelize, and when to stop.
+
+## 1. The unusual “world model”
+
+In Dreamer, a world model is a learned parametric simulator. Dream-RSI uses a different construction: a discovery tree records workspaces, decisions, candidate results, and scores. That finite tree becomes an *empirical replay world*.
+
+<Mermaid alt="Online policy → discovery agent → evaluated candidates → recorded discovery tree → replay simulator → policy improvement → deploy online again." chart={`flowchart LR
+  A[Online exploration policy] --> B[Discovery agent]
+  B --> C[Evaluated candidates]
+  C --> D[Recorded discovery tree]
+  D --> E[Replay simulator pool]
+  E --> F[Dream many policy revisions]
+  F --> G[Select best replay score]
+  G --> A`} />
+
+## 2. What is being improved?
+
+The policy chooses a batch of eligible tree nodes. A batch controls which branches to continue and how many workers run in parallel. The paper evaluates policies using a quality–cost tradeoff: find high-scoring candidates with fewer agent calls, while avoiding excessive sequential rounds.
+
+<Mermaid alt="Root workspace branches into recorded candidate attempts. A replayed policy chooses which recorded branches to reveal, possibly skipping a known dead end." chart={`graph TD
+  R[Root workspace]
+  R --> A[Branch A: candidate + score]
+  R --> B[Branch B: candidate + score]
+  A --> A1[Refinement + score]
+  A --> A2[Alternative + score]
+  B --> B1[Refinement + score]
+  P[New policy] -. chooses .-> A
+  P -. skips dead end .-> B`} />
+
+## 3. Online phase versus dreaming phase
+
+| Phase | What changes? | What it costs |
+| --- | --- | --- |
+| Online exploration | The agent generates and evaluates new candidates; the tree grows. | Expensive agent calls and execution. |
+| Offline dreaming | A candidate policy traverses already-recorded branches. | Mostly replay and scoring; no new candidate generation. |
+| Redeployment | The best replay-scoring policy becomes the next online policy. | One new online rollout validates the improvement. |
+
+## 4. Why this is recursive self-improvement
+
+Each online round expands the history. That larger history creates more replay worlds. Those worlds provide more feedback for revising the exploration policy. The revised policy then determines what new evidence enters the next generation of the simulator pool.
+
+```
+history = []
+policy = initial_policy
+
+repeat:
+    tree = explore_online(policy)
+    history.append(tree)
+    candidates = revise_policy_by_replaying(policy, history)
+    policy = best_replay_scoring_candidate(candidates)
+```
+
+<Callout tone="warning" title="The boundary">
+
+Replay is grounded, but not magical. It cannot reveal an outcome for a branch that was never recorded. A policy can overfit the historical trees, so fresh online exploration remains necessary.
+
+</Callout>
+
+## 5. Dream-RSI versus Dreamer
+
+Both systems improve behavior through cheap internal “dreaming,” but their simulators differ:
+
+- **Dreamer:** learns a neural latent transition model that can generate new hypothetical states.
+- **Dream-RSI:** replays a finite tree of already-observed discovery outcomes and changes how that tree is traversed.
+
+This makes Dream-RSI closer to planning over an empirical search graph than to learning a conventional physics-like world model.
+
+<Quiz title="Retrieval check" question="What makes Dream-RSI’s replay simulator different from Dreamer’s world model?" options={["It never uses any historical data.", "It replays recorded branches instead of predicting arbitrary new latent states.", "It only improves the base language model weights."]} answer={2} right="Correct. Dream-RSI changes the exploration policy while grounding feedback in a finite, recorded discovery history." wrong="Not quite. The defining distinction is replaying recorded outcomes versus generating model-predicted futures." />
+
+## Primary source
+
+[Zheng et al., Dream-RSI: Recursive Self-Improvement through Evolving Worlds](https://arxiv.org/abs/2609.14858). The paper was submitted in September 2026 and revised in October 2026; this lesson follows its v2 description.
+
+**Next:** Ask me to unpack the replay objective, especially its quality–cost hypervolume and parallelism penalty.

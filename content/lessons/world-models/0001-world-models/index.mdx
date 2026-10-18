@@ -1,0 +1,75 @@
+export const meta = {
+  title: "World Models: Learning to Simulate Consequences",
+  label: "World Models",
+  summary: "A world model is a learned transition model that predicts the parts of the future an agent needs in order to choose better actions.",
+  number: 1,
+  disclosure: "open",
+  sourceProject: "distillate",
+};
+
+*Model-based reinforcement learning · technical foundations*
+
+<Callout tone="insight" title="Core insight">
+
+A world model is not necessarily a photorealistic copy of reality. It is a learned transition model that predicts the parts of the future an agent needs in order to choose better actions.
+
+</Callout>
+
+Suppose an agent sees a camera frame, presses a button, and needs to decide what to do next. A model-free policy maps the current input directly to an action. A world-model agent can ask: “If I press left, what state and reward are likely next? What if I press right?” That internal counterfactual is the source of planning.
+
+## 1. The formal object
+
+In a partially observed environment, the true state <code>s<sub>t</sub></code> is hidden. The agent receives an observation <code>o<sub>t</sub></code> and takes an action <code>a<sub>t</sub></code>. A learned world model maintains a useful internal state <code>z<sub>t</sub></code>:
+
+```
+z_t = encoder(o_t, history)
+(z_{t+1}, r_t, done_t) ~ model(z_t, a_t)
+```
+
+The model approximates the environment's transition and reward dynamics. The distribution symbol matters: real environments can be stochastic, so a good model may need to represent several plausible futures rather than one average future.
+
+## 2. Why a latent state?
+
+Raw pixels contain enormous detail: texture, lighting, and background motion. Most of it is irrelevant to the next decision. The encoder compresses observations into a latent representation that tries to preserve decision-relevant information.
+
+<Callout tone="warning" title="The critical test">
+
+Two observations may look different but be equivalent for control. Conversely, two similar-looking observations may require different actions if one hides a different velocity, inventory, or opponent intention. A useful latent state preserves consequences, not appearances.
+
+</Callout>
+
+## 3. Learning and using the model
+
+Training usually begins with trajectories of observations, actions, and rewards. The model is optimized so that its predictions match what actually followed. Once it is adequate, the agent can generate imagined rollouts:
+
+```
+z0 = encode(current_observation)
+for t in horizon:
+    action = policy(z)
+    z, reward = world_model(z, action)
+    learn_from_imagined_trajectory()
+```
+
+Dreamer propagates value-learning signals through imagined latent trajectories. MuZero takes a different route: its learned model predicts the quantities needed by tree search—reward, value, and policy—without reconstructing every observation. The model is therefore judged by decisions, not visual fidelity.
+
+## 4. The catch: imagination can lie
+
+Prediction errors compound. If each step is slightly wrong, a long rollout can enter states the model has never seen. The policy may then exploit a hallucinated reward loophole. This is why model-based agents often use short-horizon replanning, uncertainty estimates, conservative objectives, or continual collection of real data.
+
+## 5. A useful mental comparison
+
+| Agent | Question it learns to answer |
+| --- | --- |
+| Model-free policy | “Given this input, which action usually works?” |
+| Predictive world model | “What might happen after this action?” |
+| Planner + world model | “Which candidate action has the best predicted consequences?” |
+
+<Quiz title="Retrieval check" question="Why can a world model be useful even when it cannot reconstruct pixels accurately?" options={["Because pixels are never needed by an agent.", "Because planning needs decision-relevant consequences, not perfect images.", "Because prediction errors disappear in latent space."]} answer={2} right="Exactly. A planning model can discard visual detail while retaining information that changes rewards, values, or future actions." wrong="Not quite. The key is task relevance: visual reconstruction and useful consequence prediction are different objectives." />
+
+## Primary sources
+
+- [Ha & Schmidhuber, World Models](https://arxiv.org/abs/1803.10122)
+- [Hafner et al., Dream to Control](https://arxiv.org/abs/1912.01603)
+- [Schrittwieser et al., MuZero](https://www.nature.com/articles/s41586-020-03051-4)
+
+**Next:** Ask me to derive a simple latent-dynamics loss, compare Dreamer with MuZero, or build a tiny world model in Python.

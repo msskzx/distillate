@@ -1,0 +1,45 @@
+export const meta = {
+  title: "Resources",
+  summary: "The files, ADRs and external sources behind the text-to-evidence track, graded by how much they can be trusted about this pipeline.",
+};
+
+Graded by how much they can be trusted about *this* pipeline. In-repo code and
+ADRs outrank everything else, because they are the thing being learned.
+
+## In-repo, authoritative
+
+| Resource | Trust | What it settles |
+| --- | --- | --- |
+| <RepoLink repo="namaq" path="docs/data-pipelines.md">docs/data-pipelines.md</RepoLink> | Highest | The authored-layer map: which paths write Postgres, which write Neo4j, which are one-way, which look live and are not |
+| <RepoLink repo="namaq" path="docs/extraction-checklist.md">docs/extraction-checklist.md</RepoLink> | Highest | Reading order for an entry, where each thing is recorded, `notInSource` vs unchecked |
+| <RepoLink repo="namaq" path="docs/companion-extraction-checklist.md">docs/companion-extraction-checklist.md</RepoLink> | Highest | Extraction order and resume point, in the companion index's own order |
+| <RepoLink repo="namaq" path="prisma/schema.prisma">prisma/schema.prisma</RepoLink> | Highest | The stored shape. Its doc comments carry design reasons the ADRs do not repeat |
+| <RepoLink repo="namaq" path="src/lib/history/batchSchema.ts" /> | Highest | Every validation rule, and `passageExcerpts` — the positional anchor binding |
+| <RepoLink repo="namaq" path="src/lib/history/importBatch.ts" /> | Highest | How a batch becomes rows, inside one transaction |
+| <RepoLink repo="namaq" path="scripts/history/verifyExcerpts.ts" /> | Highest | The substring check that detects anchor drift; not wired into validate |
+| <RepoLink repo="namaq" path="src/lib/history/sourceAccounts.ts" /> | Highest | The read side: pagination, section index, payload shaping for the reader |
+
+## ADRs that hold the design arguments
+
+| ADR | What it decides |
+| --- | --- |
+| <RepoLink repo="namaq" path="docs/adr/0008-separate-review-from-visibility.md">0008</RepoLink> | Review status is shown, never used to hide data |
+| <RepoLink repo="namaq" path="docs/adr/0009-citations-independent-of-profiles.md">0009</RepoLink> | Evidence attaches to a subject slug, not a profile |
+| <RepoLink repo="namaq" path="docs/adr/0010-author-historical-data-under-data.md">0010</RepoLink> | `data/` is authority; Postgres, Neo4j and seeds are projections |
+| <RepoLink repo="namaq" path="docs/adr/0011-classify-the-role-of-cited-evidence.md">0011</RepoLink> | Evidence role is a property of the citation, not the work |
+| <RepoLink repo="namaq" path="docs/adr/0013-separate-attendance-from-outcome.md">0013</RepoLink> | Attendance is the relation; what happened is the status |
+| <RepoLink repo="namaq" path="docs/adr/0016-a-reader-that-owns-the-whole-screen.md">0016</RepoLink> | A page is the source's page, not the screen's |
+
+## External
+
+| Resource | Trust | Notes |
+| --- | --- | --- |
+| [Siyar, al-Risalah ed. on Shamela](https://shamela.ws/book/10906) | High for the text | The only host this project extracts from: ed. Husayn al-Asad under Shu'ayb al-Arna'ut, 3rd ed., 1405/1985. It carries the editor's footnotes, and its printed pages are the ones citations record. Its فهرس الموضوعات is where extraction order comes from. A delivery host, not an evidence class (ADR 0011) |
+| Page ids | Diagnostic only | `https://shamela.ws/book/10906/<id>` runs monotonically through the edition, so it checks a declared volume or printed page. Note `الجزء` there labels the Siyar's own parts: its `الجزء ٢` is this edition's volume 5 |
+
+## Communities
+
+Not yet explored. The design questions here (provenance modelling, citable-unit
+granularity, editorial review states) are shared with digital-humanities and
+TEI work — worth finding a venue for once a concrete design proposal exists to
+put in front of people. Raise it when you want this pursued.

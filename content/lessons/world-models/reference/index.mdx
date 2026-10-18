@@ -1,4 +1,7 @@
-# World models — technical cheat sheet
+export const meta = {
+  title: "World models: technical cheat sheet",
+  summary: "The core loop, three model-based RL families, why latent space, and the main failure modes.",
+};
 
 ## Core loop
 
@@ -26,4 +29,3 @@ Pixels contain details irrelevant to control. A good latent state preserves task
 - **Distribution shift:** the policy visits states absent from the model's training data.
 - **Stochasticity collapse:** a deterministic prediction averages incompatible futures.
 - **Reward hacking:** the model predicts an easy-to-exploit reward artifact.
-

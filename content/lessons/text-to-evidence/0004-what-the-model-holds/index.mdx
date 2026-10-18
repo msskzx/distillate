@@ -1,0 +1,446 @@
+import StoresDiagram from "./StoresDiagram";
+
+export const meta = {
+  title: "What the model holds, and what it cannot",
+  label: "What the model holds",
+  summary: "Making Siyar volumes 4 and 5 exact quotes showed where the current model drifts; this lesson groups the defects by cause and tests the model against the works the project wants next.",
+  number: 4,
+  disclosure: "open",
+  sourceProject: "namaq",
+};
+
+Making Siyar volumes 4 and 5 exact quotes
+showed where the current model drifts. This lesson lays out how it is built, groups the defects by
+cause, and tests the model against the works the project wants next: another sira, al-Bukhari,
+tafsir and the tarajem. It names pressures and open questions. It does not propose the redesign.
+
+## 1. How the model is built
+
+### The stores, and what copies from what
+
+A value the app shows passes through five stores. Two are authored by hand, two are derived, and
+one is authored and derived at once.
+
+<StoresDiagram />
+
+1. **Page store.** One printed page of one edition per file, for example
+`data/history/sources/siyar-alam-al-nubala-risalah/v4/41.md`, with the editor's
+footnotes beside it in a `.notes.md`. A page belongs to its volume, not to the entry that
+first needed it (<RepoLink repo="namaq" path="docs/adr/0018-a-page-belongs-to-the-edition.md">ADR 0018</RepoLink>).
+2. **Batches.** `data/history/batches/<batch>/batch.json` holds source
+accounts, claims and citations, plus an approval block
+(<RepoLink repo="namaq" path="src/lib/history/batchSchema.ts" />).
+3. **Catalog.** `data/catalog/{people,battles,events,utterances}/*.ts`, one
+module per subject, holding the values the app shows (<RepoLink repo="namaq" path="src/lib/catalog/types.ts" />). These are
+typed by hand. The header of <RepoLink repo="namaq" path="data/catalog/people/abu-ubaydah-ibn-al-jarrah.ts" /> says its
+Arabic is verbatim from the batch, which is a promise the file makes about itself.
+4. **PostgreSQL.** <RepoLink repo="namaq" path="prisma/schema.prisma" />: `Person`,
+`PersonVirtue`, `HistoricalClaim`, `Citation`,
+`SourcePage`, `SourcePassage`, `Utterance`. Written by
+`history:import` (evidence) and `catalog:project` (values).
+5. **Neo4j.** Nodes and relations projected from the catalog by
+`catalog:project-graph`. Person-to-person relations have no PostgreSQL table
+(<RepoLink repo="namaq" path="docs/adr/0010-author-historical-data-under-data.md">ADR 0010</RepoLink>).
+
+Behind these sit the dormant seeds, `prisma/personSeedData*.ts` and
+`neo4j/*Seed*.ts`. <RepoLink repo="namaq" path="AGENTS.md" /> calls them "a checklist, never a source", but
+while a seed still declares a person the catalog only adds to that person. So for most subjects two
+authoring paths are live at once (<RepoLink repo="namaq" path="AGENTS.md" />, Historical evidence data).
+
+### The five nouns
+
+**A claim** is a record in a batch: a `key`, a subject, either a
+`field` or a relation, a free-text `assertion`, a `confidence`
+(`ESTABLISHED`, `LIKELY`, `DISPUTED`, `UNASSESSED`) and a
+`reviewStatus` (<RepoLink repo="namaq" path="src/lib/history/batchSchema.ts" />). A claim that names neither a
+field nor a relation is rejected by `history:validate` (<RepoLink repo="namaq" path="AGENTS.md" />).
+
+**A citation** hangs off a claim. It carries a `passageAnchor`, an
+`excerptArabic`, a `volume` label, a `pageReference` and an
+`extractionUrl` (`batchSchema.ts`; `Citation` in
+`prisma/schema.prisma`). The excerpt is a second copy of the page's words.
+
+**An anchor** is `<volume>/<printedPage>-p<n>`, where
+*n* is the paragraph's position after splitting the page on blank lines.
+`pageAnchors` in <RepoLink repo="namaq" path="src/lib/history/sourceStore.ts" /> computes it on read; nobody
+authors it (<RepoLink repo="namaq" path="docs/adr/0018-a-page-belongs-to-the-edition.md">ADR 0018</RepoLink>).
+
+**A catalog value** is a field such as `fullName` or a list entry such as
+a virtue, with `claims: ['<claim key>']` or the marker
+`legacy-unreviewed` (the `Provenance` type in
+`src/lib/catalog/types.ts`). The value's text is typed separately from both the claim's
+assertion and the citation's excerpt.
+
+**An approval** is a hash. `batchRevision` hashes the whole
+`batch.json` minus the approval block, and `checkApproval` compares it to the
+recorded revision (<RepoLink repo="namaq" path="src/lib/history/batchSchema.ts" />). Approving for publication and
+marking reviewed are separate acts, and neither implies the other
+(<RepoLink repo="namaq" path="docs/adr/0008-separate-review-from-visibility.md">ADR 0008</RepoLink>, <RepoLink repo="namaq" path="AGENTS.md" />).
+
+### Which relation decides what a profile shows
+
+The chain is: value → claim key → claim in a batch approved at its current revision → citation
+→ anchor → page. `approvedClaimKeys` in <RepoLink repo="namaq" path="scripts/data/validateCatalog.ts" />
+collects keys only from batches whose `checkApproval` passes, and a catalog value whose key
+is not in that set is an issue.
+
+The profile shows the *catalog value*. It does not read `claim.assertion`, and
+it does not read `citation.excerptArabic`. The key is a pointer that says "this value
+rests on that claim". Nothing on the pointer checks that the value and the evidence say the same
+words. That one fact explains most of section 2.
+
+<Quiz
+  title="Prediction"
+  question="An agent rewrites claim.assertion for zubayr/full-name to fix a typo. What changes on al-Zubayr's profile?"
+  options={[
+    "The full name shown is corrected",
+    "Nothing shown changes, and the batch's approval lapses, so every value keyed to it fails catalog:validate",
+    "Only the citation under the name changes",
+  ]}
+  answer={2}
+  right="Right. The profile reads the catalog value, not the assertion, and batchRevision hashes the whole batch, so any edit lapses the approval for every claim in it."
+  wrong="The profile reads the catalog module's value. The assertion feeds HistoricalClaim and nothing a profile field reads. Meanwhile batchRevision hashes the whole batch.json, so the edit lapses the approval of all its claims at once."
+/>
+
+## 2. The drift and the defects
+
+The counts below come from the session that made volumes 4 and 5 exact quotes, recorded in
+<RepoLink repo="namaq" path="docs/plans/data-model/00-evidence.md" />. They are grouped by cause, not by date.
+
+### Cause A: copies of the same text in several places
+
+One sentence of al-Dhahabi can exist four times: in the page file, in
+`citation.excerptArabic`, in `claim.assertion`, and in the catalog value. A
+fifth copy lands in PostgreSQL. Each was typed or pasted separately.
+
+- **What happened.** 25 PRs rewrote `assertion`, a field no profile value
+  reads, before anyone saw that the profile reads the catalog. Of 727 catalog text values collected,
+  414 failed an exact-quote check. `name`, `fullName` and `kunya` were
+  unvowelled while the citation beside them was vowelled.
+- **Where it shows.** `zubayr/full-name` in
+  <RepoLink repo="namaq" path="data/history/batches/az-zubayr-ibn-al-awwam/batch.json" />: the assertion is unvowelled and
+  ends with `القرشي الأسدي`, which the excerpt beside it does not contain.
+- **What it cost.** Work spent on a copy that showed nowhere, and a profile that
+  could disagree with its own citation while every check passed.
+
+### Cause B: provenance as a long indirection, gated coarsely
+
+- **What happened.** The path from a value to its words has five hops and a string
+  key in the middle. Approval is one hash over the whole batch (`batchRevision`), so fixing
+  one excerpt lapses every claim in that batch. Five batches carry no approval at all today
+  (arwa-bint-abd-al-muttalib-siyar175, fatimah-bint-muhammad, qutaylah-bint-qais-al-kindiyyah,
+  safiyyah-bint-huyayy, umm-shareek), and `catalog:validate` reports every value keyed to
+  them.
+- **Where it shows.** `checkApproval` in
+  <RepoLink repo="namaq" path="src/lib/history/batchSchema.ts" />; `approvedClaimKeys` in
+  <RepoLink repo="namaq" path="scripts/data/validateCatalog.ts" />.
+- **What it cost.** A red `catalog:validate` on `main` becomes
+  normal, and a normal red check stops being read. A correction becomes expensive, because it reopens a
+  whole batch for publication.
+
+### Cause C: anchors addressed by position
+
+- **What happened.** `4/41-p3` means "the third blank-line block of the
+  file". Re-splitting a page, adding a missing leading paragraph, or merging two lines re-points every
+  citation after it, silently. Eight anchors pointed past the end of their page (for example
+  `4/92-p15`). Lesson 0003 found Talhah's `4/23-p17` on a ten-paragraph page.
+- **Where it shows.** `pageAnchors` in
+  <RepoLink repo="namaq" path="src/lib/history/sourceStore.ts" /> splits on `/\n{2,}/` and numbers from 1.
+- **What it cost.** An anchor proves only that a page has at least *n*
+  paragraphs. Which words it points at depends on how the file was typed.
+
+### Cause D: two numbering systems for one volume
+
+- **What happened.** The anchor's prefix is the edition's own volume number. The
+  citation's `volume` field is a free string. Across all batches it reads
+  `"1"` 234 times, `"2"` 50, `"4"` 731, `"5"` 348,
+  `"السيرة 1"` 523, `"السيرة 2"` 44. Shamela's `الجزء ١` is this
+  edition's volume 4, so `"1"` and `"4"` name the same binding.
+- **Where it shows.** `zubayr/full-name` again: anchor `4/41-p1`,
+  `volume: "1"`. <RepoLink repo="namaq" path="AGENTS.md" /> (Content sources) and
+  <RepoLink repo="namaq" path="docs/adr/0018-a-page-belongs-to-the-edition.md">ADR 0018</RepoLink> both record that three
+  accounts were misfiled by reading the host's label.
+- **What it cost.** Misfiled accounts, and a field the reader cannot trust without
+  re-deriving it from the anchor, which makes the field a copy with no job.
+
+### Cause E: checks that verify something other than the rule
+
+- **What happened.** <RepoLink repo="namaq" path="scripts/history/verifyExcerpts.ts" /> checks that an
+  excerpt is a substring of the *one* paragraph its anchor names, after dropping footnote
+  markers and collapsing whitespace. <RepoLink repo="namaq" path="AGENTS.md" /> tells authors to join fragments across page
+  turns and paragraph boundaries and to mark omissions with an ellipsis. The verifier rejects exactly
+  those. 41 of 105 batches failed it, with 248 FAIL lines. The verifier also says nothing about the
+  catalog value, which is the text a reader sees. And it is not wired into
+  `history:validate` ([`docs/lessons/NOTES.md`](/text-to-evidence/notes)).
+- **Where it shows.** `zubayr/full-name` cites `4/41-p1`, but its
+  excerpt runs on into p2 of <RepoLink repo="namaq" path="data/history/sources/siyar-alam-al-nubala-risalah/v4/41.md">v4/41.md</RepoLink> (`ابْنِ قُصَيِّ …` is its own paragraph).
+  The citation is honest and the verifier fails it. The same normalisation is written twice, in
+  `verifyExcerpts.ts` and as `normalizePassageText` in
+  <RepoLink repo="namaq" path="src/lib/history/sectionHeadings.ts" />.
+- **What it cost.** Agent fixes were accepted by their own checks while a reviewer
+  found meaning changes in about 65 of about 300 values: dropped clauses, a changed speaker, a lineage
+  link added or lost. A check that compares the wrong pair passes the wrong edit
+  ([lesson 0003](/text-to-evidence/0003-a-check-that-exists-but-doesnt-run)).
+
+### Cause F: untyped narrative fields that cannot say who is speaking
+
+- **What happened.** `virtues` was one string joined from up to six
+  claims (Hatib), so al-Dhahabi's narration and a companion's testimony read as one voice. Summaries
+  were stitched from several places, such as Sa'd ibn Ubadah's Badr summary, which nobody wrote.
+- **Where it shows.** Fixed for virtues only:
+  <RepoLink repo="namaq" path="docs/adr/0020-a-virtue-is-one-entry-with-one-speaker.md">ADR 0020</RepoLink> made a virtue a list
+  entry with a `speaker` (`CatalogVirtue` in `src/lib/catalog/types.ts`,
+  `PersonVirtue` in the schema). `appearance`, participation
+  `summary` and the others are still single strings. The Abu Ubaydah module notes its
+  `appearance` is "composed from 7-p9 and 23-p6".
+- **What it cost.** Words put in the wrong mouth, which is the gravest error the
+  owner names. ADR 0020 also bans `…` stitching for a virtue, while `AGENTS.md`
+  still allows ellipses in citations, so two rules now disagree on what one quote may be.
+
+### Cause G: edition differences
+
+- **What happened.** Shamela serves this edition's sira volumes 1 and 2 bare, with no
+  tashkeel (vowel marks) and no footnotes (`shamela.ws/book/10906/428`), while volumes 4 and 5
+  are vowelled with footnotes. Some batches carried unvowelled islamweb text while claiming the Shamela
+  edition.
+- **Where it shows.** `HistoricalSource` and `SourceVolume` in
+  `prisma/schema.prisma` know one edition per source slug. Nothing records which host
+  rendering a page was taken from, beyond `extractionUrl`.
+- **What it cost.** An exact-quote rule cannot hold when the "exact" text depends on
+  the host. A quote matches its page or not according to which rendering was typed into the page.
+
+## 3. Why it happened
+
+Each cause above traces to one design property, not to a careless agent.
+
+- **A: text is stored by value, not by reference.** A value, an assertion and an
+  excerpt are each a string that *should* equal a span of the page. None of them *is* that
+  span. Every copy is a place to drift, and <RepoLink repo="namaq" path="docs/adr/0010-author-historical-data-under-data.md">ADR 0010</RepoLink>
+  separated "what the work says" from "what Namaq selects" without saying the selection must be a
+  pointer.
+- **B: provenance is keyed, not structural, and the unit of approval is the file.**
+  The claim key is a name both sides agree to. The approval covers a revision of a file, so its grain is
+  whatever an author put in one file, not one value
+  (<RepoLink repo="namaq" path="docs/adr/0010-author-historical-data-under-data.md">ADR 0010</RepoLink>: "Review batches remain
+  revisioned approval units").
+- **C: identity is derived from layout.** ADR 0018 made the anchor derived so it
+  cannot drift from an authored list. It gained consistency and kept dependence on how blank lines fall
+  in a file. A paragraph has no identity of its own.
+- **D: the same fact has two fields with no owner.** The volume lives in the anchor
+  and again in a free string. Neither is computed from the other.
+- **E: checks test shape, not derivation.** The rule ("the value holds exactly as the
+  source said it") spans value, citation and page. Each check looks at one pair, and the pair the
+  reader sees, value against page, has no check at all.
+- **F: narrative is a scalar.** A `String` column has no place for a
+  speaker, a span boundary or an isnad. ADR 0020 fixed one field by making it a list of typed entries.
+  The property remains for the rest.
+- **G: a source is identified by work and publisher, not by witness.** The model has
+  no layer between "edition" and "page text" to hold that two hosts render one edition differently.
+
+## 4. Future works, one at a time
+
+Each verdict names the model element that decides it. "Holds" means the current types take the
+work with no new concept. "Strains" means it fits by bending a rule or overloading a field. "Breaks"
+means a decision already recorded must be reversed.
+
+### (a) Another sira or companion history: Ibn Hisham, Ibn Sa'd's Tabaqat. Verdict: strains
+
+Several accounts of one subject are already allowed. `SourceAccount` is unique on
+`(sourceId, subjectKind, subjectSlug)`, so each work gets its own account of al-Zubayr
+(<RepoLink repo="namaq" path="prisma/schema.prisma" />). Competing reports already become separate claims where the model
+holds the value (<RepoLink repo="namaq" path="AGENTS.md" />; `DISPUTED` in `batchSchema.ts`).
+
+The strain is in four places.
+
+- **One account per subject per work.** The same unique key forbids a work that tells
+  of a subject in two separate places, which Ibn Sa'd does when a companion appears under a tribe and
+  again elsewhere. The work would need a second slug or a merged span.
+- **Choosing between works.** <RepoLink repo="namaq" path="docs/adr/0010-author-historical-data-under-data.md">ADR 0010</RepoLink>
+  says version one uses "one eligible historical source per focal subject and does not rank claims".
+  A second work over the same subject is outside version one by its own text.
+- **Numbering.** The anchor assumes volume and printed page. That holds for Ibn Sa'd
+  in print. The free-text `volume` label (cause D) would add a third numbering system.
+- **Variant names and identification.** A subject is a slug, and identity across
+  works is whatever the author of the batch decided. Nothing records "Ibn Hisham's X is the Siyar's Y"
+  as a cited, disputable claim. An event told differently by two works lands in two batches, and the
+  catalog `summary` on a participation is one string with one wording.
+
+**Decider:** ADR 0010's one-source-per-subject rule and the account's unique key.
+
+### (b) Sahih al-Bukhari. Verdict: breaks
+
+A hadith collection is the case <RepoLink repo="namaq" path="docs/adr/0015-one-record-for-what-someone-said.md">ADR 0015</RepoLink>
+wrote down in advance: "A hadith record wants an isnad, a collection, a book and a number, and a
+grading vocabulary". It says every one of those "either contradicts a decision this repository
+already made or asserts something it has no source for".
+
+- **The isnad (chain of narrators).** Each link is a narrator and a mode of
+  transmission: haddathana (he told us), akhbarana (he informed us), an (from), qala (he said). The
+  model has no record for a link. `Utterance` has one `speaker` and one
+  `speakerName` (`prisma/schema.prisma`), so a chain could only live as page
+  text.
+- **The matn (the wording), exactly.** `Utterance.textArabic` is a copy
+  (cause A). For hadith the owner's bar is exact wording traceable to its reference, which a typed copy
+  cannot prove.
+- **One hadith, many places.** Al-Bukhari repeats a report across chapters with
+  different chains and wordings. The model has no notion of two records being "the same report". Each
+  would be a separate utterance, or the repetitions would be lost.
+- **Muallaq reports.** A report with its chain cut at the start is a chain with a
+  recorded gap. With no chain model there is no place for the gap either.
+- **The book's own numbering.** Kitab, bab and hadith number are not volume and
+  printed page. The anchor (`sourceStore.ts`) and `SourceAccountSpan` know only
+  the latter. Different numbering editions of al-Bukhari would make cause D worse.
+- **Grading.** `Utterance.grading` is free text in the source's own words
+  (ADR 0015). Inside al-Bukhari grading is mostly the collection itself. Later graders are other works
+  with their own claims.
+- **Narrators who are already people.** Abu Hurayrah, Aisha and al-Zubayr are catalog
+  people with Siyar biographies. Under the current rule their role as narrators can never be an edge.
+
+**Decider:** the AGENTS.md rule keeping chains in source text, and ADR 0015's "not a
+hadith model".
+
+### (c) Tafsir and explanation books. Verdict: strains
+
+- **Anchoring to a verse.** `Ayah` and `Surah` exist
+  (`prisma/schema.prisma`), and the catalog already links people to ayat with claims
+  (`AGENTS.md`: titles, Qur'an links). So "this explanation is about 2:255" has a target. A
+  word within a verse has none: `Ayah.text` is one string.
+- **The verse text.** It must come from the Qur'an table, not from the tafsir's own
+  printing. The page store would hold the tafsir's copy of the verse inside its paragraph. Two copies of
+  the most sensitive text in the system, and cause A says they will drift unless one points at the
+  other.
+- **Opinions attributed to Companions and Followers.** "Ibn Abbas said …" is an
+  utterance with a speaker, which ADR 0015 covers. "with a chain" or "without" is the isnad problem of
+  (b) again, in smaller form.
+- **Disagreement side by side.** The model keeps competing accounts only "where the
+  model holds the value they compete over" (`AGENTS.md`). An explanation of a verse is not
+  a value the model holds today. Either it becomes one, or the disagreement stays in page text and is
+  not structured at all.
+
+**Decider:** no model value for "explanation of a verse"; the claim rule admits only
+fields and relations.
+
+### (d) Tarajem, biographical dictionaries. Verdict: strains, close to breaking
+
+- **One person across many works.** This is what the account model was built for,
+  apart from ADR 0010's one-source rule (see (a)).
+- **Identification disputes.** <RepoLink repo="namaq" path="docs/data-pipelines.md" /> already says that
+  settling a contested صحبة (companionship) "wants الإصابة" and that until it is extracted the contest
+  is recorded, not resolved. There is no record type for "these two entries are one person" as a cited
+  claim, so the identity of a slug is asserted, never evidenced.
+- **Narrators as entities.** A tarjama (biography) in تقريب التهذيب exists because
+  its subject is a narrator. Most of them would have no relation except teacher and student.
+- **Teacher and student relations.** These are person-to-person relations, which the
+  catalog and Neo4j can hold. But a relation that exists only because one narrated from the other is
+  exactly what the current rule forbids. `docs/data-pipelines.md` also leaves the narrator's
+  tabaqa (generation) as "open and not decided".
+
+**Decider:** the narrator rule, and the lack of a cited identity claim.
+
+### What the narrator rule does under (b) to (d)
+
+The rule is in `AGENTS.md` and `docs/data-pipelines.md`: "Transmission chains
+stay in the source text. A person mentioned only as a narrator does not become a graph node or an
+edge." <RepoLink repo="namaq" path="docs/adr/0015-one-record-for-what-someone-said.md">ADR 0015</RepoLink> reuses it to keep
+poets out of the graph.
+
+- Under **(b)** it rules out the core of the work. A hadith collection is, structurally,
+  its chains.
+- Under **(c)** it costs less. Most tafsir attributions name one speaker, which an
+  utterance already holds. Chains in tafsir by transmission (al-Tabari) hit the (b) wall.
+- Under **(d)** it removes the reason most entries exist. A narrator who is "only a
+  narrator" in the Siyar is the subject in a tarajem work, so the rule's own condition stops being
+  true.
+
+The rule was written for a biography source where chains are support, not subject. It names a
+role ("mentioned only as a narrator"), and each new work changes who has that role.
+
+<Quiz
+  title="Prediction"
+  question="Someone proposes storing a Bukhari report as an Utterance with the Prophet as speaker and the isnad in occasion. Which recorded decision does that collide with first?"
+  options={[
+    "ADR 0018, a page belongs to the edition",
+    "ADR 0015, which says Utterance is not a hadith model and should not be generalised into one",
+    "ADR 0013, attendance separate from outcome",
+  ]}
+  answer={2}
+  right="Right. ADR 0015's 'Not a hadith model' section predicts this proposal and refuses it: a hadith corpus arrives with its own source model, and a chain in free text is a chain the model cannot see."
+  wrong="ADR 0015 has a section titled 'Not a hadith model' that answers this exact proposal: Utterance was built for the sira's verse and sayings, and an isnad in a free-text field is invisible to every check and to the graph."
+/>
+
+## 5. The future
+
+### Pressure points, soonest first
+
+1. **Exact quotes for what is already extracted.** Causes A, C and E bite now, on the
+   Siyar alone. Every value fixed by hand can drift again, and the check that sees value against page
+   does not exist.
+2. **Approval grain.** Each correction lapses a whole batch (cause B). As exact-quote
+   work touches all 105 batches, the cost grows with every pass.
+3. **Volume and edition identity.** Cause D and G bite the moment the sira volumes are
+   re-extracted with vowels, and again for any second work.
+4. **Remaining scalar narrative fields.** `appearance`, participation
+   `summary` and similar fields still cannot carry a speaker (cause F). They bite whenever a
+   second voice enters a field.
+5. **A second biographical source.** ADR 0010's one-source rule and the missing
+   identity claim bite with Ibn Sa'd or Ibn Hisham.
+6. **Tarajem and narrators.** The narrator rule bites with the first narrator-centred
+   work.
+7. **Hadith.** Al-Bukhari needs chains, transmission modes, report identity and its
+   own numbering at once. It bites last and hardest, and it is where the owner's bar is highest.
+
+### Rules and ADRs that would have to change
+
+- <RepoLink repo="namaq" path="docs/adr/0010-author-historical-data-under-data.md">ADR 0010</RepoLink>: one source per focal
+  subject; batches as the approval unit; two authored layers whose link is a key.
+- <RepoLink repo="namaq" path="docs/adr/0015-one-record-for-what-someone-said.md">ADR 0015</RepoLink>: "not a hadith model"
+  and its reuse of the narrator rule.
+- <RepoLink repo="namaq" path="docs/adr/0018-a-page-belongs-to-the-edition.md">ADR 0018</RepoLink>: anchors derived from
+  paragraph position.
+- `AGENTS.md` and `docs/data-pipelines.md`: "Transmission chains stay in the
+  source text"; "author a claim only when it backs a value the model holds today"; competing accounts
+  only where the model holds the value; ellipses allowed in citations, against
+  <RepoLink repo="namaq" path="docs/adr/0020-a-virtue-is-one-entry-with-one-speaker.md">ADR 0020</RepoLink>'s ban.
+- <RepoLink repo="namaq" path="docs/adr/0020-a-virtue-is-one-entry-with-one-speaker.md">ADR 0020</RepoLink> as a pattern:
+  whether every narrative field gets the same treatment.
+- <RepoLink repo="namaq" path="docs/adr/0011-classify-the-role-of-cited-evidence.md">ADR 0011</RepoLink>: its evidence role
+  on a citation would need to say whether a hadith or opinion came with a chain.
+
+<RepoLink repo="namaq" path="docs/adr/0008-separate-review-from-visibility.md">ADR 0008</RepoLink> (review separate from
+visibility) and <RepoLink repo="namaq" path="docs/adr/0009-citations-independent-of-profiles.md">ADR 0009</RepoLink> (citations
+independent of profiles) survive every scenario above. They are the parts of the model that already
+generalise.
+
+### Questions the plan stage must answer
+
+- Should a displayed value be a reference to a span of the page rather than a copy of it, and what
+  is a span when it crosses paragraphs and pages?
+- What gives a paragraph, or a span, an identity that survives re-splitting a page?
+- What is the unit of approval: a file, a claim, or a value?
+- Is `claim.assertion` needed at all, if no value reads it?
+- Who owns the volume number, and does the citation keep any volume field of its own?
+- What is an edition versus a host rendering, and can two renderings of one edition coexist?
+- Which check compares the displayed value against the page, and does it run in
+  `history:validate`?
+- Does every narrative field become a list of single-speaker entries, as ADR 0020 did for virtues?
+- Are ellipses allowed inside a quote, or is every quote one contiguous span?
+- How does a cited identity claim ("this entry is that person") look, and who may dispute it?
+- When does a narrator become an entity, and does that depend on the work or on the person?
+- What is a transmission link: narrator, mode of hearing, and what else?
+- How is "the same report" across chapters, chains and wordings represented, if at all?
+- How does a work's own numbering (kitab, bab, hadith number) sit beside volume and printed page?
+- How is a verse, or a word in a verse, the target of an explanation, with the verse text taken
+  only from the Qur'an table?
+- Which grading is a quotation from the work, and which is another work's claim about it?
+- How does ADR 0010's single-source rule give way when two works disagree about one value?
+
+## Read next
+
+**Primary sources:**
+<RepoLink repo="namaq" path="docs/plans/data-model/00-evidence.md" /> for the counts;
+<RepoLink repo="namaq" path="docs/adr/0010-author-historical-data-under-data.md">ADR 0010</RepoLink> for the two layers;
+<RepoLink repo="namaq" path="docs/adr/0015-one-record-for-what-someone-said.md">ADR 0015</RepoLink> for the hadith boundary;
+<RepoLink repo="namaq" path="docs/adr/0020-a-virtue-is-one-entry-with-one-speaker.md">ADR 0020</RepoLink> for the one field
+already rebuilt around a speaker.
+
+**Card:** [Source pipeline card](/text-to-evidence/reference).

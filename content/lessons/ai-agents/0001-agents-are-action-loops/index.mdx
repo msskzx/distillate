@@ -1,0 +1,106 @@
+export const meta = {
+  title: "Practical lessons for using agents well",
+  label: "Agents are action loops",
+  summary: "Know when a task needs an agent, how to manage context, and how skills make good behaviour reusable.",
+  number: 1,
+  disclosure: "open",
+  sourceProject: "distillate",
+};
+
+<Callout tone="insight">
+**One win:** know when a task needs an agent—and when a normal prompt is enough.
+</Callout>
+
+An ordinary chat model writes a response. A workflow follows a sequence you designed. An agent pursues a goal by choosing actions, using tools, observing results, and deciding what to do next.
+
+## Three different things
+
+- **Chat:** “Summarise this document.”
+- **Workflow:** extract → classify → format.
+- **Agent:** investigate the situation, choose the next useful action, and continue until the goal is met.
+
+## The planning example
+
+## Context is working memory you manage
+
+<Callout tone="insight">
+**One win:** spend tokens and attention on the information that changes the decision.
+</Callout>
+
+More context is not automatically better. Every extra file or paragraph competes for attention. Good context is selected, labelled, and easy to verify—not a dump of everything nearby.
+
+## The high-leverage tricks
+
+- Give the goal, constraints, audience, and definition of done up front.
+- Point to relevant files instead of pasting duplicate background.
+- Ask for a short plan before expensive work.
+- Use checkpoints: research → findings → draft → review.
+- Pass structured handoffs: facts, decisions, open questions, next action.
+- Stop when the goal is met; do not reward extra activity.
+
+## Compress before you continue
+
+At a checkpoint, ask for a small brief. That brief becomes the working context for the next phase and makes resuming later much cheaper.
+
+```
+Create a handoff brief with: goal, confirmed facts, decisions, constraints, open questions, files used, and next action. Keep it under 300 words. Do not invent missing information.
+```
+
+<Callout tone="insight" title="Context is a budget.">
+Spend it on requirements, evidence, decisions, and uncertainty. Repeated history is usually the first thing to compress.
+</Callout>
+
+## Skills make good behaviour reusable
+
+<Callout tone="insight">
+**One win:** turn a successful way of working into a repeatable, supervised capability.
+</Callout>
+
+A skill is a reusable instruction package for recurring work. It describes the job, inputs, constraints, tools, output shape, and verification steps. Codex skills and Claude skills are practical examples.
+
+## Tools change the risk
+
+- **Read:** usually low risk.
+- **Draft:** review before sharing.
+- **Reversible edit:** bounded and inspectable.
+- **External action:** explicit approval.
+- **Destructive action:** confirmation plus verification.
+
+## A small planning skill
+
+```
+Purpose: turn a vague work goal into a reviewable plan.
+Inputs: goal, audience, deadline, constraints.
+Output: assumptions, milestones, risks, open questions.
+Verify: every milestone has an owner and next action.
+Gate: never contact people or publish without approval.
+```
+
+<Callout tone="warning" title="Autonomy is graduated.">
+Let an agent investigate and propose. Keep approval gates around consequential actions. Require evidence for decisions and a clear stop condition.
+</Callout>
+
+<Quiz
+  title="Quick check"
+  question="Which approach best fits an unfamiliar, multi-step task?"
+  options={[
+    "Paste the entire conversation again and let the agent continue indefinitely",
+    "Use an agent with a concise checkpoint, evidence, a clear stop condition, and approval before external or destructive actions",
+  ]}
+  answer={2}
+  right="Agents help when the path is uncertain, while checkpoints preserve useful context and approval gates keep consequential actions human decisions."
+  wrong="Agents help when the path is uncertain, while checkpoints preserve useful context and approval gates keep consequential actions human decisions."
+/>
+
+<Callout tone="note" title="Try this">
+Choose one task and write a small skill for it: classify it as chat, workflow, or agent-shaped; state the goal, inputs, constraints, and definition of done; list the checkpoints and verification steps; then mark every action that needs human approval.
+</Callout>
+
+## References
+
+- [Prompt engineering guide](https://platform.openai.com/docs/guides/prompt-engineering) — structuring instructions and context.
+- [Claude prompting overview](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview) — context and instruction techniques.
+- [MCP specification](https://modelcontextprotocol.io/specification/2025-06-18) — tools, resources, and prompts.
+- [NIST AI Risk Management Framework](https://www.nist.gov/itl/ai-risk-management-framework) — risk-aware AI governance.
+- [Model Context Protocol](https://modelcontextprotocol.io/) — a tool and resource integration model.
+- [Building effective agents](https://www.anthropic.com/research/building-effective-agents) — practical agent design guidance.

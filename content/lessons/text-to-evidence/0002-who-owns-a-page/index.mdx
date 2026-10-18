@@ -1,0 +1,139 @@
+export const meta = {
+  title: "Who owns a page",
+  label: "Who owns a page",
+  summary: "A reader asked whether /sources lets you read the book, and the answer turned out to be a question about ownership.",
+  number: 2,
+  disclosure: "open",
+  sourceProject: "namaq",
+};
+
+A reader asked whether `/sources` lets you read the book. The answer
+turned out to be a question about ownership, and the ownership turned out to be wrong.
+
+## The symptom
+
+Open volume 5 of the Siyar in `/sources`, read every entry the contents lists, and you
+have read 128 printed pages of it — in five separate runs, with a 21-page hole after Aisha's
+entry that nothing on screen mentions. Volumes 1 and 2 *are* complete. Volume 3 and volumes
+6 through 28 are marked لم يُقرأ بعد, honestly. Only the holes
+*inside* a volume that has been read are silent.
+
+The interesting part is why the same UI is honest at one level and silent at the other. It
+isn't an oversight. The volume list can be honest because the edition declares its volumes, so
+something exists to be missing from. Inside a volume, nothing declares the pages — so there is no
+absence to detect.
+
+## Follow it down
+
+Why does nothing declare the pages? Because until now a page belonged to the account that
+extracted it:
+
+```
+SourceAccountPage {
+  accountId    // the entry this page was read for
+  sequence     // its position within that entry
+  printedPage  // nullable
+}
+```
+
+A page's identity was *(entry, ordinal)*. The book's own coordinates — volume and printed
+page — were along for the ride. So the reader could page through an entry and had no notion of
+paging through a volume, and a volume had no notion of which of its pages existed.
+
+## The evidence that settled it
+
+Printed page 230 of volume 4 exists **twice**, at the same Shamela id 1656: 413
+characters under Zaid ibn Harithah, 402 under Abdullah ibn Rawahah. Neither contains the other.
+The entry boundary falls inside the page, so each batch kept its own half.
+
+```
+Zaid's copy,  tail:  … قَالَتْ: أَنَا لِزَيْدِ بنِ حَارِثَةَ. إِسْنَادُهُ حَسَنٌ.
+Rawahah's copy, head: ٣٧ - عَبْدُ اللهِ بنُ رَوَاحَةَ بنِ ثَعْلَبَةَ …
+```
+
+Forty-one pages are split this way, across 67 of the 88 batches, and three more are held twice
+in full where the work places a short entry inside a longer one. Which means a printed page's
+text depended on who read it — the same mistake
+<RepoLink repo="namaq" path="docs/adr/0010-author-historical-data-under-data.md">ADR 0010</RepoLink> already rules out for
+values, arrived at from a different direction.
+
+<Callout tone="note" title="What the duplication hid.">
+
+Because two accounts holding one printed page was
+normal, four accounts filed against the wrong volume or the wrong edition looked normal too.
+Three of them had read the digital host's own volume label, which numbers the Siyar's parts
+without counting the sira and caliph volumes this edition binds before them — so Shamela's
+الجزء ٢ is this edition's volume 5. Nothing compared a declared
+volume against its own pages' links.
+
+</Callout>
+
+## The decision
+
+A printed page is a fact about the edition, so it belongs to the volume:
+
+```
+SourceVolume ──owns──> SourcePage   (volumeId, printedPage)  one page, one text
+SourceAccount ─spans─> a range of them
+Citation ──> Passage ──> Page ──> Volume     (the account is not in this chain)
+```
+
+The entry survives — it is a real thing in the book, and `notInSource` needs a bearer
+— but it stops owning text and becomes a span. Read
+<RepoLink repo="namaq" path="docs/adr/0018-a-page-belongs-to-the-edition.md">ADR 0018</RepoLink> for the argument and
+<RepoLink repo="namaq" path="docs/plans/source-page-store.md">the plan</RepoLink> for the work.
+
+### What falls out for free
+
+Once a page is keyed by volume and printed page, a passage anchor can be *derived* —
+paragraph *n* of the page is `<volume>/<printedPage>-p<n>` —
+instead of declared in a list and zipped to the text by position. That deletes the drift class
+[lesson 0001](/text-to-evidence/0001-where-text-becomes-citable) is about: not by guarding it, but by
+removing the second copy that could fall out of step. Stable anchors also stop
+`Citation.passageId` churning on every re-import.
+
+<Quiz
+  title="Retrieval"
+  question="Why could the contents view mark an unread volume but not an unread stretch inside one?"
+  options={[
+    "The volume list was built later, by a different author",
+    "The edition declares its volumes but nothing declares its pages",
+    "A printed page number is a string and cannot be compared",
+    "The reader caches pages and cannot know what it lacks",
+  ]}
+  answer={2}
+  right="Right. An absence needs something to be absent from, and only the volume list had that."
+  wrong="An absence needs something to be absent from. The edition declares 28 volumes, so a missing one is detectable; nothing declared a volume's pages, so a missing page was not."
+/>
+
+<Quiz
+  title="Retrieval"
+  question="Under the new model, what does Hamzah's account span?"
+  options={[
+    "His own entry and the sira pages that mention him",
+    "Every page holding a claim about him, in any volume",
+    "His own entry alone, volume 4 pages 171 to 184",
+    "Nothing; a span belongs to the volume, not the subject",
+  ]}
+  answer={3}
+  right="Right. An account is the work's delimited entry about him. The sira mentions him in eleven claims, and those cite passages directly."
+  wrong="An account is the work's delimited entry about a subject, which for Hamzah is volume 4 pp 171-184. The sira's eleven claims about him cite passages directly, with no account involved — which is why one span per subject per source still suffices."
+/>
+
+## The move worth stealing
+
+The question you asked was about a reading experience. The answer was a key: a page was
+identified by who read it rather than by where it sits in the book. Every symptom — no continuous
+reading, no detectable gaps, split text, five misfilings nothing caught — followed from that one
+choice, and all of them resolve together when the key changes.
+
+When a UI can't tell you something, it is often because the model was never asked to know it.
+
+## Read next
+
+**Primary source:** <RepoLink repo="namaq" path="docs/adr/0018-a-page-belongs-to-the-edition.md">ADR
+0018</RepoLink>, then <RepoLink repo="namaq" path="docs/plans/source-page-store.md">the plan</RepoLink> — read the acceptance
+criteria as a description of what "the book is readable" means concretely.
+
+**Card:** [Source pipeline card](/text-to-evidence/reference),
+which still describes the model as it stands today.
