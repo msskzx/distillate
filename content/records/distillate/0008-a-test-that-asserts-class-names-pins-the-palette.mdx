@@ -1,0 +1,31 @@
+export const meta = {
+  title: "A quiz test that asserted colour class names pinned the palette",
+  summary: "Moving the quiz's right and wrong colours to theme tokens failed a test that matched /green/ and /red/ in the class string.",
+  disclosure: "open",
+  sourceProject: "distillate",
+  kind: "detour",
+  problem: "A component test asserts styling class names, so a restyle that keeps the behaviour fails the test.",
+  approach: "Replaced the quiz's green and red utilities with theme tokens, saw Quiz.test.tsx fail on toMatch(/green/), and went back to green and red utilities with dark variants, since the owner asked to keep tests as they are.",
+  outcome: "partial",
+  conditions: "Vitest with jsdom; components/mdx/Quiz.test.tsx checks className against /green/ and /red/; restyle to theme tokens in app/globals.css.",
+  evidence: "components/mdx/Quiz.test.tsx (marks the correct option green and the clicked wrong option red); components/mdx/Quiz.tsx",
+  implication: "Assert what the reader is told (the ✓ and ✗ marks and their screen-reader text), not class names; changing Quiz.test.tsx that way would let the quiz use the theme tokens.",
+  date: "2026-10-18",
+  topics: ["testing"],
+};
+
+The restyle moved every colour to theme tokens. The quiz's right and wrong answers became
+`border-solved` and `border-failed`, and the suite failed:
+`expected 'w-full rounded-sm border … border-solved text-solved' to match /green/`.
+The test was named for what the reader sees ("marks the correct option green") but checked the
+class string. Nothing the reader would notice had changed.
+
+The owner had asked to keep tests as they were, so the quiz went back to Tailwind's green and red
+utilities with dark variants, and the two quiz colours stay outside the token set.
+
+**Evidence:** <RepoLink repo="distillate" path="components/mdx/Quiz.test.tsx" /> and
+<RepoLink repo="distillate" path="components/mdx/Quiz.tsx" />.
+
+**Implications:** a test of a visual state should assert the state the reader is given, here the ✓
+and ✗ marks and the screen-reader text the component already renders. Rewriting this test that way
+is the follow-up that lets the quiz take the palette.

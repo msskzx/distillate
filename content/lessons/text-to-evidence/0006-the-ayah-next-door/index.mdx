@@ -34,6 +34,240 @@ Note the shape of that function. It takes no ayah from the reader. It runs over 
 and every word in them, about 57,000 coloured words in all. A change to it is a change to every one
 of those words at once.
 
+## The page, view by view
+
+Before the story, the whole page. <RepoLink repo="namaq" path="src/app/quran/compare/page.tsx">`/quran/compare`</RepoLink> answers one
+question at several scales: where does the same wording, or nearly the same wording, occur again? Four
+engines sit behind it, and each view is a window onto one or two of them.
+
+<Mermaid
+  alt="The compare page's views and the engines behind them: the repetition sidebar and the surah view read the repetition endpoint; the similar list reads similar.json; the ayah-by-ayah view runs the alignment on each request; the themes view reads stored topics."
+  chart={`flowchart LR
+  subgraph Page["/quran/compare"]
+    L[Repetition sidebar]
+    S["Surah view ?s="]
+    P["Pair view ?a= &b="]
+    T["Themes ?mode=themes"]
+  end
+  P --> SIM["Similar ayat, the default"]
+  P --> AY["Ayah by ayah, view=ayat"]
+  L --> R["/api/quran/repetition"]
+  S --> R
+  S --> SIM
+  SIM --> J[similar.json]
+  AY --> C[alignSurahs]
+  T --> Q[QuranTopic rows]`}
+/>
+
+- **The repetition sidebar** ranks surahs and surah pairs by how many repeated words they share. It
+  loads the whole dataset once from `/api/quran/repetition`, so switching surahs costs no request.
+- **The surah view** (`?s=55`) shows the phrases a surah repeats inside itself, the passages it
+  shares with other surahs, and every similar-ayat pair that touches it.
+- **The pair view** (`?a=56&b=69`) compares two surahs, or two ranges of ayat with `af`, `at`,
+  `bf` and `bt`, so one surah can be compared with itself, as in Al-Rahman 46–61 against 62–77. Its
+  default is the list of similar ayat (المتشابه). A switch turns to the older ayah-by-ayah alignment
+  (`view=ayat`, آية بآية). Both answer which ayat of the two belong together, by different rules.
+- **The themes view** (`?mode=themes`) lines up the topics the two surahs share.
+
+## Two kinds of word
+
+The engines do not all see the same words, and most of the page's behaviour follows from which
+kind each one sees.
+
+**A normalized word** is the printed word with its marks removed. <RepoLink repo="namaq" path="src/lib/quran/normalize.ts" />
+strips the diacritics and Quranic annotation signs, writes every alif form (أ إ آ ٱ) as ا, ى as ي,
+ة as ه and ک as ك, and drops the basmala that opens every surah except the first and the ninth.
+وَإِنَّهُ becomes وانه. Two words are the same when their letters are the same. The alignment and
+both repetition finders work on these.
+
+**A token** is what the morphology corpus says the word is built from. Here the same وانه is two
+things, a particle and a pronoun, and لقسم is a noun whose root is ق س م. The similar-ayat
+matcher works on tokens, which is how it can tell that أقسم and لقسم are related while their letters
+differ, and that وانه and انها share a particle while sharing only three letters.
+
+## Where a token comes from: roots and lemmas
+
+The tokens come from the Quranic Arabic Corpus, stored in the repository as
+<RepoLink repo="namaq" path="data/quran/quranic-corpus-morphology-0.4.txt" />. Each line is one segment of
+one word: a prefix, a stem or a suffix. Its location is `(surah:ayah:word:segment)`, the text is in
+Buckwalter transliteration (an ASCII spelling of Arabic, with `<` for إ and `~` for the shadda), and
+a tag and a list of features follow. These are the first segments of الواقعة ٧٦, وَإِنَّهُ لَقَسَمٌ:
+
+```
+(56:76:1:1)  wa      CONJ  PREFIX|w:CONJ+
+(56:76:1:2)  <in~a   ACC   STEM|POS:ACC|LEM:<in~|SP:<in~
+(56:76:1:3)  hu,     PRON  SUFFIX|PRON:3MS
+(56:76:2:1)  la      EMPH  PREFIX|l:EMPH+
+(56:76:2:2)  qasamN  N     STEM|POS:N|LEM:qasam|ROOT:qsm|M|INDEF|NOM
+```
+
+Word 1 is three segments, the conjunction و, the particle إنّ and the pronoun ه. Word 2 is the
+emphatic ل and the noun قسم. A **root** (`ROOT:qsm`) is the consonantal skeleton a family of words is
+built on: ق س م gives قسم, أقسم and مقسم alike. A **lemma** (`LEM:qasam`) is the dictionary headword
+of one word, so قسم and أقسم have different lemmas and the same root.
+
+<RepoLink repo="namaq" path="src/lib/quran/similar.ts" />'s `readAyat` turns each segment into at most one token:
+
+1. A noun, verb, adjective or proper noun (`N`, `V`, `ADJ`, `PN`) that has a root becomes its root,
+   `r:qsm`. Roots are what a memoriser confuses: تذكرة and ذكره, قسم and أقسم.
+2. Any other segment with a lemma becomes its lemma, `p:<in~`, unless its tag is a preposition,
+   conjunction, the article, a pronoun or the resumption particle (`P`, `CONJ`, `DET`, `PRON`,
+   `REM`). So كلا, بل, إن, من and ما survive as particles, and و, ف, ال and ـه do not.
+3. Everything else gives no token.
+
+It also rebuilds each printed word from its segments, with the marks stripped, so a highlight can
+point at a whole word. A leading و or ف is left off that rebuilt form, which is why وإنه and إنه
+compare as the same word. The `fromBuckwalter` function in <RepoLink repo="namaq" path="src/lib/quran/lemmas.ts" /> turns a root back into
+Arabic letters for display, and throws on a character it does not know rather than guess.
+
+## Finding similar ayat
+
+The matcher's job is the متشابه a memoriser trips on: المدثر ٥٤–٥٥ «كلا إنه تذكرة فمن شاء ذكره»
+against عبس ١١–١٢ «كلا إنها تذكرة فمن شاء ذكره», which differ in one letter and share no long run of
+identical words. The rules are in <RepoLink repo="namaq" path="docs/plans/quran-similar-ayat.md" />, and the code is `findSimilar`.
+
+<Mermaid
+  alt="The similar-ayat pipeline: the morphology corpus becomes tokens per ayah; rare roots give candidate ayah pairs; candidates are grown into windows of one to three ayat; each window pair is scored; the best non-overlapping pairs are written to similar.json."
+  chart={`flowchart LR
+  M[morphology corpus] --> T[tokens per ayah]
+  T --> W[weights: rarity]
+  W --> C[candidates from rare roots]
+  C --> X[windows of 1 to 3 ayat]
+  X --> S[score each window pair]
+  S --> K[keep the best non-overlapping]
+  K --> J[similar.json]`}
+/>
+
+**Weights.** A token's weight is its rarity, `log(N / df)`, where N is the number of ayat in the
+Qur'an and df the number of ayat holding the token. A root in a handful of ayat weighs a lot; the
+root of الله weighs little. A particle's weight is halved, so a shared كلا helps a match but cannot
+make one.
+
+**Candidates.** Comparing each of the 6,236 ayat with every other would be about 19 million pairs, each
+scored several ways. Instead, each root rarer than a cut-off (weight 2.5 or more, roughly one ayah in twelve)
+lists the ayat that hold it. Every two ayat on the same list gain that root's weight. A pair becomes
+a **seed** only when the weight it shares, divided by the size of the two ayat, already reaches 0.3
+for the ayah alone or for it joined with the next ayah on either side. Only seeds are scored, which
+keeps the whole build to seconds.
+
+**Windows.** A pattern one surah says in one ayah another says in two, so around each seed the
+matcher tries every window of 1 to 3 consecutive ayat inside one surah on each side. It skips a
+pair of windows that overlap each other, a pair inside one surah whose letters are identical (the
+repetition list already shows those), and a window whose first or last ayah shares nothing with the
+other side, so a match is never padded with a neighbour.
+
+**Score.** For two windows with token lists x and y:
+
+```
+score = 0.5 × shared weight / d          (cosine: which tokens both have)
+      + 0.5 × weighted LCS(x, y) / d     (order: the same tokens in the same order)
+      + 0.1 if both open with the same two tokens
+d     = √(weight of x's tokens × weight of y's tokens)
+```
+
+The first half asks which tokens the two windows share, the second whether they share them in the
+same order, through a longest common subsequence where each matched token counts its weight. The
+opening bonus is there because a memoriser goes wrong at the start of an ayah.
+
+**Keeping.** A pair stays when its score is at least 0.5 and the tokens it shares weigh at least
+6.5, which rules out a match on one common root, unless the score reaches 0.8, as with الواقعة ١
+and الحاقة ١٥, which share only the root و ق ع but say the same thing. The survivors are sorted by
+score, and a pair is dropped when a better one already covers an overlapping window on both sides.
+
+The result is 5,082 pairs, written once by `npm run quran:similar` to
+<RepoLink repo="namaq" path="src/app/quran/compare/similar.json" />. Scoring the whole text takes too long for a request, and the
+text never changes, so the file changes only when the rules do. That is also why the story below
+could diff it before and after.
+
+## Aligning two surahs ayah by ayah
+
+The `view=ayat` alignment, `alignSurahs` in <RepoLink repo="namaq" path="src/lib/quran/compare.ts" />, is older and answers a
+different question: given two surahs, which stretches run in parallel? It reads normalized words
+from the database on each request and needs no generated file. Its rules are in
+<RepoLink repo="namaq" path="docs/plans/quran-compare-page.md" />.
+
+1. **Each ayah pair scores the square of its longest run of shared words.** A run of one word
+   scores nothing. Squaring makes one run of six (36) worth more than three runs of two (12).
+2. **Anchors come from an order-preserving dynamic program**, the same shape as a sequence
+   alignment: it picks the highest-scoring set of ayah pairs that never cross, so if 56:75 pairs with
+   69:38, nothing before 56:75 can pair with anything after 69:38. A refrain repeated at a fixed
+   offset gets a bonus of 32 for an anchor with a run of four or more that sits within five ayat of
+   an earlier anchor on the same diagonal. Without it, Al-Rahman 46–61 against 62–77 shifted by two
+   to chase one longer phrase; with it, the sixteen pairs come out in step.
+3. **A second link** is added for a pair with a run of four or more next to an anchor on one side,
+   so 57:1 and 57:2 can both pair with 64:1. The ayah that has two counterparts is shown once, with
+   its counterparts stacked beside it, each link in its own colour.
+4. **Blocks.** Consecutive anchors join one block when both surahs step the same number of ayat
+   between them, five or fewer. A block stays with two anchors, or one anchor whose run is four or
+   more. Every ayah between a block's first and last anchor is paired in step with its partner, and
+   a pair that shares nothing says so.
+5. **The last five ayat** of each surah form a block aligned by count, which claims nothing from the
+   text, and the ayat between blocks collapse into one row that can be opened.
+
+Aligning البقرة with آل عمران, 286 by 200 ayat, takes about 140 ms, almost all of it the table of
+longest runs.
+
+## Repeated phrases, inside a surah and across surahs
+
+The sidebar and the surah view come from <RepoLink repo="namaq" path="src/lib/quran/repetition.ts" />, which runs two finders on
+normalized words and merges what they find into one record per phrase
+(<RepoLink repo="namaq" path="docs/plans/quran-repetition-merge.md" />).
+
+**Inside one surah**, `findPhrases` in <RepoLink repo="namaq" path="src/lib/quran/shifts.ts" /> indexes every run of three words
+that does not cross an ayah boundary, then extends each pair of occurrences as far as the words keep
+matching. A phrase seen at two places counts when it is four words or longer and the two places are
+in different ayat. A phrase seen three times or more counts when it is longer than three words, or
+when it is three words seen five times or more. فبأي آلاء ربكما تكذبان in Al-Rahman is one phrase
+with 31 places. Across the Qur'an that gives 528 phrases, and 53 surahs have none.
+
+**Across surahs**, `findPassages` in <RepoLink repo="namaq" path="src/lib/quran/passages.ts" /> starts from every run of ten
+identical words that occurs in two surahs, then extends it backwards and forwards. It tolerates a
+difference: when the words stop matching, it may skip up to four words on either side, but only if
+the next three words then match again. A ten-word run is paired at no more than its first 150 occurrences,
+since a run that common is ordinary diction rather than a shared passage. The finder returns 112 passages, which group into 89 phrases, since
+one phrase can recur in up to five surahs.
+
+The two finders feed one 114 × 114 table: a cell counts the repeated words two surahs share, and the
+diagonal counts a surah's repetition of itself. The endpoint computes all of it from the database in
+about 150 ms and caches the response, since the text never changes.
+
+## Shared themes
+
+The themes view does no text matching at all. Each surah's topics are stored as `QuranTopic` rows
+with an ayah range and an Arabic label, and a topic may carry a `themeId`. Topic slugs are per
+surah, so two surahs share a topic only when both carry the same theme id
+(<RepoLink repo="namaq" path="src/lib/quran/topicEngine.ts" />). The comparison lines those up, which is why it can pair
+passages that share no word.
+
+## The engines side by side
+
+| Engine | Unit | Match rule | Computed |
+|---|---|---|---|
+| Similar ayat | root or particle lemma | weighted cosine plus weighted order, 1–3 ayat a side | once, into `similar.json` |
+| Ayah by ayah | normalized word | longest shared run of two words or more, no crossing | on each request |
+| Repeated phrases in a surah | normalized word | exact run of four words, or three seen five times | in the repetition endpoint |
+| Shared passages across surahs | normalized word | ten identical words, extended with small gaps | in the repetition endpoint |
+| Themes | stored topic | the same theme id | from the database |
+
+The same pair of passages can turn up in more than one row of that table, by different rules, and
+each view says which rule it used.
+
+<Quiz
+  question="Why does the similar-ayat matcher compare roots for nouns and verbs but lemmas for particles?"
+  options={["Particles have no lemma in the corpus", "A root joins the related words a memoriser confuses, while a particle has no root and its lemma is what identifies it", "Lemmas are cheaper to compare than roots", "Roots are only defined for verbs"]}
+  answer={2}
+  right="Right. قسم and أقسم have different lemmas and one root, so roots catch the confusion. A particle such as كلا or إن has no root; its lemma is the only identity it has, and its weight is halved so it cannot make a match alone."
+  wrong="Roots join the word families a memoriser confuses (قسم and أقسم share ق س م). Particles have no root, so the matcher uses their lemma, at half weight."
+/>
+
+<Quiz
+  question="The alignment scores an ayah pair by the square of its longest shared run. What does squaring change?"
+  options={["It makes the score positive", "It lets one long run outweigh several short ones", "It normalises for ayah length", "It ignores runs of one word"]}
+  answer={2}
+  right="Right. A run of six scores 36, three runs of two score 12, so the dynamic program prefers the pair that really says the same thing. Runs of one are dropped by a separate rule."
+  wrong="Squaring makes one long run outweigh several short ones: six words score 36, three runs of two score 12. Single-word runs are excluded by a separate threshold."
+/>
+
 ## Four rules in an hour
 
 The pair under discussion was الواقعة ٧٥–٧٧ against الحاقة ٣٨–٤٠:

@@ -1,27 +1,50 @@
 import type { ReactNode } from "react";
 
-export const prose =
-  "prose prose-stone max-w-none dark:prose-invert prose-headings:font-semibold prose-pre:rounded-s-none prose-pre:border-s-4 prose-pre:border-amber-600 prose-pre:bg-amber-50 prose-pre:text-stone-800 dark:prose-pre:bg-stone-900 dark:prose-pre:text-stone-200 prose-code:font-mono prose-a:text-amber-700 dark:prose-a:text-amber-400";
+export const prose = "prose max-w-none font-serif";
+
+export const leaf = "leaf mx-auto max-w-[36rem] px-4 pb-24 pt-20 lg:max-w-[54rem] lg:pe-[17rem]";
+
+export type StripItem = { label: string; marked?: boolean };
+
+export function Strip({ items }: { items: StripItem[] }) {
+  return (
+    <p className="m-0 mb-7 flex flex-wrap gap-y-1 border-y-[3px] border-double border-rule py-1.5 text-base tracking-[0.1em] text-ink-soft [font-variant:all-small-caps]">
+      {items.map((item, i) => (
+        <span key={item.label} className={item.marked ? "text-accent" : undefined}>
+          {i > 0 && (
+            <span aria-hidden="true" className="mx-2.5 text-rule">
+              ·
+            </span>
+          )}
+          {item.label}
+        </span>
+      ))}
+    </p>
+  );
+}
 
 export function Article({
-  eyebrow,
+  strip,
   title,
   lead,
+  aside,
   children,
 }: {
-  eyebrow: string;
+  strip: StripItem[];
   title: string;
   lead?: string;
+  aside?: ReactNode;
   children: ReactNode;
 }) {
   return (
-    <main className="mx-auto max-w-3xl px-4 pb-24 pt-20">
+    <main className={leaf}>
       <article className={prose}>
-        <header className="mb-10 border-b border-stone-300 pb-6 dark:border-stone-700">
-          <p className="m-0 font-mono text-xs uppercase tracking-[0.12em] text-amber-700 dark:text-amber-500">{eyebrow}</p>
-          <h1 className="mb-2 mt-3">{title}</h1>
-          {lead && <p className="m-0 text-lg text-stone-600 dark:text-stone-400">{lead}</p>}
+        <header className="not-prose mb-8">
+          <Strip items={strip} />
+          <h1 className="m-0 mb-2 text-[clamp(2rem,1.4rem+2.4vw,2.75rem)] font-medium leading-tight text-balance">{title}</h1>
+          {lead && <p className="m-0 text-xl italic text-ink-soft">{lead}</p>}
         </header>
+        {aside}
         {children}
       </article>
     </main>

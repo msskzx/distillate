@@ -1,8 +1,9 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { components } from "@/mdx-components";
 import { Article } from "@/components/lesson/Article";
-import { number, tracks } from "@/lib/content";
+import { Contents } from "@/components/lesson/Contents";
+import { Star } from "@/components/lesson/Star";
+import { tracks } from "@/lib/content";
 
 export const dynamicParams = false;
 
@@ -22,32 +23,22 @@ export default async function TrackPage({ params }: { params: Promise<{ track: s
   if (!track) notFound();
 
   return (
-    <Article eyebrow="Track" title={track.meta.title} lead={track.meta.summary}>
+    <Article strip={[{ label: "Track" }, { label: `${track.lessons.length} lessons` }]} title={track.meta.title} lead={track.meta.summary}>
       <track.Content components={components} />
-      <h2>Lessons</h2>
-      <ol className="list-none ps-0">
-        {track.lessons.map((lesson) => (
-          <li key={lesson.slug} className="ps-0">
-            <Link href={lesson.href}>
-              {number(lesson.meta.number!)} · {lesson.meta.title}
-            </Link>
-            <br />
-            <span className="text-sm text-stone-600 dark:text-stone-400">{lesson.meta.summary}</span>
-          </li>
-        ))}
-      </ol>
-      {track.pages.length > 0 && (
-        <>
-          <h2>Workspace</h2>
-          <ul>
-            {track.pages.map((page) => (
-              <li key={page.slug}>
-                <Link href={page.href}>{page.meta.title}</Link>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
+      <Star />
+      <div className="not-prose">
+        <p className="m-0 mb-3 text-center text-lg tracking-[0.25em] text-ink-soft [font-variant:all-small-caps]">Contents</p>
+        <Contents
+          entries={[
+            ...track.lessons.map((lesson) => ({
+              href: lesson.href,
+              label: lesson.meta.label ?? lesson.meta.title,
+              number: lesson.meta.number,
+            })),
+            ...track.pages.map((page) => ({ href: page.href, label: page.meta.title })),
+          ]}
+        />
+      </div>
     </Article>
   );
 }

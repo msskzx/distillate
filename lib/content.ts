@@ -10,6 +10,7 @@ export type PageMeta = {
   label?: string;
   summary: string;
   number?: number;
+  order?: number;
   disclosure?: Disclosure;
   sourceProject?: string;
   lesson?: string;
@@ -88,7 +89,8 @@ async function loadTrack(slug: string): Promise<Track> {
 export async function tracks(): Promise<Track[]> {
   const slugs = entries(path.join(root, "lessons"));
   if (slugs.includes("records")) throw new Error("content/lessons/records: a track cannot be named records");
-  return Promise.all(slugs.map(loadTrack));
+  const loaded = await Promise.all(slugs.map(loadTrack));
+  return loaded.sort((a, b) => (a.meta.order ?? Number.MAX_SAFE_INTEGER) - (b.meta.order ?? Number.MAX_SAFE_INTEGER));
 }
 
 export async function records(): Promise<Record[]> {
@@ -127,6 +129,4 @@ export async function findLesson(trackSlug: string, slug: string) {
   };
 }
 
-export const number = (n: number) => String(n).padStart(4, "0");
 
-export const lessonLabel = (lesson: Page) => `${number(lesson.meta.number!)} · ${lesson.meta.label ?? lesson.meta.title}`;

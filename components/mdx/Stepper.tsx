@@ -8,7 +8,7 @@ export function Stepper({ children }: { children: ReactNode }) {
   const [shown, setShown] = useState(1);
   const reduced = useReducedMotion();
   const button =
-    "rounded border border-stone-300 px-3 py-1 text-sm hover:border-amber-500 disabled:opacity-40 dark:border-stone-700";
+    "rounded-sm border border-rule bg-transparent px-3 py-0.5 text-base text-ink-soft hover:border-accent hover:text-accent disabled:opacity-40 disabled:hover:border-rule disabled:hover:text-ink-soft";
 
   return (
     <div className="my-8">

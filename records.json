@@ -157,6 +157,56 @@
       "text": "Worktrees here share the main checkout's packages through a symlink: each worktree's node_modules points at the main checkout's. The repository ignored node_modules/ . In git's ignore syntax a trailing slash means \"directories only\", and a symlink is a file, so git add -A staged it. The commit summary listed A node_modules . The fix was git rm --cached node_modules and an ignore rule without the slash, which matches a file, a symlink or a directory of that name. Evidence: .gitignore. Implications: where worktrees symlink shared folders, ignore them without the trailing slash, and look at what git add -A staged before committing."
     },
     {
+      "id": "distillate/0007-arabic-inside-english-prose-has-no-element-to-style",
+      "project": "distillate",
+      "slug": "0007-arabic-inside-english-prose-has-no-element-to-style",
+      "href": "/records/distillate/0007-arabic-inside-english-prose-has-no-element-to-style",
+      "url": "https://distillate-kappa.vercel.app/records/distillate/0007-arabic-inside-english-prose-has-no-element-to-style",
+      "title": "Arabic inside English prose has no element to style, so the font itself had to be larger",
+      "summary": "Inline Arabic in MDX paragraphs carries no markup, so setting it larger than the English needed size-adjust on a self-hosted Arabic face.",
+      "disclosure": "open",
+      "sourceProject": "distillate",
+      "kind": "obstacle",
+      "problem": "Setting Arabic words larger than the English around them when they sit inline in prose with no element, class or lang attribute to target.",
+      "approach": "Put the Arabic face after the English serif in one font stack so Arabic glyphs fall back to it, and self-hosted its Arabic subset through next/font/local with a size-adjust declaration, since next/font/google takes no declarations.",
+      "outcome": "solved",
+      "conditions": "Next.js 15 next/font; MDX lessons may not carry class, className or style; Amiri's Arabic subset from Google Fonts; inline Arabic in lessons such as text-to-evidence 0006.",
+      "evidence": "app/fonts.ts (amiri, size-adjust 140%); app/globals.css (--font-serif)",
+      "implication": "Size a script that appears inline by the font's size-adjust, not by markup; a value near 122% still read smaller than the English, 140% matched the intent.",
+      "date": "2026-10-18",
+      "topics": [
+        "ui-rtl"
+      ],
+      "buildsOn": [],
+      "variantOf": [],
+      "text": "The restyle asked for Arabic set larger than English. Blocks were easy: ArabicQuote is a component and takes its own size. Most Arabic in the lessons is inline, though, inside an English sentence, such as the lemmas «كلا، إن، لا، ما» in lesson 6. Lessons may not carry class , className or style , and the words carry no lang , so there is no element to give a size. The size went into the font instead. The serif stack lists EB Garamond first and Amiri second, so every Arabic glyph falls back to Amiri. A size-adjust declaration on Amiri's @font-face scales only those glyphs. next/font/google has no option for declarations, so Amiri's Arabic subset is self-hosted under app/fonts/ with its licence and loaded through next/font/local , which does. The first value, 122%, still read smaller than the English beside it in a screenshot; 140% matched. Evidence: app/fonts.ts and the --font-serif token in app/globals.css. Implications: when one script appears inline in another's prose and the content cannot carry markup, scale it with the face's size-adjust and check the result in a screenshot rather than by the number."
+    },
+    {
+      "id": "distillate/0008-a-test-that-asserts-class-names-pins-the-palette",
+      "project": "distillate",
+      "slug": "0008-a-test-that-asserts-class-names-pins-the-palette",
+      "href": "/records/distillate/0008-a-test-that-asserts-class-names-pins-the-palette",
+      "url": "https://distillate-kappa.vercel.app/records/distillate/0008-a-test-that-asserts-class-names-pins-the-palette",
+      "title": "A quiz test that asserted colour class names pinned the palette",
+      "summary": "Moving the quiz's right and wrong colours to theme tokens failed a test that matched /green/ and /red/ in the class string.",
+      "disclosure": "open",
+      "sourceProject": "distillate",
+      "kind": "detour",
+      "problem": "A component test asserts styling class names, so a restyle that keeps the behaviour fails the test.",
+      "approach": "Replaced the quiz's green and red utilities with theme tokens, saw Quiz.test.tsx fail on toMatch(/green/), and went back to green and red utilities with dark variants, since the owner asked to keep tests as they are.",
+      "outcome": "partial",
+      "conditions": "Vitest with jsdom; components/mdx/Quiz.test.tsx checks className against /green/ and /red/; restyle to theme tokens in app/globals.css.",
+      "evidence": "components/mdx/Quiz.test.tsx (marks the correct option green and the clicked wrong option red); components/mdx/Quiz.tsx",
+      "implication": "Assert what the reader is told (the ✓ and ✗ marks and their screen-reader text), not class names; changing Quiz.test.tsx that way would let the quiz use the theme tokens.",
+      "date": "2026-10-18",
+      "topics": [
+        "testing"
+      ],
+      "buildsOn": [],
+      "variantOf": [],
+      "text": "The restyle moved every colour to theme tokens. The quiz's right and wrong answers became border-solved and border-failed , and the suite failed: expected 'w-full rounded-sm border … border-solved text-solved' to match /green/ . The test was named for what the reader sees \"marks the correct option green\" but checked the class string. Nothing the reader would notice had changed. The owner had asked to keep tests as they were, so the quiz went back to Tailwind's green and red utilities with dark variants, and the two quiz colours stay outside the token set. Evidence: components/mdx/Quiz.test.tsx and components/mdx/Quiz.tsx. Implications: a test of a visual state should assert the state the reader is given, here the ✓ and ✗ marks and the screen-reader text the component already renders. Rewriting this test that way is the follow-up that lets the quiz take the palette."
+    },
+    {
       "id": "namaq/0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own",
       "project": "namaq",
       "slug": "0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own",

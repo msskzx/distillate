@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 
 const tones = {
-  insight: "border-amber-600 bg-amber-50 dark:bg-amber-950/40",
-  note: "border-stone-400 bg-stone-100 dark:border-stone-600 dark:bg-stone-900",
-  warning: "border-red-600 bg-red-50 dark:bg-red-950/40",
+  insight: "border-s-2 border-accent bg-paper-deep",
+  note: "border-s-2 border-rule",
+  warning: "border-s-[5px] border-double border-accent bg-accent-wash",
 };
 
 export function Callout({
@@ -16,9 +16,9 @@ export function Callout({
   children: ReactNode;
 }) {
   return (
-    <aside className={`not-prose my-6 rounded-e border-s-4 px-5 py-4 ${tones[tone]}`}>
-      {title && <p className="mb-2 font-semibold">{title}</p>}
-      <div className="prose prose-stone max-w-none dark:prose-invert [&>:first-child]:mt-0 [&>:last-child]:mb-0">
+    <aside className={`not-prose my-7 px-5 py-4 ${tones[tone]}`}>
+      {title && <p className="mb-1.5 mt-0 text-lg tracking-[0.06em] text-accent [font-variant:all-small-caps]">{title}</p>}
+      <div className="prose max-w-none text-[1.125rem] leading-[1.6] [&>:first-child]:mt-0 [&>:last-child]:mb-0">
         {children}
       </div>
     </aside>
