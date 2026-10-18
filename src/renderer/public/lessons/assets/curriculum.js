@@ -64,5 +64,17 @@ window.TICKET_CRAFTER_CURRICULUM = [
       { id: "0011", file: "lessons/0011-dream-rsi.html", title: "Dream-RSI: Replay Worlds for Recursive Self-Improvement", architecture: "Current", blurb: "How discovery histories become replay simulators for improving exploration policies."
       }
     ]
+  },
+  {
+    group: "Namaq: Source Pipeline",
+    items: [
+      { id: "N1", file: "lessons/namaq-0001-where-text-becomes-citable.html", title: "Where text becomes citable", architecture: "Namaq", blurb: "A source reaches Namaq as five nested things, and only one of them is a design decision you could still change cheaply." },
+      { id: "N2", file: "lessons/namaq-0002-who-owns-a-page.html", title: "Who owns a page", architecture: "Namaq", blurb: "A reader asked whether /sources lets you read the book." },
+      { id: "N3", file: "lessons/namaq-0003-a-check-that-exists-but-doesnt-run.html", title: "A check that exists but doesn't run", architecture: "Namaq", blurb: "Building lesson 0002's decision surfaced two bugs, at two different layers, with the same shape: something had a name that promised a check nothing actually performed." },
+      { id: "N4", file: "lessons/namaq-0004-what-the-model-holds.html", title: "What the model holds, and what it cannot", architecture: "Namaq", blurb: "Making Siyar volumes 4 and 5 exact quotes showed where the current model drifts." },
+      { id: "N5", file: "lessons/namaq-0005-how-al-bukhari-chooses-a-hadith.html", title: "How al-Bukhari chooses a hadith, and how a name in a chain becomes a person", architecture: "Namaq", blurb: "Namaq plans to extract Sahih al-Bukhari as printed and to link each name in a chain to a person through a sourced identification (docs/plans/data-model/plan.md, section 2.6)." },
+      { id: "N6", file: "lessons/namaq-0006-the-ayah-next-door.html", title: "Fixing the ayah the owner named broke the ayah next to it", architecture: "Namaq", blurb: "The similar-ayat view on /quran/compare colours the words two passages share." },
+      { id: "Ref", file: "lessons/namaq-source-pipeline.html", title: "Source pipeline card", architecture: "Namaq", blurb: "Every artifact a source passes through, from a printed page in سير أعلام النبلاء to a citation on a profile." }
+    ]
   }
 ];
