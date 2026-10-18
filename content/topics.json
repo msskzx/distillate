@@ -10,5 +10,6 @@
   "source-extraction",
   "testing",
   "text-matching",
-  "ui-rtl"
+  "ui-rtl",
+  "ui-state"
 ]

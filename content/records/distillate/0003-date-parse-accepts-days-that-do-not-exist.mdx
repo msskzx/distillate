@@ -1,0 +1,33 @@
+export const meta = {
+  title: "Date.parse accepted the thirtieth of February",
+  summary: "A date check built on Date.parse let 2026-02-30 through, and its test could not notice because it only tried a month that does not exist.",
+  disclosure: "open",
+  sourceProject: "distillate",
+  kind: "detour",
+  problem: "Validating that a YYYY-MM-DD string is a real calendar date in JavaScript.",
+  approach: "Checked the pattern and that Date.parse did not return NaN; review showed V8 rolls 2026-02-30 over to March 2, so the check now round-trips the date through toISOString and compares.",
+  outcome: "solved",
+  conditions: "Node 22 and Bun on V8/JavaScriptCore; dates written as plain YYYY-MM-DD strings in record metadata.",
+  evidence: "distillate PR #4, first review cycle; lib/records.ts checkRecord",
+  implication: "Test a date validator with a day that overflows its month (2026-02-30, 2026-04-31), not only with an impossible month.",
+  date: "2026-10-18",
+  topics: ["testing"],
+  variantOf: ["namaq/0005-checks-that-dont-rederive-pass-the-wrong-inputs"],
+};
+
+The record schema requires a `date` in `YYYY-MM-DD` form. The first check matched the
+pattern and called `Date.parse`, treating `NaN` as invalid. The test for "not a real calendar
+date" used `2026-13-45`, which every parser rejects, so it passed.
+
+The reviewer tried `2026-02-30`. `Date.parse` returned a timestamp for March 2: the engine
+rolls an overflowing day into the next month instead of refusing it. Any record could have
+claimed a day that never happened.
+
+The fix parses the string as UTC midnight and requires `toISOString().slice(0, 10)` to give
+back the same string. A rolled-over date comes back different and fails.
+
+**Evidence:** <RepoLink repo="distillate" path="lib/records.ts" /> (`checkRecord`), and the
+tests for `2026-02-30` and `2026-04-31` in <RepoLink repo="distillate" path="lib/records.test.ts" />.
+
+**Implications:** a date check is only as good as the cases it is shown to reject. Include a
+day that overflows its month, since that is the case lenient parsers accept.

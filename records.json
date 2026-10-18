@@ -51,6 +51,112 @@
       "text": "Four subagents converted namaq's lessons to MDX in parallel, each told to read the old HTML from namaq's docs/lessons/ . While they ran, the coordinator moved on to the namaq half of the move and ran git rm -r docs/lessons in the same checkout. One subagent found its sources gone halfway through lesson 0001. It recovered them from the commit before the deletion with git archive and finished, and the text-parity check later showed nothing lost. A less careful agent would have reported \"files not found\" or, worse, converted from memory. Evidence: namaq commit 773a035d removing docs/lessons/ , made while the text-to-evidence conversion was still running; that subagent's report of reading from git archive 607669f6 . Implications: a delegated task's inputs are frozen until it reports back. Hand a subagent a snapshot a commit hash, or a copy in the scratchpad , not a live path in a checkout someone else is editing, and do not delete or move anything a running subagent was told to read."
     },
     {
+      "id": "distillate/0003-date-parse-accepts-days-that-do-not-exist",
+      "project": "distillate",
+      "slug": "0003-date-parse-accepts-days-that-do-not-exist",
+      "href": "/records/distillate/0003-date-parse-accepts-days-that-do-not-exist",
+      "url": "https://distillate-kappa.vercel.app/records/distillate/0003-date-parse-accepts-days-that-do-not-exist",
+      "title": "Date.parse accepted the thirtieth of February",
+      "summary": "A date check built on Date.parse let 2026-02-30 through, and its test could not notice because it only tried a month that does not exist.",
+      "disclosure": "open",
+      "sourceProject": "distillate",
+      "kind": "detour",
+      "problem": "Validating that a YYYY-MM-DD string is a real calendar date in JavaScript.",
+      "approach": "Checked the pattern and that Date.parse did not return NaN; review showed V8 rolls 2026-02-30 over to March 2, so the check now round-trips the date through toISOString and compares.",
+      "outcome": "solved",
+      "conditions": "Node 22 and Bun on V8/JavaScriptCore; dates written as plain YYYY-MM-DD strings in record metadata.",
+      "evidence": "distillate PR #4, first review cycle; lib/records.ts checkRecord",
+      "implication": "Test a date validator with a day that overflows its month (2026-02-30, 2026-04-31), not only with an impossible month.",
+      "date": "2026-10-18",
+      "topics": [
+        "testing"
+      ],
+      "variantOf": [
+        "namaq/0005-checks-that-dont-rederive-pass-the-wrong-inputs"
+      ],
+      "buildsOn": [],
+      "text": "The record schema requires a date in YYYY-MM-DD form. The first check matched the pattern and called Date.parse , treating NaN as invalid. The test for \"not a real calendar date\" used 2026-13-45 , which every parser rejects, so it passed. The reviewer tried 2026-02-30 . Date.parse returned a timestamp for March 2: the engine rolls an overflowing day into the next month instead of refusing it. Any record could have claimed a day that never happened. The fix parses the string as UTC midnight and requires toISOString .slice 0, 10 to give back the same string. A rolled-over date comes back different and fails. Evidence: lib/records.ts checkRecord , and the tests for 2026-02-30 and 2026-04-31 in lib/records.test.ts. Implications: a date check is only as good as the cases it is shown to reject. Include a day that overflows its month, since that is the case lenient parsers accept."
+    },
+    {
+      "id": "distillate/0004-the-fix-for-a-stale-search-box-wiped-what-was-typed",
+      "project": "distillate",
+      "slug": "0004-the-fix-for-a-stale-search-box-wiped-what-was-typed",
+      "href": "/records/distillate/0004-the-fix-for-a-stale-search-box-wiped-what-was-typed",
+      "url": "https://distillate-kappa.vercel.app/records/distillate/0004-the-fix-for-a-stale-search-box-wiped-what-was-typed",
+      "title": "The fix for a stale search box wiped what the reader was typing",
+      "summary": "Resyncing a search box from the URL treated the URL's own lag as an outside change and reset the box mid-typing.",
+      "disclosure": "open",
+      "sourceProject": "distillate",
+      "kind": "detour",
+      "problem": "Keeping a text input that writes to the URL in step with the URL when the URL also changes from outside, such as back navigation or a link.",
+      "approach": "First reset the box whenever the URL's q differed from the last value written, which wiped text while router.replace lagged behind typing; now the component remembers the values it wrote and resets only for a value it never wrote.",
+      "outcome": "solved",
+      "conditions": "Next.js 15 App Router client component using useSearchParams and router.replace, where the URL updates after the input's own state.",
+      "evidence": "distillate PR #5; components/records/RecordSearch.tsx and its tests",
+      "implication": "A component that writes to the URL must tell its own pending writes apart from outside navigation; test it with a URL that arrives one keystroke behind.",
+      "date": "2026-10-18",
+      "topics": [
+        "ui-state",
+        "testing"
+      ],
+      "buildsOn": [
+        "distillate/0005-a-mock-router-too-fast-to-show-a-race"
+      ],
+      "variantOf": [],
+      "text": "The records search box keeps its text in React state and writes it to the URL as q . Review found that the box kept \"highlight\" after the reader followed a link to /records , because the state was read from the URL only on mount. The first fix compared the URL's q on every render with the last value the component had written, and reset the box when they differed. Writing the regression test showed what that did while typing: router.replace lands after the input's own re-render, so for a moment the URL still holds the previous text, which differs from what was just written, and the box was reset to it. A fast typist would have watched letters vanish. The fix that held keeps a short list of values the component wrote. When the URL's q changes to one of them, it is the component's own write arriving late and is ignored. Any other value came from outside, so the box takes it. The check only reads the list and clears it, so running it twice in one render changes nothing. Evidence: components/records/RecordSearch.tsx; the tests \"keeps the latest typed text when the URL arrives one keystroke behind\" and \"clears the search box when the URL loses its query after mount\" in components/records/RecordSearch.test.tsx. Implications: two-way sync between an input and the URL needs to know which changes are its own. Test it with the URL lagging, not only with the URL updating at once."
+    },
+    {
+      "id": "distillate/0005-a-mock-router-too-fast-to-show-a-race",
+      "project": "distillate",
+      "slug": "0005-a-mock-router-too-fast-to-show-a-race",
+      "href": "/records/distillate/0005-a-mock-router-too-fast-to-show-a-race",
+      "url": "https://distillate-kappa.vercel.app/records/distillate/0005-a-mock-router-too-fast-to-show-a-race",
+      "title": "A mock router too fast to show the race it was meant to catch",
+      "summary": "A regression test for a URL race passed on the broken code, because the mocked router updated the URL instantly.",
+      "disclosure": "open",
+      "sourceProject": "distillate",
+      "kind": "detour",
+      "problem": "A test of a timing bug passes on the code it is meant to catch, because the test double removes the timing.",
+      "approach": "Ran the new test against the code before the fix, saw it pass, and made the mocked router.replace skip the URL update for the typing step so the URL lags as in the browser; the test then failed on the old code and passed on the fix.",
+      "outcome": "solved",
+      "conditions": "Vitest with jsdom, next/navigation mocked so that router.replace sets the search string synchronously.",
+      "evidence": "distillate PR #5; the test \"keeps the typed text when a filter changes before the URL catches up\"",
+      "implication": "Run every regression test against the code before the fix and watch it fail; when a race is involved, make the double reproduce the delay.",
+      "date": "2026-10-18",
+      "topics": [
+        "testing",
+        "ui-state"
+      ],
+      "buildsOn": [],
+      "variantOf": [],
+      "text": "Review reported that changing a filter right after typing could drop the typed text from the URL. The test written for it typed, changed a filter, and checked the URL. It passed on the fixed code, and it also passed on the old code. The mock for next/navigation updated the search string inside router.replace , so the next render already saw the new URL. In the browser, replace lands later, which is the whole bug. The mock had removed the delay the test was about. Making the mocked replace skip the update for the typing step put the delay back. The test then failed on the old code, passed on the fix, and in passing exposed a second bug in the first fix see the record that builds on this one . Evidence: components/records/RecordSearch.test.tsx, where the test calls nav.replace.mockImplementationOnce = {} before typing. Implications: a test that has not been seen to fail on the old code has not been shown to test anything. For timing bugs, the double has to keep the timing."
+    },
+    {
+      "id": "distillate/0006-a-trailing-slash-let-a-symlink-into-the-commit",
+      "project": "distillate",
+      "slug": "0006-a-trailing-slash-let-a-symlink-into-the-commit",
+      "href": "/records/distillate/0006-a-trailing-slash-let-a-symlink-into-the-commit",
+      "url": "https://distillate-kappa.vercel.app/records/distillate/0006-a-trailing-slash-let-a-symlink-into-the-commit",
+      "title": "A trailing slash in .gitignore let a node_modules symlink into the commit",
+      "summary": "node_modules/ in .gitignore matches only directories, so a worktree's node_modules symlink was committed.",
+      "disclosure": "open",
+      "sourceProject": "distillate",
+      "kind": "detour",
+      "problem": "A symlinked node_modules in a git worktree is committed even though .gitignore lists node_modules/.",
+      "approach": "Spotted the symlink in the staged files after commit, removed it from the index and changed the ignore rule to node_modules without the slash, which matches files and symlinks too.",
+      "outcome": "solved",
+      "conditions": "Git worktree whose node_modules is a symlink to the main checkout's, staged with git add -A.",
+      "evidence": "distillate PR #4; .gitignore",
+      "implication": "Ignore node_modules without a trailing slash in repositories whose worktrees symlink it, and read git status before committing with git add -A.",
+      "date": "2026-10-18",
+      "topics": [
+        "build-tooling"
+      ],
+      "buildsOn": [],
+      "variantOf": [],
+      "text": "Worktrees here share the main checkout's packages through a symlink: each worktree's node_modules points at the main checkout's. The repository ignored node_modules/ . In git's ignore syntax a trailing slash means \"directories only\", and a symlink is a file, so git add -A staged it. The commit summary listed A node_modules . The fix was git rm --cached node_modules and an ignore rule without the slash, which matches a file, a symlink or a directory of that name. Evidence: .gitignore. Implications: where worktrees symlink shared folders, ignore them without the trailing slash, and look at what git add -A staged before committing."
+    },
+    {
       "id": "namaq/0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own",
       "project": "namaq",
       "slug": "0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own",
