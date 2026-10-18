@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import type { MDXContent } from "mdx/types";
+import { checkLinks, checkRecord, type RecordMeta } from "./records";
 
 export type Disclosure = "open" | "generic";
 
@@ -14,6 +15,8 @@ export type PageMeta = {
   lesson?: string;
 };
 
+export type RecordPageMeta = PageMeta & RecordMeta;
+
 type Module = { default: MDXContent; meta?: PageMeta };
 
 export type Page = {
@@ -25,7 +28,7 @@ export type Page = {
 
 export type Track = Page & { lessons: Page[]; pages: Page[] };
 
-export type Record = Page & { project: string };
+export type Record = Omit<Page, "meta"> & { project: string; id: string; meta: RecordPageMeta };
 
 const root = path.join(process.cwd(), "content");
 
@@ -43,7 +46,7 @@ export function entries(dir: string, allowedFiles: (name: string) => boolean = (
   return folders.sort();
 }
 
-export function check(meta: PageMeta | undefined, where: string, kind: "track" | "page" | "lesson" | "record"): PageMeta {
+export function check(meta: PageMeta | undefined, where: string, kind: "track" | "page" | "lesson"): PageMeta {
   const fail = (problem: string) => {
     throw new Error(`${where}: ${problem}`);
   };
@@ -51,7 +54,7 @@ export function check(meta: PageMeta | undefined, where: string, kind: "track" |
   if (!meta.title) fail("meta.title is required");
   if (!meta.summary) fail("meta.summary is required");
   if (kind === "lesson" && !Number.isInteger(meta.number)) fail("meta.number must be an integer");
-  if (kind === "lesson" || kind === "record") {
+  if (kind === "lesson") {
     if (meta.disclosure !== "open" && meta.disclosure !== "generic") fail("meta.disclosure must be open or generic");
     if (!meta.sourceProject) fail("meta.sourceProject is required");
   }
@@ -99,12 +102,14 @@ export async function records(): Promise<Record[]> {
       all.push({
         slug,
         project,
+        id: `${project}/${slug}`,
         href: `/records/${project}/${slug}`,
-        meta: check(mod.meta, `content/records/${project}/${file}`, "record"),
+        meta: checkRecord(mod.meta as Partial<RecordMeta>, `content/records/${project}/${file}`),
         Content: mod.default,
       });
     }
   }
+  checkLinks(all);
   return all;
 }
 

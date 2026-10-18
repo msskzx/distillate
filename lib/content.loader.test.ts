@@ -43,7 +43,7 @@ describe("check", () => {
   });
 
   it("refuses a disclosure other than open or generic", () => {
-    expect(() => check({ ...lesson, disclosure: "private" as never }, "x", "record")).toThrow(/disclosure/);
+    expect(() => check({ ...lesson, disclosure: "private" as never }, "x", "lesson")).toThrow(/disclosure/);
   });
 
   it("refuses a missing meta", () => {

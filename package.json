@@ -11,7 +11,8 @@
     "start": "next start -p 4000",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "records:index": "bun run scripts/records-index.ts"
   },
   "dependencies": {
     "@mdx-js/loader": "3.1.0",

@@ -1,0 +1,14 @@
+[
+  "agent-review",
+  "build-tooling",
+  "data-sync",
+  "evidence-model",
+  "graph-layout",
+  "graph-ui",
+  "migrations",
+  "runtime-versions",
+  "source-extraction",
+  "testing",
+  "text-matching",
+  "ui-rtl"
+]

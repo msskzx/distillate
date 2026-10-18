@@ -3,6 +3,15 @@ export const meta = {
   summary: "The unresolved-name count includes battles, which no edit can clear because they are events, not people.",
   disclosure: "open",
   sourceProject: "namaq",
+  kind: "obstacle",
+  problem: "A count of unresolved items includes entries that the resolution mechanism can never clear, so the number cannot be driven to zero.",
+  approach: "Tried to resolve 16 unresolved names; none moved, and 5 were battles, objects of PARTICIPATED_IN, which an agent identification cannot cover. The record proposes reporting event mentions apart from people.",
+  outcome: "open",
+  conditions: "coverageOf counts every mention without a live identification, and an identification names an agent; al-Zubayr's entry had 16 unresolved names.",
+  evidence: "src/lib/model/coverage.ts (unresolved filter); data/works/siyar-alam-al-nubala/summary.md",
+  implication: "Decide how a mention points at an event, or report event mentions apart from people, before treating the count as work to finish.",
+  date: "2026-10-09",
+  topics: ["evidence-model", "text-matching"],
 };
 
 Sixteen names were unresolved in al-Zubayr's entry, and the task was to resolve them. None
