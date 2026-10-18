@@ -7,7 +7,7 @@ export const meta = {
   kind: "obstacle",
   problem: "Validators that check only shape or consistency pass values that are well-formed and wrong.",
   approach: "Found two cases: an anchor check that counted paragraphs, and a dangling Prisma relation silently patched back by prisma format. Deriving the expected value independently and comparing found both.",
-  outcome: "partial",
+  outcome: "solved",
   conditions: "Page-store migration (namaq PRs #220-222); 1,701 mocked tests, lint and tsc all passed; the second bug was caught only by a live query on the real database.",
   evidence: "docs/lessons/lessons/0002-who-owns-a-page.html decision, realized in PRs #220-222; history:validate anchor check",
   implication: "When writing a validator, require it to re-derive and compare the checked value, and where that is not possible say the static checks do not cover it and a runtime smoke test is owed.",

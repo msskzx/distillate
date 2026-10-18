@@ -1,4 +1,5 @@
 import fs from "fs";
+import os from "os";
 import path from "path";
 import { describe, expect, it } from "vitest";
 import topicList from "../content/topics.json";
@@ -127,6 +128,10 @@ describe("checkRecord", () => {
 
   it("fails when the date is not a real calendar date", () => {
     expect(() => checkRecord({ ...validMeta(), date: "2026-13-45" }, where)).toThrow();
+  });
+
+  it.each(["2026-02-30", "2026-04-31"])("fails when the date %s does not exist", (date) => {
+    expect(() => checkRecord({ ...validMeta(), date }, where)).toThrow();
   });
 
   it("fails when the date is written day first", () => {
@@ -400,5 +405,42 @@ describe("genericLeaks", () => {
       const text = [source.body, ...Object.values(source.meta).filter((value): value is string => typeof value === "string")].join("\n");
       expect(genericLeaks(text), source.id).toEqual([]);
     }
+  });
+});
+
+describe("readRecordSources file formats", () => {
+  const meta = `export const meta = {
+  title: "T",
+  summary: "S",
+  disclosure: "open",
+  sourceProject: "p",
+  kind: "detour",
+  problem: "P",
+  approach: "A",
+  outcome: "solved",
+  conditions: "C",
+  evidence: "E",
+  implication: "none",
+  date: "2026-10-18",
+};`;
+  const read = (source: string) => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "records-"));
+    fs.mkdirSync(path.join(root, "p"));
+    fs.writeFileSync(path.join(root, "p", "0001-x.mdx"), source);
+    return readRecordSources(root);
+  };
+
+  it("reads a record saved with CRLF line endings", () => {
+    expect(read(`${meta}\n\nBody text.\n`.replace(/\n/g, "\r\n"))[0].body.trim()).toBe("Body text.");
+  });
+
+  it("reads a record with an import above its meta", () => {
+    const [record] = read(`import X from "./X";\n\n${meta}\n\nBody text.\n`);
+    expect(record.meta.title).toBe("T");
+    expect(record.body).toContain("Body text.");
+  });
+
+  it("refuses a record without a meta block", () => {
+    expect(() => read("Body only.\n")).toThrow(/export const meta/);
   });
 });

@@ -122,7 +122,7 @@ Four PRs, each through `pr-cycle`, in this order:
 
 ### Assumption for the owner to confirm (non-blocking)
 
-- **A guard for generic records.** A test that fails when a record with `disclosure: "generic"` contains a `RepoLink`, a file path, a URL to a repository, or its real project name. It cannot prove a record is generic, but it catches the commonest leaks before merge. Recommended; included in PR 1 unless the owner declines.
+- **A guard for generic records** (confirmed by the owner). A test that fails when a record with `disclosure: "generic"` contains a `RepoLink`, a file path or a URL to a repository. A generic record's project folder and `sourceProject` are a neutral name the agent chooses (`client-work`), never the real one, since both are published in the record's URL and in `records.json`; `capture-record` states this rule, and the guard cannot check a name it never sees. It cannot prove a record is generic, but it catches the commonest leaks before merge.
 
 ### Non-blocking
 

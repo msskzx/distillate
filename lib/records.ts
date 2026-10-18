@@ -39,7 +39,10 @@ export function checkRecord(meta: Partial<RecordMeta> | undefined, where: string
   if (meta.disclosure !== "open" && meta.disclosure !== "generic") fail("meta.disclosure must be open or generic");
   if (!kinds.includes(meta.kind!)) fail(`meta.kind must be one of ${kinds.join(", ")}`);
   if (!outcomes.includes(meta.outcome!)) fail(`meta.outcome must be one of ${outcomes.join(", ")}`);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(meta.date ?? "") || Number.isNaN(Date.parse(meta.date!))) fail("meta.date must be YYYY-MM-DD");
+  const date = new Date(`${meta.date}T00:00:00Z`);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(meta.date ?? "") || Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== meta.date) {
+    fail("meta.date must be a real date in YYYY-MM-DD form");
+  }
   for (const topic of meta.topics ?? []) if (!topics.includes(topic)) fail(`meta.topics: "${topic}" is not in content/topics.json`);
   return meta as RecordMeta;
 }
@@ -53,19 +56,19 @@ export function checkLinks(records: { id: string; meta: Pick<RecordMeta, "builds
   }
 }
 
-const metaBlock = /^export const meta = (\{[\s\S]*?\n\});?\n/;
+const metaBlock = /^export const meta = (\{[\s\S]*?\n\});?[ \t]*(?:\n|$)/m;
 
 export function readRecordSources(root = path.join(process.cwd(), "content", "records")): RecordSource[] {
   const all: RecordSource[] = [];
   for (const project of fs.readdirSync(root).filter((name) => !name.startsWith(".")).sort()) {
     for (const file of fs.readdirSync(path.join(root, project)).filter((name) => name.endsWith(".mdx")).sort()) {
-      const source = fs.readFileSync(path.join(root, project, file), "utf8");
+      const source = fs.readFileSync(path.join(root, project, file), "utf8").replace(/\r\n/g, "\n");
       const slug = file.replace(/\.mdx$/, "");
       const where = `content/records/${project}/${file}`;
       const block = metaBlock.exec(source);
-      if (!block) throw new Error(`${where}: missing \`export const meta\` at the top`);
+      if (!block) throw new Error(`${where}: no \`export const meta = { ... };\` block ending in a line of its own`);
       const meta = checkRecord(new Function(`return ${block[1]}`)(), where);
-      all.push({ id: `${project}/${slug}`, project, slug, meta, body: source.slice(block[0].length) });
+      all.push({ id: `${project}/${slug}`, project, slug, meta, body: source.slice(0, block.index) + source.slice(block.index + block[0].length) });
     }
   }
   checkLinks(all);
