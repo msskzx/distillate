@@ -13,6 +13,7 @@ Lessons and records are MDX files under `content/`, and a merged pull request pu
 - Tracks, each with its mission, ordered lessons and workspace pages (resources, notes, reference).
 - Lesson pages in one shared style, light and dark, with an index of the track and of the page's sections, and previous/next within the track.
 - Records grouped by source project, each linking to the lesson it grew into. Every record states its kind (challenge, obstacle or detour), outcome, conditions and evidence, and `records.json` indexes them all for agents to search.
+- A records search page that filters by text, topic, kind, outcome and project, and a `GET /api/records` endpoint that answers the same queries for agents.
 - Shared lesson components: quizzes, callouts, Mermaid diagrams, Arabic quotations, links into other repositories, and step-by-step reveals that respect reduced motion.
 
 Cards, the MCP capture server and the desktop app are paused; see [the plan](docs/plans/lessons-web-app.md).
