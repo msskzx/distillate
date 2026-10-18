@@ -9,14 +9,14 @@ Distillate becomes a web app that serves lessons and records. Namaq's lessons mo
 ```mermaid
 flowchart LR
     Agent[Agent with capture-lesson skill] -->|writes .mdx, opens PR| PR[Pull request]
-    PR --> Preview[Vercel preview: owner reads it]
-    Preview -->|merge| Prod[Production deploy]
+    PR --> Local[Owner reads it locally or in the diff]
+    Local -->|merge| Prod[Production deploy]
     Prod --> Reader[Anyone, no sign-in]
 ```
 
-- **Lessons** are MDX files under `content/lessons/<track>/<NNNN-slug>/index.mdx`, with frontmatter `title`, `number`, `summary`, `disclosure` (`open` or `generic`) and `sourceProject`. A lesson may import components from its own folder. A lesson whose page is mostly a visualization may be `page.tsx` instead of `index.mdx`, exporting the same metadata.
-- **Records** are short MDX files under `content/records/<source-project>/<NNNN-slug>.mdx`, with frontmatter `title`, `disclosure`, `sourceProject` and an optional `lesson` naming the lesson it grew into.
-- **Tracks** are folders under `content/lessons/`, each with a `track.mdx` holding its mission, plus optional `resources.mdx` and `notes.mdx`. Phase 1 has three tracks:
+- **Lessons** are MDX files at `content/lessons/<track>/<NNNN-slug>/index.mdx`. Each exports `meta` with `title`, an optional short `label` for the index, `summary`, `number`, `disclosure` (`open` or `generic`) and `sourceProject`. A lesson may import components from its own folder; a lesson that is mostly one visualization is a short `index.mdx` that renders that component.
+- **Records** are MDX files at `content/records/<source-project>/<NNNN-slug>.mdx`, exporting `meta` with `title`, `summary`, `disclosure`, `sourceProject` and an optional `lesson` (`<track>/<lesson-folder>`) naming the lesson it grew into.
+- **Tracks** are folders under `content/lessons/`. `track.mdx` holds the mission and exports `meta` with `title` and `summary`. A folder without a number prefix (`resources/`, `notes/`, `reference/`) is a workspace page of the track, with `meta` holding `title` and `summary`. Phase 1 has three tracks:
   - `text-to-evidence`: namaq's six lessons and its reference card, with namaq's MISSION, RESOURCES and NOTES;
   - `ai-agents`: lessons 1 to 7 on this repo's `main`;
   - `world-models`: lessons 8 to 11 on `main`, with the root `MISSION.md`, `RESOURCES.md` and `reference/world-models-cheat-sheet.md`.
@@ -36,12 +36,12 @@ flowchart LR
 | From | To | Disclosure |
 | --- | --- | --- |
 | namaq `docs/lessons/lessons/0001`–`0006` | `content/lessons/text-to-evidence/0001`–`0006` | open |
-| namaq `docs/lessons/reference/source-pipeline.html` | `content/lessons/text-to-evidence/reference.mdx` | open |
-| namaq `docs/lessons/MISSION.md`, `RESOURCES.md`, `NOTES.md` | `content/lessons/text-to-evidence/track.mdx`, `resources.mdx`, `notes.mdx` | open |
+| namaq `docs/lessons/reference/source-pipeline.html` | `content/lessons/text-to-evidence/reference/index.mdx` | open |
+| namaq `docs/lessons/MISSION.md`, `RESOURCES.md`, `NOTES.md` | `content/lessons/text-to-evidence/track.mdx`, `resources/index.mdx`, `notes/index.mdx` | open |
 | namaq `docs/lessons/learning-records/0001`–`0019` | `content/records/namaq/0001`–`0019` | open |
 | `src/renderer/public/lessons/0001`–`0007` | `content/lessons/ai-agents/0001`–`0007` | open |
 | `src/renderer/public/lessons/0008`–`0011` | `content/lessons/world-models/0001`–`0004` | open |
-| root `MISSION.md`, `RESOURCES.md`, `reference/world-models-cheat-sheet.md` | `content/lessons/world-models/track.mdx`, `resources.mdx`, `reference.mdx` | open |
+| root `MISSION.md`, `RESOURCES.md`, `reference/world-models-cheat-sheet.md` | `content/lessons/world-models/track.mdx`, `resources/index.mdx`, `reference/index.mdx` | open |
 | root `learning-records/0001`, `0002` | `content/records/world-models/0001`, `0002` | open |
 
 Conversion rules:
@@ -57,7 +57,7 @@ Order matters: step 2 needs the folder step 1 frees, and step 4 needs the layout
 
 1. **Remove the desktop app and cards** (verified paths): `src/main`, `src/preload`, `src/renderer` (after its lessons are copied out), `src/mcp`, `src/core`, `src/shared`, `tests/*`, `electron.vite.config.ts`, `tsconfig.node.json`, `tsconfig.web.json`, `build/`, `install/global-AGENTS.md`, `skill/distillate/`, `ARCHITECTURE.md`, `docs/plans/lesson-mcp-integration.md`. Drop Electron, electron-vite, electron-builder, `@modelcontextprotocol/server`, the SQLite adapters and their scripts from `package.json`.
 2. **Scaffold the web app** (new paths): Next.js App Router with `@next/mdx`, Tailwind and the typography plugin, under `app/`, `components/`, `content/`, `mdx-components.tsx`, `next.config.ts`. Pin every dependency to an exact version; `main` uses `latest` today. Keep Bun as the package manager.
-3. **Layout and shared components** (new): `components/lesson/` for the layout, index, theme switch and previous/next; `components/mdx/` for the components listed above; `lib/content.ts` to read frontmatter from `content/` at build time and build the track, lesson and record lists. Every page is statically generated.
+3. **Layout and shared components** (new): `components/lesson/` for the layout, index, theme switch and previous/next; `components/mdx/` for the components listed above; `lib/content.ts` to read each file's `meta` from `content/` at build time and build the track, lesson and record lists. Every page is statically generated.
 4. **Convert content** per the migration table.
 5. **Repoint `capture-lesson`**: `skill/capture-lesson/SKILL.md` (see Open issues) tells an agent to write a record or a lesson as MDX in this repository and open a pull request; to choose `open` only when the source project's repository is public and `generic` otherwise or when unsure; and how to write generically. Remove its instruction to also submit a card.
 6. **Docs**: rewrite `README.md` for the web app; add `.claude/` to `.gitignore`.
@@ -65,7 +65,7 @@ Order matters: step 2 needs the folder step 1 frees, and step 4 needs the layout
 
 ## Acceptance criteria
 
-1. `bun run build` produces a static page for every lesson, record and track in the migration table, and fails if any MDX file has invalid frontmatter or names an unknown component.
+1. `bun run build` produces a static page for every lesson, record and track in the migration table, and fails if any MDX file has invalid `meta` or names an unknown component.
 2. Every lesson renders in the shared style in light and dark themes, with the index and previous/next working, and no lesson file contains a `class` or `className` attribute.
 3. Namaq's lesson text survives conversion: for each of the six lessons, the visible text of the new page matches the visible text of the old HTML apart from whitespace, the chrome (index, theme button) and the link targets.
 4. No link on any page points at a relative path from namaq. Every `RepoLink` resolves to a file that exists in namaq on `main`.
@@ -77,7 +77,7 @@ Order matters: step 2 needs the folder step 1 frees, and step 4 needs the layout
 
 ## Validation
 
-- **Content test** (`lib/content.test.ts`): every lesson and record has valid frontmatter; numbers within a track are unique and contiguous; every `lesson` field on a record names an existing lesson; disclosure is `open` or `generic`. Covers criteria 1 and 5.
+- **Content test** (`lib/content.test.tsx`): every lesson and record has valid `meta`; numbers within a track are unique and contiguous; every `lesson` field on a record names an existing lesson; disclosure is `open` or `generic`. Covers criteria 1 and 5.
 - **Render test**: render every lesson to a string and assert it throws nothing and contains no `className` from the source; assert lesson 5 has no `$\to$`. Covers criteria 1, 2 and 5.
 - **Text-parity script**, run once during conversion and its output pasted into the PR: strip tags from each old namaq HTML lesson and each new rendered page, normalise whitespace, diff. Covers criterion 3.
 - **Link check**: collect every `RepoLink` path and confirm it exists in a namaq checkout. Covers criterion 4.
@@ -86,7 +86,7 @@ Order matters: step 2 needs the folder step 1 frees, and step 4 needs the layout
 
 ## Operational consequences
 
-- The owner connects the repository to Vercel once (an account action an agent cannot take). Until then the app is verified locally with `bun run dev`. No environment variables or database are needed in phase 1.
+- The owner connects the repository to Vercel once (an account action an agent cannot take), with the Next.js preset and no environment variables. There are no preview deployments; a lesson is read locally with `bun run dev` before merge. The site is not public yet.
 - Namaq's PR (step 7) waits until the lessons site has a production URL to link to.
 - The owner's global agent instructions may still carry the rule from `install/global-AGENTS.md` and an installed copy at `~/.claude/skills/distillate/`. Removing those is the owner's edit outside this repository; the PR body says so.
 

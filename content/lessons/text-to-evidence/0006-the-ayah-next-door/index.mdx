@@ -1,0 +1,149 @@
+export const meta = {
+  title: "Fixing the ayah the owner named broke the ayah next to it",
+  label: "The ayah next door",
+  summary: "A rule that runs over the whole text can't be judged on the one ayah someone pointed at.",
+  number: 6,
+  disclosure: "open",
+  sourceProject: "namaq",
+};
+
+The similar-ayat view on `/quran/compare` colours the words two passages share. In under an hour, four
+highlight rules shipped, each to answer one ayah the owner pointed at. Each rule was checked on
+that ayah and nowhere else. Two of them moved highlights nobody looked at, and the owner found
+each one a message later. The fourth would have too, had a diff over every pair not caught it first. This lesson is about why a rule that runs over the whole text can't be
+judged on one ayah, and about the two checks that finally held it still.
+
+## What the page does
+
+The matcher (<RepoLink repo="namaq" path="src/lib/quran/similar.ts" />, specified in
+<RepoLink repo="namaq" path="docs/plans/quran-similar-ayat.md" />) reads the Quranic Arabic Corpus. It turns every noun,
+verb and adjective into its root and every other word with a lemma (كلا، إن، لا، ما) into that
+lemma. Then it compares every run of one to three ayat with every run elsewhere. A pair that shares
+enough rare roots, in roughly the same order, is kept. The whole Qur'an yields 5,082 pairs, written
+once to <RepoLink repo="namaq" path="src/app/quran/compare/similar.json" />.
+
+Finding the pairs is one problem. Colouring them is another, and this lesson is about the second.
+For each kept pair a second function, `marks`, decides which words to colour:
+
+- **Amber**: the other side has this word letter for letter.
+- **Blue**: the other side has a different word from the same root or particle, as
+  إنه in المدثر ٥٤ against إنها in عبس ١١. That is the difference a memoriser has to learn, so it gets
+  its own colour.
+
+Note the shape of that function. It takes no ayah from the reader. It runs over all 5,082 pairs
+and every word in them, about 57,000 coloured words in all. A change to it is a change to every one
+of those words at once.
+
+## Four rules in an hour
+
+The pair under discussion was الواقعة ٧٥–٧٧ against الحاقة ٣٨–٤٠:
+
+```
+الواقعة ٧٥  فَلَا أُقْسِمُ بِمَوَاقِعِ النُّجُومِ        الحاقة ٣٨  فَلَا أُقْسِمُ بِمَا تُبْصِرُونَ
+الواقعة ٧٦  وَإِنَّهُ لَقَسَمٌ لَوْ تَعْلَمُونَ عَظِيمٌ    الحاقة ٣٩  وَمَا لَا تُبْصِرُونَ
+الواقعة ٧٧  إِنَّهُ لَقُرْآنٌ كَرِيمٌ                الحاقة ٤٠  إِنَّهُ لَقَوْلُ رَسُولٍ كَرِيمٍ
+```
+
+Here is the sequence, one owner message and one rule at a time.
+
+1. **"Why are وإنه and لا blue?"** They were the same words as إنه and فلا on the other
+   side, but the attached و and ف made the letters differ, so they fell through to "same root". Rule:
+   ignore a leading و or ف when comparing words. Checked: both turned amber. Unchecked: وإنه in ٧٦ was
+   now amber because of the إنه in الحاقة ٤٠, a different ayah that says something else.
+2. **"Why is لا amber?"** Because الواقعة ٧٥ has فلا, now read as لا. The match is
+   real and meaningless: one is an oath formula, the other a negation. Rule: stop colouring a particle
+   that stands alone, away from any other coloured word. Checked: لا in ٣٩ went plain. Unchecked:
+   إنه opens both ٧٧ and ٤٠, and it stands alone too, because لقرآن and لقول don't match. It lost its
+   colour.
+3. **"إنه in ٧٧ and ٤٠ fails to match."** Rule: an exception, so a lone particle stays coloured when the
+   paired ayah has it at the same position. Checked: إنه came back. Unchecked: وإنه in ٧٦ was still
+   amber, kept alive by its neighbour لقسم.
+4. **"Why is وإنه amber, and why is لقسم blue when ٣٨ shows no blue?"** لقسم is blue
+   because of the root ق س م in أقسم, but أقسم in ٣٨ is amber, since it matches أقسم in ٧٥ exactly. A
+   reader sees a blue word with no blue partner. This is where the method changed, and the next
+   section is about that.
+
+The pattern is plain in hindsight. Every rule was proved on the example in the message and on
+nothing else. Every rule was correct for that example. The rule itself was a statement about tens
+of thousands of words, and one example is a sample of one.
+
+## Why the named ayah can't vouch for the rule
+
+The owner's message names the place where a reader *noticed* something wrong. It does not
+name where the rule acts. A rule like "ignore a leading و" acts everywhere a word starts with و, and
+in Arabic that is a large share of the text. The one ayah checked was the one place guaranteed to
+come out right, because the rule was written to fix it.
+
+There was a second trap. Each fix left the earlier fixes in place, so every rule ran on top of the
+last. Rule 3 was an exception to rule 2, which narrowed rule 1. By the third round, nobody could say
+from reading the code what a given word would get. The code's intent had stopped being visible in
+the code, so the only way left to know what it did was to run it and look at all of it.
+
+## The diff over every pair
+
+Before the fourth change, the old `similar.json` was copied aside. After the change, a
+short script compared the two, pair by pair. For each pair it found which marks were lost and which
+were gained, and it totalled amber and blue across the file. It also printed a dozen changed pairs to
+read.
+
+```
+pairs 5082 -> 5082 | changed pairs 953 lost marks 79 gained 1469
+amber 41629 -> 42675 | blue 15513 -> 15857
+2,25,25|4,57,57 - +A25:15:0,A25:20:1,A25:22:0
+```
+
+That first run was itself a surprise. The new rule paired the ayat of two equal windows in order
+(٧٥↔٣٨، ٧٦↔٣٩، ٧٧↔٤٠) and compared a particle only with its paired ayah. That fixed وإنه. But the
+diff showed 1,469 new marks, and reading the samples showed why. In long ayat like البقرة ٢٥, a
+particle such as من or في now matched *anywhere* in the paired ayah, which is the same stray
+match as the لا complaint, only in long ayat that nobody had opened. One more narrowing, to the same
+position in the paired ayah, and the diff came back small enough to read row by row:
+
+```
+pairs 5082 -> 5082 | changed pairs 93 lost marks 79 gained 63
+```
+
+Ninety-three changed pairs is a list a person can scan in a few minutes. 953 is not, and the
+difference is the signal. A rule meant to move one class of word should move a small, explainable
+set of pairs. When the count is far larger than the class, the rule is doing something else too.
+
+## Invariants as tests
+
+The blue-without-a-partner complaint was not about one ayah at all. It was about a property every
+pair should have: if a word is coloured because of something on the other side, that something should
+be coloured too. Stated that way, it can be checked over every pair, not sampled. The test in
+<RepoLink repo="namaq" path="src/lib/quran/similar.test.ts" /> loops over all 5,082 pairs and fails if any coloured
+word's root or particle is missing from the other side's coloured words. The fix is
+`paired` in `similar.ts`, which drops such marks. Together with a tooltip
+naming each word's partners, it answers the complaint for the whole file, not only for ٣٨.
+
+The pre-PR review then found the mirror image of the problem in a test. "Keeps a lone two-word
+match" used two one-ayah ranges. Two ranges of equal length took a new shortcut that pairs ayat in
+order, so the test never reached the filter it was named for, and it would have passed with that
+filter reverted. The fix was to give it ranges of unequal length. To show the new version can fail,
+the filter was reverted by hand for one run. The test failed, and the filter was put back. A test
+that has never been seen to fail has not been shown to test anything.
+
+## The move worth stealing
+
+When a change runs over a whole corpus (a highlight rule, a matcher threshold, a normaliser),
+three checks belong with it, in this order:
+
+1. **Diff the output before and after**, over everything, and print the counts and a
+   sample. Ask whether the count of changes matches the size of the class the rule targets.
+2. **Write the property, not the example**, as a test that loops over the whole output.
+   "No mark lacks a partner" covers 5,082 pairs; "٧٦ has no mark at word 0" covers one.
+3. **Break the code once and watch the test fail.** Revert the line the test is about,
+   run it, and put the line back.
+
+The owner's example still matters. It is the first test case, the one that proves the rule handles
+the reported problem. It is not evidence that the rule handles anything else.
+
+## Read next
+
+**Primary sources:** <RepoLink repo="namaq" path="docs/plans/quran-similar-ayat.md" /> for the matcher
+and the colouring rules as they stand; <RepoLink repo="namaq" path="src/lib/quran/similar.ts" /> (`marks` and
+`paired`); the short record
+[Fixing the highlight the owner pointed at broke the one next to it](/records/namaq/0019-fixing-the-example-broke-the-ayah-next-door);
+[Lesson 0003](/text-to-evidence/0003-a-check-that-exists-but-doesnt-run), whose check that never ran
+is a cousin of the test that could not fail.
