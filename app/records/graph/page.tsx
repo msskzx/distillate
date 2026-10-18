@@ -10,6 +10,7 @@ export const metadata = { title: "Record graph" };
 export default function RecordGraphPage() {
   return (
     <Article
+      wide
       strip={[{ label: "Records" }, { label: "Relationships", marked: true }]}
       title="Record relationships"
       lead="Explore how decisions and approaches build on earlier work or try a variant. Search highlights matching records while keeping their connections in view."

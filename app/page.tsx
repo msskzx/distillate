@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { Logo } from "@/components/Logo";
 import Link from "next/link";
 import { Contents } from "@/components/lesson/Contents";
 import { Star } from "@/components/lesson/Star";
@@ -16,9 +16,9 @@ export default async function Home() {
   const latest = [...recordIndex].sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id)).slice(0, 3);
 
   return (
-    <main className="mx-auto max-w-[38rem] px-4 pb-24 pt-20">
+    <main className="home mx-auto max-w-[60rem] px-4 pb-24 pt-20">
       <div className="flex items-center gap-4">
-        <Image src="/logo.png" alt="" width={56} height={56} className="rounded-xl" priority />
+        <Logo className="h-14 w-14 shrink-0" />
         <h1 className="m-0 text-[clamp(2.4rem,1.8rem+2.4vw,3.2rem)] font-medium">Distillate</h1>
       </div>
       <p className="mb-0 mt-3 text-xl italic text-ink-soft">
