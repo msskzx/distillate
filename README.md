@@ -26,6 +26,8 @@ bun install
 bun run dev
 ```
 
+The app runs at http://localhost:4000.
+
 Checks to run before a pull request:
 
 ```bash

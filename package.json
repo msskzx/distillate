@@ -6,9 +6,9 @@
   "description": "Lessons and records of what agents learned while working",
   "author": "Muhammad Khattab",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 4000",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 4000",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
