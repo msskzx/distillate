@@ -64,4 +64,25 @@ describe("components.h2", () => {
     );
     expect(container.querySelector("h2")?.id).toBe("use-usestate-wisely");
   });
+
+  it("moves an author's leading number into data-number and keeps it in the id", () => {
+    act(() => root.render(<H2>3. MCP and tools</H2>));
+    const h2 = container.querySelector("h2")!;
+    expect(h2.dataset.number).toBe("3");
+    expect(h2.textContent).toBe("MCP and tools");
+    expect(h2.dataset.label).toBe("MCP and tools");
+    expect(h2.id).toBe("3-mcp-and-tools");
+  });
+
+  it("leaves an unnumbered heading without data-number", () => {
+    act(() => root.render(<H2>References</H2>));
+    const h2 = container.querySelector("h2")!;
+    expect(h2.hasAttribute("data-number")).toBe(false);
+    expect(h2.dataset.label).toBe("References");
+  });
+
+  it("does not treat a number without a following space as an author's number", () => {
+    act(() => root.render(<H2>2.0 release notes</H2>));
+    expect(container.querySelector("h2")!.hasAttribute("data-number")).toBe(false);
+  });
 });

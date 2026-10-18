@@ -18,7 +18,7 @@ export function Callout({
   return (
     <aside className={`not-prose my-7 px-5 py-4 ${tones[tone]}`}>
       {title && <p className="mb-1.5 mt-0 text-lg tracking-[0.06em] text-accent [font-variant:all-small-caps]">{title}</p>}
-      <div className="prose max-w-none text-[1.125rem] [&>:first-child]:mt-0 [&>:last-child]:mb-0">
+      <div className="prose max-w-none text-[1.125rem] leading-[1.6] [&>:first-child]:mt-0 [&>:last-child]:mb-0">
         {children}
       </div>
     </aside>

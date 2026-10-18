@@ -133,6 +133,10 @@ article.prose:has(h2[data-number]) h2:not([data-number])::before {
 }
 
 @media (min-width: 1280px) {
+  html[data-index="open"] #index {
+    display: block;
+  }
+
   html[data-index="open"] body > main.leaf {
     margin-inline-start: max(17rem, calc((100% - 54rem) / 2));
   }
