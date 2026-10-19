@@ -1,0 +1,75 @@
+export const meta = {
+  title: "Grading a tree without losing the text",
+  label: "Grading a tree",
+  summary: "A complete answer follows every path, permits sibling swaps, and preserves references where a text ends inside the tree.",
+  number: 7,
+  disclosure: "open",
+  sourceProject: "namaq",
+};
+
+This lesson describes the shared-opening quiz change in [Namaq PR #413](https://github.com/msskzx/namaq/pull/413) (commit `5f4475e2`).
+The challenge is recorded in [A tree answer must preserve the path](/records/namaq/0020-a-tree-answer-must-preserve-the-path).
+
+## 1. A node is a run of words
+
+The explorer compresses shared word sequences into nodes. A node stores its own
+words, the ayat that end there, and its children. Ending an ayah does not require
+ending a branch (<RepoLink repo="namaq" path="src/lib/quran/branches.ts" />).
+
+Take the real opening يطوف عليهم, allowing the leading و variant. Three ayat
+produce three nodes after the supplied opening:
+
+| Node | Words | Ayah ending here | Children |
+| --- | --- | --- | --- |
+| 1 | غلمان لهم كأنهم لؤلؤ مكنون | 52:24 | none |
+| 2 | ولدان مخلدون | 56:17 | node 3 |
+| 3 | إذا رأيتهم حسبتهم لؤلؤا منثورا | 76:19 | none |
+
+The answer has three fields. Node 2 is both an answer and the end of 56:17.
+Showing references only at leaves would hide that ayah. The feedback renderer
+reads each matched node's `ayat`, including internal nodes
+(<RepoLink repo="namaq" path="src/app/quizzes/BranchAnswers.tsx" />).
+
+## 2. Match a path, then its words
+
+The quiz uses the explorer's `BranchTree` with a custom renderer for each
+non-root node. Before checking, it shows fields and the supplied opening;
+answer words and reader links appear in feedback
+(<RepoLink repo="namaq" path="src/app/quran/branches/BranchTree.tsx" />).
+
+Grading visits nodes in depth-first order. It tries permutations of siblings,
+recursively rejects pairs whose child counts differ, and chooses the valid
+pairing with the most correct nodes. Swapping siblings therefore moves their
+whole subtrees. In the example, the five-word leaf cannot trade places with the
+node that has a child. Each field must match every word at its assigned node;
+answering only غلمان or leaving node 3 blank fails completion
+(<RepoLink repo="namaq" path="src/lib/quiz/branchAnswers.ts" />).
+
+## 3. Forgive spelling without changing the answer
+
+The word matcher accepts ordinary keyboard spelling of the mushaf text.
+Spaces and vowel marks do not decide correctness. Expected hamza seats can
+accept the corresponding bare keyboard letter: يوميذ matches يومئذ, and شي
+matches شَىْءٍ. It does not use a general edit-distance threshold; حي still fails
+for شَىْءٍ. The accepted variants come from the expected word's pattern
+(<RepoLink repo="namaq" path="src/lib/quiz/branchAnswers.ts" />).
+
+<Quiz
+  question="In the يطوف عليهم tree, all three fields are correct. Where should the reader link for 56:17 appear?"
+  options={[
+    "At ولدان مخلدون, even though that node has a child",
+    "Only at the last leaf, after إذا رأيتهم",
+    "Nowhere, because internal nodes cannot end an ayah",
+  ]}
+  answer={1}
+  right="Yes. Ending references belong to nodes independently of their children."
+  wrong="56:17 ends at ولدان مخلدون. The longer 76:19 continues through its child, so a leaf-only rule loses a reference."
+/>
+
+**Primary sources:**
+<RepoLink repo="namaq" path="src/app/quran/branches/ayat.json" /> supplies the
+worked example;
+<RepoLink repo="namaq" path="src/lib/quiz/branchQuestions.test.ts" /> checks the
+real tree;
+<RepoLink repo="namaq" path="src/lib/quiz/branchAnswers.test.ts" /> checks spelling;
+<RepoLink repo="namaq" path="docs/quiz-ayah-branches.md" /> states the quiz rules.
