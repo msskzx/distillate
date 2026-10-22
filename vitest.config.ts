@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [mdx({ remarkPlugins: [remarkGfm] })],
   oxc: { jsx: { runtime: "automatic" } },
   test: {
-    exclude: [...configDefaults.exclude, ".claude/**"],
+    exclude: [...configDefaults.exclude, ".claude/**", ".codex/**"],
     environment: "jsdom",
   },
   resolve: { alias: { "@": import.meta.dirname } },

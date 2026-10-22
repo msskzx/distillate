@@ -1,0 +1,327 @@
+export const meta = {
+  title: "The exact rules of the shared openings",
+  label: "The rules of the shared openings",
+  summary: "Every threshold, drop and split in the shared-ayat-opening code, written down so the exceptions can be checked against a rule instead of guessed at.",
+  number: 7,
+  disclosure: "open",
+  sourceProject: "namaq",
+};
+
+The page at `/quran/branches` groups the Qur'an's ayat by the words they open with, and draws the groups
+as a tree. This lesson is the rule set behind it: what the code decides, in what order, and what it
+drops on the way. It is written from the code as it stands on `main` after
+[PR #422](https://github.com/msskzx/namaq/pull/422) and
+[PR #423](https://github.com/msskzx/namaq/pull/423), not from the plan, so where the two disagree the
+code is the subject.
+
+The lesson ends with the gaps. The owner's report was a list of words on a live page that looked
+like they should have been in one place and were not:
+
+<ArabicQuote>رَبِّ رَبُّ إِنَّ إِنِّىٓ إِنِّى أَنَّىٰ</ArabicQuote>
+
+Reading the rules is how those get explained rather than patched, and the last section says which
+rule each one breaks.
+
+## What the page answers
+
+One question: which ayat open with the same words? Two surfaces answer it, and they answer it with
+**different rules**, which is the first thing to know.
+
+- The **search** finds a shared phrase. `?o=قال رب` opens the tree for the phrase "قال رب".
+- The **list** (the `g=opening` and `p=` parameters, and the pieces) browses the same groups as flat
+  entries.
+
+The rules live in <RepoLink repo="namaq" path="src/lib/quran/branches.ts" />. The data they run on
+is built once by `npm run quran:branches`
+(<RepoLink repo="namaq" path="scripts/quran/buildBranches.ts" />) and written to
+<RepoLink repo="namaq" path="src/app/quran/branches/ayat.json" />: 3,140 ayat that share an opening
+with at least one other ayah, out of 6,236. The rest of the Qur'an has no shared opening and is not
+in the file at all.
+
+The page is a Next.js server component
+(<RepoLink repo="namaq" path="src/app/quran/branches/page.tsx" />). It reads the built file, groups
+it, and renders. It never reads the database for the tree.
+
+## The data the rules run on
+
+A `BranchAyah` carries its key (`surah:ayah`), the reader page it is on, its **words** with their
+marks, and optionally its **roots**, its **conjunction** and its **next** words. Four functions
+attach those extras, and each of them can throw.
+
+- `readerAyat` (<RepoLink repo="namaq" path="src/lib/quran/branches.ts" />) walks the 604 reader
+  pages (<RepoLink repo="namaq" path="src/app/quran/read/data" />) and splits them into ayat at the
+  ayah markers. Words keep their marks; a word that is only marks is dropped.
+- `withConjunctions` reads the morphology corpus
+  (<RepoLink repo="namaq" path="data/quran/quranic-corpus-morphology-0.4.txt" />) and records a
+  leading و or ف on the ayat that have one, as its **conjunction**. It throws if an ayah is recorded
+  as opening with a conjunction its first word does not start with.
+- `withRoots` reads the same corpus for `ROOT:` on stem segments and records one root per word, or
+  `null` when the word has no root. Two roots on one word are joined with `+`. It throws when any
+  word has no STEM annotation.
+- `withNext` runs after grouping and gives an ayah the first words of the ayah after it, when the
+  ayah continues past its own end.
+
+**The root is part of the identity.** A word matches another word only when their roots agree, or
+when both have none. That is the rule that keeps two different words that look alike apart, and it
+is why `أَنَّىٰ` and `إِنِّى` never merge even though they look alike after the marks are stripped:
+`أَنَّىٰ` has the root `Any` and `إِنِّى` has none.
+
+## The two normalisations, and why there are two
+
+This is the heart of the rule set, and the source of most of the exceptions.
+
+**`normalizeWord`** (<RepoLink repo="namaq" path="src/lib/quran/normalize.ts" />) strips every
+diacritic and Quranic annotation sign, and folds four letter pairs: every alif form to ا, ى to ي,
+ة to ه, ک to ك. `وَإِنَّهُ` becomes `وانه`. It is the rule for **equality of wording**.
+
+**`spell`** (<RepoLink repo="namaq" path="src/lib/quran/branches.ts" />) is a second, narrower
+comparison. It removes the tatweel and the zero-width joiner, removes the annotation signs
+U+06D6–U+06ED, removes a **shadda that follows the first letter** (optionally preceded by one
+vowel sign, U+064B–U+0650), removes a **final sukun**, and normalises to NFC. It keeps everything
+else, including every significant vowel. So `رَبِّ` and `رَبُّ` are different spellings, and
+`مِنْ` and `مِّنْ` are the same one, because the shadda in the second is on the first letter.
+
+`spell` is what the **tree** splits on. `normalizeWord` is what the **search** and the **list**
+group on. That is the whole of the "exception" the owner ran into.
+
+Measured over the Arabic blocks, `spell` strips 28 codepoints and `normalizeWord` strips 104, and
+`normalizeWord`'s set contains `spell`'s entirely:
+
+- `spell` strips U+0640, U+0651–U+0652, U+06D6–U+06ED and U+2060.
+- `normalizeWord` strips those, and U+0610–U+061A, U+064B–U+065F, U+0670, U+08D3–U+08FF as well.
+
+So `normalizeWord` strips every mark `spell` strips, and 76 more. The 76 are the significant
+vowels (U+064B–U+0650), the superscript alef U+0670, the maddah above U+0653, the hamza above
+U+0654, and the vowel signs U+0610–U+061A. `normalizeWord` also folds the letters `spell` keeps
+apart: every alif form to ا, ى to ي, ة to ه, ک to ك. The alif folds are why `إِنَّ` and `أَن` are
+one word to the search.
+
+## The constants
+
+- `OPENING_WORDS = 2`. An opening is the first two words.
+- `TOP = 8`. The search box suggests eight.
+- `PIECE_MAX = 6`. A tree node larger than six ayat is not a list entry; the walk descends into it
+  instead.
+
+## Grouping into openings
+
+`sharedOpenings` groups the ayat. The key of a group is the opening's two words, normalised, plus
+the **root partition** of those two words — the sequence of their roots, or `null` for a word with
+no root.
+
+Two words that normalise the same but root differently therefore land in different groups, and the
+group's id carries the partition so the two never collide. The list of openings is sorted by how
+many ayat each holds. A partition is dropped from an opening's id when the id is unique, so the UI
+shows no root tag when there is nothing to disambiguate.
+
+The group of "قال رب" holds 26 ayat: 24 opening `قَالَ رَبِّ` and 2 opening `قَالَ رَبُّ`. Both
+spellings are in one group, because `رَبِّ` and `رَبُّ` normalise the same and share the root `rbb`.
+They are also the same opening under the definition in
+<RepoLink repo="namaq" path="CONTEXT.md" />: "The first two words shared by at least two ayat,
+allowing equivalent spellings, diacritic differences, and an initial conjunction as identified by
+its morphology. Corresponding words must also have the same root, or both have no root."
+
+## Growing the tree
+
+`branch` (or `phraseTree`) grows one tree per group. The rules, in order:
+
+1. **Shown.** If the group splits on the first word's spelling, every member's first word is
+   replaced by the first member's first word, so the tree's label is one spelling while membership
+   keeps the originals. The differing spellings are kept alongside, as **variants**, and shown
+   beside the tree.
+2. **Grown.** A leaf's text is extended with the next ayah's words when the ayah continues, so a
+   node can read "ayah ٤ ﴿…﴾ more words".
+3. **Compared.** The tree compares words by `wordKey`, which is the **spelling** of the word
+   together with its **root**. Two words are the same node only when both agree. This is where the
+   significant vowels bite: `إِنِّى` and `إِنِّىٓ` are two nodes, because their spellings differ.
+4. **Shared display.** A node's word is the *shared* spelling of its members: the marks every member
+   has in common, and nothing else. `plain` computes it letter by letter, keeping a mark only when
+   every member's letter carries it. A node whose members disagree on the spelling shows the first
+   member's spelling unchanged.
+
+Under "قال رب" the tree has 12 children under `رَبِّ`, and the third word splits into
+`أَنَّىٰ`, `إِنِّى`, `إِنِّىٓ` and `إِنَّ` as separate nodes.
+
+## Searching for a phrase
+
+`listPhrases` collects every prefix of two words or more that at least two ayat share, in three
+passes over the trees:
+
+1. Every node path of every opening's `phraseTree`, which compares by **normalised** words, so
+   marks never split a phrase.
+2. When an opening is mixed, some ayat opening with a conjunction and some without, a second pass
+   over the exact spelling subgroups.
+3. A linked pass over the mark-merged tree, recording the nodes that have children, prefixed with
+   the shared conjunction.
+
+Then a re-derivation pass checks every ayah against every known phrase id at every length, and
+where one id resolves to more than one root partition, each partition becomes its own phrase.
+That is the pass that finds a phrase which only exists after the marks are merged.
+
+`widerPhrases` offers the shorter phrases that every member of the current group also opens with,
+shortest first, so the UI can walk up the tree.
+
+## The list and the pieces
+
+`pieces` walks each opening's `phraseTree` and emits a **piece** for every node with at least two
+ayat. A node with more than `PIECE_MAX` ayat and a child with more than one ayat is descended into
+rather than listed; a node with more than `PIECE_MAX` ayat and more than one spelling is split per
+spelling. Each piece carries its opening, its keys, its shared length and its partition. The full
+list holds 935 pieces over 816 openings and 1,774 phrases.
+
+## The rules side by side
+
+| Surface | Compares by | Consequence |
+|---|---|---|
+| Grouping (`sharedOpenings`) | normalised word + root | 816 openings, 3,140 ayat |
+| Tree (`branch`) | **spelling** + root | a node per spelling; marks split nodes |
+| Phrase search (`listPhrases`) | normalised word + root | 1,774 phrases; marks never split a phrase |
+| List (`pieces`) | normalised word + root | 935 pieces |
+
+<Callout tone="warning" title="The rule that explains the exceptions">
+  A word that differs only in its marks is **one word to the search and two words to the tree**.
+  The tree splits on `spell`; the search groups on `normalizeWord`. Nothing reconciles them, so a
+  phrase the search finds can appear in the tree as two branches.
+</Callout>
+
+## Where the owner's examples land
+
+Each of the six words on the live page is a tree node the search would have merged. The reasons
+differ, and the difference is the point.
+
+**`رَبِّ` and `رَبُّ`.** These two are the *second* word of the opening, 24 ayat and 2 ayat. They
+differ in the **vowel on the last letter** (kasra against damma), which is a grammatical difference,
+not a contextual one: one is "my Lord" in the genitive and the other in the nominative. `spell`
+keeps significant vowels, so the tree splits them. The search folds the difference away, so it
+reports one opening of 26. **This split is correct.** The two are different words that happen to
+sound close.
+
+**`إِنِّى` and `إِنِّىٓ`.** These differ by U+0653, the maddah above the final ى — a mark on the
+same word, nothing more. `normalizeWord` drops it, so the search sees one word. `spell` keeps it,
+so the tree makes two nodes. Under the shared-display rule in the plan, a node shows the marks its
+members share, and a maddah is not a letter and not a vowel: it should be one node showing
+`إِنِّى`, with the maddah listed as the difference. **This split is a gap.**
+
+**`إِنَّ` and `إِنِّى`.** These are different words, `إِنَّ` the particle and `إِنِّى` the pronoun, and
+they root differently in the corpus: `إِنَّ` has no root and `إِنِّى` has none either, so the root
+rule does not separate them, and the letters alone separate them. **This split is correct.** The
+search folds إ to ا and drops the final ى to ي, so it also has to fold `إِنَّ` to `ان` and `إَنَّىٰ`
+to `اني`; the root partition is what stops `أَنَّىٰ` from joining `إِنِّى`.
+
+**`أَنَّىٰ`.** Its U+0670, the superscript alef, is a mark, and `normalizeWord` drops it while
+`spell` keeps it. But `أَنَّىٰ` also carries the root `Any` where `إِنِّى` carries none, so the root
+rule already keeps them apart and the mark is not what separates them here. **The split is
+correct**, though for the root rather than for the mark.
+
+So of the six words, three are the tree working as designed and three (`إِنِّىٓ` against `إِنِّى`, and
+the superscript alef in general) are the same gap: **`spell` keeps marks that `normalizeWord` drops,
+and the tree is built on `spell`.**
+
+## The size of the gap
+
+Over the 3,140 ayat of the built file, the tree and the search disagree at this rate:
+
+- 259 of the 816 openings split on their first word in the tree, and the search merges them.
+- 1,293 distinct **word-spelling classes** are one word to the search and two to the tree. What
+  separates the two spellings, in order of how many classes it accounts for:
+
+| What differs | Classes | Example |
+|---|---|---|
+| a significant vowel | 959 | `رَبِّ` against `رَّبُّ` |
+| the maddah above U+0653 | 126 | `لِى` against `لِىٓ` |
+| an alif form U+0622 / U+0627 | 48 | `مَا` against `مَآ` |
+| a sukun that is not final | 47 | `أَمْرُهُمْ` against `أَمَرَهُمْ` |
+| the superscript alef U+0670 | 34 | `عَلَى` against `عَلَىٰ` |
+| an alif form U+0625 / U+0623 | 16 | `إِنَّ` against `أَن` |
+| a shadda that is not on the first letter | 7 | `كَفَرَ` against `كَفَّرَ` |
+
+Only three rows are marks that carry no grammatical meaning: the maddah above, the superscript
+alef, and a sukun in the middle of a word. Those are the ones the shared-display rule was written
+for, and they account for 207 of the 1,293 classes. The rest are real differences between words,
+and the tree is right to keep them apart.
+
+## The Musa case
+
+The same rules meet a different text on the prophet timeline
+(<RepoLink repo="namaq" path="src/app/quran/prophets/musa" />). The prophet's ayat are held in
+<RepoLink repo="namaq" path="src/app/quran/prophets/ayat/musa.json" />, and that file is written in
+a **different orthography** from the reader: it uses U+06CC for ى, U+06E1 and U+06E4 for the small
+high marks, and U+08F0 for the rounded stop, where the reader uses U+0649 and the U+06D6–U+06ED
+block.
+
+`spell` strips the U+06D6–U+06ED block, and `normalizeWord` strips it as well as U+08D3–U+08FF, so
+both normalisers handle the prophet's orthography. What the timeline does **not** do is split or
+merge anything: `buildStory`
+(<RepoLink repo="namaq" path="src/lib/quran/prophets/story.ts" />) reads each ayah's text and
+prints it, with no comparison against any other ayah. There is no tree on that page and no rule
+that could produce an exception in it.
+
+The comparison that *does* touch the prophet's ayat is the one on the home page
+(<RepoLink repo="namaq" path="src/lib/homePreviewData.ts" />), which pairs five ayat of al-Shu'ara
+against five of al-A'raf. That comparison runs on `pairOf`
+(<RepoLink repo="namaq" path="src/lib/quran/compare.ts" />) and uses `wordTokens`, which is a
+third rule again: tokens from the morphology corpus, matched by root or lemma. It never compares
+marks, so the orthography difference does not reach it.
+
+**The owner's memory of a Musa exception does not correspond to a rule that exists.** The prophet's
+ayat are printed, not compared. If the exception they remember was a word that looked different
+between two ayat on the timeline, that is the reader's own orthography in
+<RepoLink repo="namaq" path="src/app/quran/prophets/ayat/musa.json" /> against the tree's, and the
+comparison that would expose it is the one the timeline does not make.
+
+## What the rules are missing
+
+Three gaps, stated as rules to write rather than as bugs to fix.
+
+1. **`spell` is a list of exceptions, not a rule.** It knows about a shadda on the first letter and
+   a final sukun, because those two were found one at a time. It has no notion of a mark that
+   carries no grammatical meaning, so every new one has to be added by hand. The rule it should
+   express is the one the plan already states: keep the letters, keep the vowels that change the
+   word's meaning, drop the rest.
+2. **The tree and the search use different comparators, deliberately.** `spell` for the tree,
+   `normalizeWord` for the search. That is defensible — a tree wants to show the differences, a
+   search wants to find the shared wording — but nothing says so in the code, and the two surfaces
+   then disagree about what a word is. The rule to write is which marks each surface treats as
+   significant.
+3. **The two alif folds are asymmetric.** `normalizeWord` folds آ, أ, إ and ٱ to ا, and ى to ي. So
+   `إِنَّ` and `أَن` are one word to the search, and `أَنَّىٰ` and `إِنِّى` differ only by the root.
+   The tree keeps them apart by the vowel, which is right. But the *search* now needs the root
+   partition to keep the two apart, and the root partition is a second, invisible axis that the
+   URL carries as `r=`. The rule to write is whether the search should fold hamza forms at all.
+
+## Read next
+
+**Primary sources:** <RepoLink repo="namaq" path="src/lib/quran/branches.ts" /> for the rules as
+they stand; <RepoLink repo="namaq" path="src/lib/quran/normalize.ts" /> for the two normalisers;
+<RepoLink repo="namaq" path="docs/plans/quran-shared-openings.md" /> for the plan the code was built
+from, and the shared-display rule it states; <RepoLink repo="namaq" path="CONTEXT.md" /> for the
+definitions of a shared opening and a shared phrase; the earlier lesson
+[The ayah next door](/text-to-evidence/0006-the-ayah-next-door), whose subject is the same corpus
+read under different rules.
+
+<Quiz
+  question="The search finds the phrase قال رب and the tree draws it. Which comparison does each use?"
+  options={[
+    "Both compare by normalised word and root, so they always agree",
+    "The search compares by normalised word and root; the tree compares by spelling and root",
+    "The tree compares by normalised word; the search compares by spelling",
+    "The tree compares by letters alone and ignores the root"
+  ]}
+  answer={2}
+  right="Right. The search groups on normalizeWord and the tree splits on spell. spell keeps every significant vowel and two mark classes that normalizeWord drops, so a word that differs only in a maddah or a superscript alef is one word to the search and two nodes in the tree."
+  wrong="The search groups on the normalised word plus the root; the tree splits on the spelling plus the root. Where spell keeps a mark that normalizeWord drops, the two surfaces disagree."
+/>
+
+<Quiz
+  question="Two words normalise to the same letters and carry the same root, but one has a maddah above (U+0653) and the other does not. What does each surface do with them?"
+  options={[
+    "The search merges them and the tree makes two nodes",
+    "The tree merges them and the search makes two entries",
+    "Both split them, because the maddah is a mark",
+    "Both merge them, because the root is the same"
+  ]}
+  answer={1}
+  right="Right. normalizeWord drops the maddah, so the search merges them; spell keeps it, so the tree splits them. That disagreement is the gap this lesson found, and it accounts for 126 of the 1,293 word-spelling classes where the two surfaces differ."
+  wrong="The search merges them and the tree splits them. The maddah is dropped by normalizeWord and kept by spell, so the same pair of words is one to the search and two to the tree."
+/>
+

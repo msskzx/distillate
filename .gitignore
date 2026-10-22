@@ -3,6 +3,7 @@ coverage/
 *.tsbuildinfo
 .env
 .claude/
+.codex/
 .next/
 next-env.d.ts
 .DS_Store
