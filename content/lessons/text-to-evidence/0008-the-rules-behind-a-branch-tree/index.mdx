@@ -256,6 +256,55 @@ Each item names what the code does, the rule it meets or breaks, and a question 
    follows, so they can be answered, but the reader sees two fields for one word. It goes away entirely for 95 of them if
    items 1 and 3 change.
 
+## 14. How to close the gaps
+
+These are proposals, not changes. The numbers come from applying each one to a scratch copy of the code and
+running it on the same data.
+
+**Fix A: two more context marks in `spell` (items 1 to 3).** After the existing three removals, `spell`
+(line 98) would also drop a maddah on the last pronounced letter (`\u0653` at the end, or before a final silent
+alif as in قَالُوٓا۟) and a dagger alif after a final ى. A maddah inside a word (جَآءَ) stays. The one-line change:
+
+```ts
+.replace(/\u0652$/u, '').normalize('NFD')
+  .replace(/\u0653(?=\u0627?$)/u, '')
+  .replace(/(\u0649)\u0670$/u, '$1')
+  .normalize('NFC')
+```
+
+Measured effect:
+
+| | Now | With fix A |
+| --- | --- | --- |
+| Same-letter sibling pairs in all trees | 196 | 75 (the 44 joining vowels and the real differences) |
+| Quiz questions with a same-letter pair at the first split | 151 of 872 | 56 |
+| Quiz questions with a same-letter pair anywhere | 163 | 64 |
+| `?o=قال+رب` | إِنِّى (5) and إِنِّىٓ (2) | one node إِنِّى (7) |
+| `?o=قال+موسي` | مُوسَىٰ (5) and مُوسَىٰٓ (3) | one node, root reads قَالَ مُوسَىٰ (8) |
+| `?o=ولقد+ءاتينا` | ءَاتَيْنَا / ءَاتَيْنَآ, then مُوسَى / مُوسَىٰ | ءَاتَيْنَا (15), then مُوسَى (10) |
+
+رَبِّ / رَبُّ, إِنَّ / إِنِّى and أَنَّىٰ stay apart, as they should. The merged nodes keep each ayah's own
+spelling in `forms`, so the amber context button shows the maddah where it was. Three things move with the
+change. One quiz test fails as expected: <RepoLink repo="namaq" path="src/lib/quiz/branchQuestions.test.ts" />
+asserts that تَتَّخِذُوا۟ and تَتَّخِذُوٓا۟ are separate nodes, and that test and line 28 of
+<RepoLink repo="namaq" path="docs/quiz-ayah-branches.md" /> flip. `ayat.json` must be rebuilt
+(`npm run quran:branches`), because `continues` decides the next-ayah leaves with `spell`. The plan's list of
+ignored marks gains two entries.
+
+**Fix B: the joining vowel (item 4).** The same pattern with `[\u064E-\u0650]$` would merge لَهُم and لَهُمُ, but it
+cannot tell a joining vowel from a case ending: it would also merge ٱللَّهُ with ٱللَّهَ and خَلَقَ with خَـٰلِقُ.
+A safe version needs the next word: drop a final short vowel only when the word after it starts with a hamzat
+wasl (ٱ). That is a change to how `spell` is called, since it sees one word at a time today. Option D keeps
+these apart on purpose, so this one waits for your call.
+
+**Fix C: one key for pieces and quiz (item 5).** `pieces` and `branchQuestions` would walk `branch` (the marks
+tree) instead of `phraseTree`. Then قَالَ رَبِّ إِنِّى is cut the way the page draws it, and the قال موسى question
+opens with قَالَ مُوسَىٰ instead of «قَالَ». After fix A most of these mismatches disappear anyway, so fix C
+matters only for real differences such as رَبِّ / رَبُّ.
+
+**Item 6** needs no code if the plan's folding stands. **Item 7** shrinks from 151 to 56 with fix A, and the
+rest are joining vowels (fix B) or real differences, which the quiz is right to ask.
+
 ## Primary sources
 
 <RepoLink repo="namaq" path="src/lib/quran/branches.ts" /> holds grouping, the tree, pieces and phrases;
