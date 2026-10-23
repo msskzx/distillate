@@ -42,6 +42,19 @@ with diacritics removed". The code follows the plan, so it also folds ى into ي
 bare alif, and أَنَّىٰ and إِنِّى have the same letters as far as grouping knows. Only the root guard keeps them apart.
 </Callout>
 
+Every mark `spell` removes, `normalizeWord` removes too, so the letters key is always the looser of the two. A
+word that differs only in kept marks is one word to search and two words to the tree. Across all 3,140 ayat,
+1,293 letter forms are written with more than one `spell` spelling. Most of those differences are a short vowel
+or tanween (1,101 forms involve one), 255 involve a maddah and 121 a dagger alif; a form can count under more
+than one mark.
+
+| Part | Compares by | Size on the whole dataset |
+| --- | --- | --- |
+| Grouping (`sharedOpenings`) | letters and root | 816 openings over 3,140 ayat, 259 of them with more than one first-word spelling |
+| Phrases (`listPhrases`) | letters and root | 1,774 phrases |
+| Pieces (`pieces`) | letters and root | 935 pieces |
+| Drawn tree and quiz tree (`branch`) | `spell` and root | one node per spelling |
+
 ## 2. Building the data
 
 `npm run quran:branches` runs <RepoLink repo="namaq" path="scripts/quran/buildBranches.ts" />. It reads the 604 reader
@@ -181,7 +194,8 @@ reader must type موسى into both.
 
 <Callout tone="note" title="Which Musa ayat did the owner mean?">
 The message says "a similar case for ayat for Musa". The three trees above are the candidates. The first two are
-the same pattern as إِنِّى / إِنِّىٓ: a mark from the next word splits one word into two nodes.
+the same pattern as إِنِّى / إِنِّىٓ: a mark from the next word splits one word into two nodes. The prophet timeline at `/quran/prophets/musa` is not a candidate. It prints each ayah and compares none, so
+no rule there can split or merge a word.
 </Callout>
 
 ## 12. Every same-letter split in the dataset
