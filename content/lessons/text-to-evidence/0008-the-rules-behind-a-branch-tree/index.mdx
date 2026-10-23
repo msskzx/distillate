@@ -1,0 +1,255 @@
+export const meta = {
+  title: "The rules behind a branch tree, and where they disagree",
+  label: "Branch tree rules",
+  summary: "The shared-openings page and quiz group words by their letters and split nodes by their marks. Most of the surprises in the قال رب tree come from that, and from one family of marks the context rule does not cover yet.",
+  number: 8,
+  disclosure: "open",
+  sourceProject: "namaq",
+};
+
+This lesson describes `/quran/branches` and the "Shared openings" quiz as they stand on Namaq `main` at commit
+`5a0da54`, after [PR #422](https://github.com/msskzx/namaq/pull/422) (context marks and the ayah context overlay),
+[#423](https://github.com/msskzx/namaq/pull/423) (root guard and the browse journey) and
+[#424](https://github.com/msskzx/namaq/pull/424) (layout only). It states every rule the code applies, with the line
+that applies it, so that each rule can be checked against what the owner intends. It changes nothing. The last
+two sections take the owner's example, `?o=قال+رب`, and the Musa ayat, explain which rule produced each node, and
+list the places where the code and the stated rules part.
+
+Line numbers refer to <RepoLink repo="namaq" path="src/lib/quran/branches.ts" /> at `5a0da54` unless another file is
+named. Every count below comes from running the code on the committed
+<RepoLink repo="namaq" path="src/app/quran/branches/ayat.json" /> (3,140 ayat).
+
+## 1. Three ways to compare a word
+
+Everything else in this lesson follows from one fact. The code compares two words in three different ways, two
+for building trees and one for grading, and each part of the feature picks one of them.
+
+| Name in the code | What it removes or folds | So these count as equal | Used by |
+| --- | --- | --- | --- |
+| `normalizeWord` (<RepoLink repo="namaq" path="src/lib/quran/normalize.ts" />, lines 2 to 12) | every vowel mark, shadda, sukun, dagger alif, maddah, tatweel and Quranic sign; folds أ إ آ ٱ to ا, ى to ي, ة to ه | إِنِّى, إِنِّىٓ and أَنَّىٰ (all become اني) | opening groups, phrase ids and `?o=`, pieces, the phrase tree |
+| `spell` (line 98) | tatweel and word joiner, the signs U+06D6 to U+06ED, a shadda on the first letter, a sukun on the last letter. Keeps every other mark | لَهُمْ and لَهُم; مَّتَـٰعًۭا and مَتَـٰعًۭا | the drawn tree, the first-word column, `?w=`, quiz trees |
+| quiz `letters` (<RepoLink repo="namaq" path="src/lib/quiz/branchAnswers.ts" />, line 10) | like `normalizeWord`, and also folds the hamza seats | everything a reader can type for one word | grading typed answers |
+
+On top of the first two, a **root guard** (lines 85 and 86) adds the word's root from the Quranic Arabic Corpus to
+the key. Two words with the same letters but different roots, or one rooted and one rootless, never share a group
+or a node. In the whole dataset only one phrase id belongs to two root groups: `قال رب اني` is split into قَالَ رَبِّ إِنِّى (7
+ayat, rootless إنّي) and قَالَ رَبِّ أَنَّىٰ (2 ayat, root أ ن ي).
+
+<Callout tone="note" title="Two statements of the grouping rule">
+The plan (<RepoLink repo="namaq" path="docs/plans/quran-shared-openings.md" />, line 89) says on purpose that
+"diacritics and the alif and ya spellings do not separate two openings". The owner's later wording is "words match
+with diacritics removed". The code follows the plan, so it also folds ى into ي and the hamza seats on alif into a
+bare alif, and أَنَّىٰ and إِنِّى have the same letters as far as grouping knows. Only the root guard keeps them apart.
+</Callout>
+
+## 2. Building the data
+
+`npm run quran:branches` runs <RepoLink repo="namaq" path="scripts/quran/buildBranches.ts" />. It reads the 604 reader
+pages, the same text `/quran/read` shows.
+
+1. `readerAyat` (line 29) splits the pages into ayat and drops tokens that are only marks, such as pause signs and ۞.
+2. `conjunctions` (line 57) and `withConjunctions` (lines 61 to 69) mark an ayah `conj: "و"` or `"ف"` when the corpus splits a `w:` or `f:`
+   prefix off its first word. The oath و (`w:P`, the `(?!P\+)` on line 57) is not a conjunction, so وَٱلْفَجْرِ keeps its و.
+3. `withRoots` (lines 71 to 83) stores each word's root, and fails the build when a word has no STEM annotation.
+4. `sharedOpenings` (line 131) keeps only ayat whose opening another ayah shares.
+5. `withNext` (lines 255 to 261) attaches the next ayah of the same surah to every ayah that "continues" (section 6).
+
+## 3. Grouping ayat into openings
+
+- An ayah's opening id is its first **two** words after `normalizeWord`, with a joined و or ف removed first
+  (`openingId`, line 128; `stem`, line 110). An ayah of one word has no opening.
+- Ayat with the same id and the same roots for those two words form a group (`sharedOpenings`, lines 131 to 142). A
+  group needs two ayat.
+- So يَطُوفُ عَلَيْهِمْ and وَيَطُوفُ عَلَيْهِمْ are one group, and so are قَالَ رَبِّ and قَالَ رَبُّ: the letters match and
+  both رب carry the root ر ب ب.
+
+## 4. Drawing the tree
+
+`branch` (line 282) draws a group as `grow(grown(shown(ayat)), 0, spell, ...)`.
+
+- **The node key** is `[spell(word), root]` (`wordKey`, line 86). A node takes words while every ayah under it has
+  the same key at that position, and stops at the first position where the keys differ or an ayah ends
+  (`grow`, lines 263 to 280).
+- **Every mark counts, with three exceptions**, all inside `spell`. Removed before comparing: the signs U+06D6 to
+  U+06ED (small high and low letters, pause signs, the iqlab meem), a shadda on the first letter (it comes from the
+  word before), and a sukun on the last letter (option D, so لَهُمْ and لَهُم share a node and لَهُمُ does not).
+- **Children** keep the order in which their first ayah appears in the group, which is mushaf order.
+- **An ayah that ends at a node** is listed on that node, even when the node has children.
+- **What the node shows** is `plain` (lines 100 to 104): at each letter, only the marks every ayah has. Merged
+  nodes whose originals differ carry `forms`, which drive the amber context button.
+
+## 5. A leading و or ف, and the first-word column
+
+- `split` (line 120) asks whether the first words of a group differ under `spell`. If they do, `shown` (line 122)
+  replaces every ayah's first word with the first ayah's first word without its و or ف, so the tree is built from
+  one shared first word.
+- `variants` (line 286) then draws one box per `spell` spelling of the first word (يَطُوفُ, وَيَطُوفُ), coloured
+  green for و and purple for ف. A box links to `?w=<spelling>`, the tree of only those ayat (`spelledAs`, line 297).
+- This also fires when the first words differ only in marks (لَقَدْ and لَّقَدْ), because the test is `spell`, not the
+  presence of a conjunction.
+
+## 6. Next-ayah leaves
+
+- `continues` (line 249) is true when an ayah's words, compared by `[spell, root]`, are the beginning of a longer
+  ayah in the same group.
+- At build time such an ayah gets `next`, the words of the following ayah in its surah (line 259). At draw time
+  `grown` (line 253) appends ﴿n﴾ and those words, so the ayah ends at a leaf: 56:17 ends with ولدان مخلدون and
+  continues ﴿١٧﴾ بأكواب وأباريق وكأس من معين.
+- Only one following ayah is added, and only inside the same surah. The build decides `next` against the two-word
+  group, the page checks `continues` again against the ayat actually drawn.
+
+## 7. Phrase search, `?o=`, `?r=` and `?w=`
+
+- `listPhrases` (lines 175 to 247) lists every phrase the page can open. It takes each opening, every node of each
+  opening's `phraseTree` (the letters-only tree, line 284) that holds two ayat or more, and every inner node of the
+  drawn tree that has a parent and children. In a group that mixes و and ف it also walks each exact spelling on its
+  own. A last loop splits an existing id in two when its ayat fall into two root groups. Ids are `normalizeWord` text.
+- The page (<RepoLink repo="namaq" path="src/app/quran/branches/page.tsx" />, lines 47 to 55) takes `?o=` as a
+  phrase id. When two phrases share the id (only `قال رب اني` does), it offers both and needs `?r=` (the roots) to
+  choose. `startingWith` (line 169) then takes every ayah that opens with the phrase, with or without its و or ف.
+- `?w=` narrows the group to one first-word spelling before drawing.
+
+## 8. Pieces, the list view
+
+`pieces` (lines 329 to 366) cuts each opening into pieces of at most `PIECE_MAX` = 6 ayat. It walks the
+**letters-only** `phraseTree`, not the drawn tree:
+
+- a node with six ayat or fewer is a piece;
+- a larger node stays one piece when none of its children holds two ayat;
+- a larger node mixing و/ف spellings is split into one piece per spelling.
+
+## 9. The quiz
+
+`branchQuestions` (<RepoLink repo="namaq" path="src/lib/quiz/branchQuestions.ts" />) makes one question per piece
+of six ayat or fewer, then draws that piece with `branch`, the **marks** tree (line 31). It skips the question when
+that tree's root has fewer than two children or ends an ayah (line 32). The prompt shows the root's words, the
+first-word spellings if any, and the number of children. Grading (`matchTreeAnswers`) compares typed letters only:
+an inner node needs all its words, a leaf its first two, and sibling subtrees of the same shape may be swapped.
+It yields 872 questions over the whole Qur'an.
+
+## 10. The owner's example: `?o=قال+رب`
+
+The phrase id `قال رب` matches 26 ayat.
+The root node is قَالَ. It has two children, رَبِّ (24 ayat) and رَبُّ (26:24, 26:28). Under رَبِّ the tree splits
+again, into twelve branches:
+
+| Branch after قَالَ رَبِّ | Ayat |
+| --- | --- |
+| أَنَّىٰ يَكُونُ لِى غُلَـٰمٌۭ, then two leaves | 3:40, 19:8 |
+| ٱجْعَل لِّىٓ ءَايَةًۭ …, then two leaves | 3:41, 19:10 |
+| إِنِّى, then five leaves | 5:25, 19:4, 28:16, 28:33, 71:5 |
+| ٱغْفِرْ لِى, then two leaves | 7:151, 38:35 |
+| إِنِّىٓ, then two leaves | 11:47, 26:12 |
+| ٱلسِّجْنُ أَحَبُّ … | 12:33 |
+| فَأَنظِرْنِىٓ إِلَىٰ يَوْمِ يُبْعَثُونَ | 15:36, 38:79 |
+| بِمَآ, then two leaves | 15:39, 28:17 |
+| ٱشْرَحْ لِى صَدْرِى | 20:25 |
+| لِمَ حَشَرْتَنِىٓ … | 20:125 |
+| ٱنصُرْنِى, then two leaves | 23:26, 23:39, 29:30 |
+| إِنَّ قَوْمِى كَذَّبُونِ | 26:117 |
+
+Each of the six words the owner named, and the rule that placed it:
+
+| Words | Same letters? | What the code did | Rule | Verdict against the owner's rules |
+| --- | --- | --- | --- | --- |
+| رَبِّ / رَبُّ | yes (رب, root ر ب ب) | one opening group, split into two nodes at word 2 | `normalizeWord` groups (section 3), `spell` splits on kasra against damma (section 4) | Works as stated. These are different words: رَبِّ is the vocative "my Lord", رَبُّ in 26:24 and 26:28 is Musa's answer "Lord of the heavens". |
+| إِنَّ / إِنِّى | no (ان against اني) | separate nodes | any key | Works as stated. إنّ and إنّي are different words. |
+| إِنِّى / إِنِّىٓ | yes | separate nodes, 5 and 2 ayat | `spell` keeps the maddah U+0653, which is outside U+06D6 to U+06ED | **Gap.** The maddah is there only because the next word starts with a hamza (أَعُوذُ in 11:47, أَخَافُ in 26:12). It comes from the neighbouring word, the same family as the marks #422 stopped counting. |
+| أَنَّىٰ / إِنِّى, إِنِّىٓ | yes for `normalizeWord` (اني), no for `spell` | separate nodes; a separate phrase under `?r=` | marks split the nodes; only the root guard keeps the phrases apart | Right result, fragile reason. Different words ("how" against "indeed I"). Without the root guard, search would treat them as one phrase, because `normalizeWord` folds ى into ي. |
+
+Two more effects of the two keys show on this page:
+
+- The search suggestion for this phrase reads قَالَ رَبِّ (26), but the tree's root is only قَالَ, because the two رَبُّ
+  ayat are in the letters group and split away in the marks tree.
+- The piece list cuts this opening on letters, so قَالَ رَبِّ إِنِّى is one piece of 7 ayat. That is more than six,
+  so the quiz never asks it, while the page draws it as two nodes of 5 and 2.
+
+## 11. The Musa ayat
+
+Three trees put ayat of Musa through the same rules:
+
+| Tree | First node | Second node | Mark that splits them | Where the mark comes from |
+| --- | --- | --- | --- | --- |
+| `?o=قال+موسي` | مُوسَىٰ: 7:104, 7:128, 10:84, 10:88, 28:37 | مُوسَىٰٓ: 10:77, 14:8, 40:27 | maddah U+0653 | the next word starts with a hamza (أَتَقُولُونَ, إِن, إِنِّى) |
+| `?o=ولقد+ءاتينا` | مُوسَى: 8 ayat, such as 2:87 | مُوسَىٰ: 17:101, 21:48 | dagger alif U+0670 | the mushaf leaves it out before a hamzat wasl (ٱلْكِتَـٰبَ in 2:87) |
+| `?o=قال+رب` | رَبِّ: 24 ayat | رَبُّ: 26:24, 26:28 | kasra against damma | the word itself (section 10) |
+
+In the wider `?o=ولقد+ءاتينا` tree, ءَاتَيْنَا (14 ayat) and ءَاتَيْنَآ (21:51, before إِبْرَٰهِيمَ) also split on a maddah.
+The first tree also splits its first word into وَقَالَ (6 ayat) and قَالَ (7:128, 10:77), and the piece list cuts the
+قال spelling into its own piece. The quiz question built from that piece shows only «قَالَ» with two branches, and the
+reader must type موسى into both.
+
+<Callout tone="note" title="Which Musa ayat did the owner mean?">
+The message says "a similar case for ayat for Musa". The three trees above are the candidates. The first two are
+the same pattern as إِنِّى / إِنِّىٓ: a mark from the next word splits one word into two nodes.
+</Callout>
+
+## 12. Every same-letter split in the dataset
+
+To see whether the example is an exception or a pattern, the analysis walked every opening's drawn tree and
+collected each pair of sibling nodes whose first words have the same letters (`normalizeWord`) but different
+`spell`. There are 196 such pairs. Each falls in one of four kinds:
+
+| Kind | Pairs | Examples | Source of the mark |
+| --- | --- | --- | --- |
+| maddah on the last long vowel (U+0653, or آ) | 112 | إِنِّى/إِنِّىٓ, مُوسَىٰ/مُوسَىٰٓ, ٱلَّذِى/ٱلَّذِىٓ (38/13 ayat after هُوَ), مَا/مَآ, كَفَرُوا۟/كَفَرُوٓا۟, تَتَّخِذُوا۟/تَتَّخِذُوٓا۟ | next word starts with a hamza |
+| dagger alif on a final ى | 7 | مُوسَى/مُوسَىٰ, إِلَى/إِلَىٰ, عَلَى/عَلَىٰ | next word starts with a hamzat wasl |
+| a vowel where the other has none | 44 | لَهُم/لَهُمُ, مِن/مِنَ, عَن/عَنِ, قُلْ/قُلِ, قَالَت/قَالَتِ | joining vowel before a hamzat wasl |
+| a different word or case | 33 | رَبِّ/رَبُّ, إِن/إِنَّ, ٱللَّهُ/ٱللَّهَ, كَذَّبَتْ/كُذِّبَتْ, جَنَّـٰتُ/جَنَّـٰتٌ | the word itself |
+
+Only the last kind is a difference in the word. The first three are all marks the neighbouring word puts there.
+
+In the quiz, 151 of the 872 questions have two branches at their first split that the reader must type with the
+same letters. Ignoring a maddah on the last long vowel (including the وٓا۟ endings) would merge those two branches
+in 94 of them, and ignoring a final dagger alif as well, in 96. In 95 questions every same-letter pair would merge.
+
+<Quiz
+  question="Why do 10:77 قَالَ مُوسَىٰٓ and 7:128 قَالَ مُوسَىٰ end up in different nodes?"
+  options={[
+    "The root guard gives the two words different roots",
+    "spell keeps the maddah U+0653, which only the 10:77 word carries, because it lies outside U+06D6 to U+06ED",
+    "The quiz grades موسى against موسىٓ letter by letter",
+  ]}
+  answer={1}
+  right="Yes. The node key is spell plus the root; the roots match, the maddah does not."
+  wrong="Both words have the root م و س. The split happens in spell (branches.ts line 98), which drops only the signs U+06D6 to U+06ED, a first-letter shadda and a final sukun."
+/>
+
+## 13. Gaps and contradictions to decide
+
+Each item names what the code does, the rule it meets or breaks, and a question for the owner. None is fixed here.
+
+1. **The maddah from a following hamza still splits nodes.** 112 of 196 same-letter pairs. The rule from
+   2026-10-21 says marks that come from the neighbouring word do not count, and the code lists only three. The
+   maddah on a word's last long vowel (إِنِّىٓ, مُوسَىٰٓ, ٱلَّذِىٓ, قَالُوٓا۟) is in the same family. A maddah inside a word
+   (جَآءَ, ٱلسَّمَآءِ) belongs to the word and is a different case. *Should a final maddah stop counting?*
+2. **The docs contradict item 1.** <RepoLink repo="namaq" path="docs/quiz-ayah-branches.md" /> (line 28) names
+   تَتَّخِذُوا۟ and تَتَّخِذُوٓا۟ as the example of nodes that stay separate. That pair differs only by a maddah from the
+   next word. If item 1 changes, this example changes with it.
+3. **The dagger alif dropped before a wasl splits nodes.** 7 pairs, such as مُوسَى/مُوسَىٰ. Same family as item 1.
+   *Should a final dagger alif stop counting?*
+4. **The joining vowel before a wasl splits nodes, by the owner's choice.** 44 pairs. Option D kept لَهُمُ apart
+   from لَهُم. By origin it is a neighbour's mark like the dropped sukun. *Keep option D as it is, or extend it?*
+5. **Groups, phrases and pieces use letters; the tree and the quiz tree use marks.** Consequences seen above: the
+   `قال رب` page shows a phrase that its tree does not have as one node; قَالَ رَبِّ إِنِّى is a piece of 7 that the quiz
+   skips, though the page draws 5 and 2; the quiz question for قال موسى shows only «قَالَ» as its opening, because
+   the marks tree splits right after it. *Should pieces and the quiz cut on the same key as the drawn tree?*
+6. **"Diacritics removed" is narrower than the code.** The plan chose to fold the alif and ya spellings, and `normalizeWord` folds ى into ي and أ إ آ ٱ into ا. أَنَّىٰ and
+   إِنِّى then share letters, and only the root guard separates them. ء ؤ ئ are not folded, so the id is
+   `ولقد ءاتينا موسي`, while the suggestion box tolerates hamza spellings. *Is ى against ي a letter difference that
+   should keep two words apart in the grouping key, or does the plan's folding stand?*
+7. **A quiz question can ask for the same letters twice.** 151 questions. The grading pairs such branches by what
+   follows, so they can be answered, but the reader sees two fields for one word. It goes away entirely for 95 of them if
+   items 1 and 3 change.
+
+## Primary sources
+
+<RepoLink repo="namaq" path="src/lib/quran/branches.ts" /> holds grouping, the tree, pieces and phrases;
+<RepoLink repo="namaq" path="src/lib/quran/normalize.ts" /> holds `normalizeWord`;
+<RepoLink repo="namaq" path="src/app/quran/branches/page.tsx" /> reads `?o=`, `?r=` and `?w=`;
+<RepoLink repo="namaq" path="src/lib/quiz/branchQuestions.ts" /> and
+<RepoLink repo="namaq" path="src/lib/quiz/branchAnswers.ts" /> build and grade the quiz;
+<RepoLink repo="namaq" path="docs/plans/quran-shared-openings.md" /> and
+<RepoLink repo="namaq" path="docs/quiz-ayah-branches.md" /> state the intended rules. Earlier lessons on this
+feature: [The ayah next door](/text-to-evidence/0006-the-ayah-next-door) and
+[Grading a tree without losing the text](/text-to-evidence/0007-grading-a-tree-without-losing-the-text).
