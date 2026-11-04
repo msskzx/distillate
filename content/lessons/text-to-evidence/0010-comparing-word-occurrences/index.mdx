@@ -1,0 +1,48 @@
+export const meta = {
+  title: "A word key is not a word occurrence",
+  label: "Comparing occurrences",
+  summary: "Separate morphology, occurrence selection and form comparison so repeated words and omitted search tokens get honest colors.",
+  number: 10,
+  disclosure: "open",
+  sourceProject: "namaq",
+};
+
+This describes [Namaq PR #512](https://github.com/msskzx/namaq/pull/512), reviewed at commit `ec98ac8d`, and the [record of the fix](/records/namaq/0022-shared-forms-do-not-pair-word-occurrences). It continues [The ayah next door](/text-to-evidence/0006-the-ayah-next-door): a shared highlighting rule needs checks beyond the example that exposed it.
+
+## Three decisions behind one color
+
+A comparison first decides which words belong to the same morphological group. It then selects concrete occurrences of each group. Only those selected occurrences can decide whether a form is exact. These decisions are separate in <RepoLink repo="namaq" path="src/lib/quran/ayahContext.ts" />.
+
+The key uses the corpus STEM root when one exists, otherwise its lemma with a trailing homograph number removed. Without either, it falls back to the existing comparison keys and normalized word. The reader retains its original words; <RepoLink repo="namaq" path="src/lib/quran/readerAyat.ts" /> attaches the full roots and lemmas already generated in the tree inventory.
+
+That choice matters for مِنْ and مِنْهَا. They share the lemma مِنْ, and ها is an attached pronoun. The preposition has no root. Purple therefore means “Same lemma or root,” rather than requiring a root for every match. حَيْثُ has the same form in 2:35 and 7:19, so its corresponding occurrences are exact and red.
+
+## The repeated ما example
+
+Both 2:170 and 31:21 contain two occurrences of ما in their shared wording. The first pair agrees in form. The second pair has مَآ in 2:170 and مَا in 31:21. A set of all forms under the key can answer whether that form occurs somewhere in each ayah. It cannot answer whether these two selected occurrences agree.
+
+The matcher retains the minimum occurrence count across all compared ayat. Where one ayah has extra occurrences, it prefers occurrences that participate in more pairwise longest-common-subsequence alignments. Ties go to the earlier occurrence. It restores word order within each chosen list, then compares corresponding positions in those lists.
+
+A selected tuple is exact only when every occurrence has the same form after `spell` normalization. Otherwise the tuple is purple. The first ما pair is red; the second pair is purple on both sides. A word with no retained tuple stays unmarked.
+
+<Quiz
+  question="The first ما pair agrees, while the second pair differs in its marks. Why can a set of shared forms give the second occurrence the wrong color?"
+  options={[
+    "The set says a form exists somewhere in each ayah, but does not identify its corresponding occurrence",
+    "A repeated particle cannot have a lemma",
+    "LCS always removes the second occurrence",
+  ]}
+  answer={0}
+  right="Yes. Exactness belongs to the selected occurrence tuple. A shared form elsewhere cannot prove that tuple exact."
+  wrong="Both occurrences can share a lemma. The missing information is which concrete occurrences are being compared."
+/>
+
+## Two consumers need the same boundaries
+
+The matrix compares complete ayat. A tree can show a prefix, an internal shared phrase, and text continued into later ayat. Its presentation therefore supplies the complete displayed word sequences and their original offsets. Prefixes also retain their token arrays: a Quran word token can contain a space, so splitting the rendered text on spaces changes its indices.
+
+The tree matcher separates ayah segments before calling the same comparison function. End signs stay unmarked. Without that boundary, a word in a following ayah can change a mark in the original ayah. <RepoLink repo="namaq" path="src/lib/quran/phraseTrees.ts" /> supplies the presentation, and <RepoLink repo="namaq" path="src/app/quran/branches/BranchTree.tsx" /> maps marks back onto its nodes.
+
+The regressions cover both reported comparisons, the existing repeated-word alignment example, and continuation boundaries. An inventory check covers all 5,174 multi-ayah tree groups: exact counts and lemma/root counts must agree across the compared ayat, and marks must be disjoint and within the original word arrays. Those invariants do not prove every linguistic pairing correct. They detect asymmetric classification and missing or reused indices that the examples alone would miss.
+
+The primary sources are the corpus STEM annotations in <RepoLink repo="namaq" path="data/quran/quranic-corpus-morphology-0.4.txt" />, the matcher in <RepoLink repo="namaq" path="src/lib/quran/ayahContext.ts" />, and its executable cases in <RepoLink repo="namaq" path="src/lib/quran/ayahContext.test.ts" />. The older [record about neighboring highlights](/records/namaq/0019-fixing-the-example-broke-the-ayah-next-door) explains why the inventory check accompanies the examples.
