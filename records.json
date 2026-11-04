@@ -32,6 +32,64 @@
       "text": "In 2:170 and 31:21, the first ما pair agreed, but the second pair differed in its marks. The matcher collected every form under the shared key and used that collection to classify each occurrence. The first pair's shared form therefore made the second occurrence in 2:170 look exact. Selecting concrete occurrences and comparing their corresponding forms made the second pair purple on both sides. The other report crossed a different boundary. The similarity-search keys intentionally omitted prepositions and classified حيث differently by part of speech. Full STEM metadata was already available in the tree inventory. Reusing it paired مِنْ with مِنْهَا by lemma and recognized حَيْثُ as exact. The legend now says “Same lemma or root.” Independent review also found that a subtree link dropped an explicit tree override above a saved matrix default. A page regression followed the generated link before the fix, then verified that the destination stayed a tree. The second review found no further defects. Evidence is Namaq PR 512 https://github.com/msskzx/namaq/pull/512 , src/lib/quran/ayahContext.test.ts and src/app/quran/branches/page.test.tsx. The full inventory test checks equal exact and lemma/root counts and disjoint, in-range marks. All 3,502 tests passed with two workers; the production build, lint and TypeScript checks passed too. The implication is to distinguish a search index's selection policy from a comparison's evidence needs. An exact match belongs to a tuple of occurrences, not to a word key's collection of possible forms."
     },
     {
+      "id": "namaq/0023-a-pairwise-match-can-change-after-cropping",
+      "project": "namaq",
+      "slug": "0023-a-pairwise-match-can-change-after-cropping",
+      "href": "/records/namaq/0023-a-pairwise-match-can-change-after-cropping",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/0023-a-pairwise-match-can-change-after-cropping",
+      "title": "A pairwise match can change after cropping",
+      "summary": "Candidate pairs passed the matching policy, but selecting shorter spans required checking those exact spans again.",
+      "disclosure": "open",
+      "sourceProject": "namaq",
+      "kind": "challenge",
+      "problem": "A group passes a pairwise predicate before its inputs are transformed, then publishes transformed members without repeating the predicate.",
+      "approach": "Build groups whose every pair matches, select the word spans, then compare every selected pair again. Retain valid groups and recover qualifying pairs when a larger cropped group fails. Rank closeness using the original complete ayat.",
+      "outcome": "solved",
+      "conditions": "Quran comparisons over 6,236 ayat, with local spans, morphology-aware matching, retained book cases and tree/matrix views.",
+      "evidence": "Namaq PR #514, source commit 0daf6adeb6908032a3212987293853c73661aa0b; engine.ts final clipped-span validation and wholePlace coverage, engine.test.ts automatic-pair and ranking regressions.",
+      "implication": "Recheck an invariant after the transformation that produces the published inputs, and define the denominator of a user-facing similarity score.",
+      "date": "2026-11-04",
+      "topics": [
+        "testing",
+        "text-matching",
+        "evidence-model"
+      ],
+      "buildsOn": [
+        "namaq/0021-absorbing-a-phrase-must-preserve-its-entry-points",
+        "namaq/0022-shared-forms-do-not-pair-word-occurrences"
+      ],
+      "variantOf": [],
+      "text": "The new comparison inventory first compared complete ayat and built groups whose members all matched one another. It then chose shorter word spans for the card. Those choices can remove different parts of different ayat, so the earlier pairwise result does not establish that the displayed spans still meet the same policy. The builder now checks every cropped pair and falls back to qualifying pairs when a larger group loses that property. Review found a related denominator error. A short shared phrase could score one when measured against itself, putting it ahead of nearly identical complete ayat in “closest first.” The final score uses whole-ayah coverage across every pair. The 2:4/4:162 group scores about 0.346, while 2:48/2:123 scores about 0.895. The selected spans still decide what to compare and highlight. Evidence comes from Namaq PR 514 https://github.com/msskzx/namaq/pull/514 , src/lib/quran/mutashabih/engine.ts and src/lib/quran/mutashabih/engine.test.ts at commit 0daf6adeb6908032a3212987293853c73661aa0b. Tests cover the final published word spans and compare a short shared phrase against a near-complete parallel. The invariant belongs to the final representation. Ranking also needs its own measure when the UI asks how much of a complete item agrees."
+    },
+    {
+      "id": "namaq/0024-a-filter-draft-must-outlive-its-pending-url",
+      "project": "namaq",
+      "slug": "0024-a-filter-draft-must-outlive-its-pending-url",
+      "href": "/records/namaq/0024-a-filter-draft-must-outlive-its-pending-url",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/0024-a-filter-draft-must-outlive-its-pending-url",
+      "title": "A filter draft must outlive its pending URL",
+      "summary": "Rapid filter changes lost a picked value, and a partial fix restored a cleared value from the old address.",
+      "disclosure": "open",
+      "sourceProject": "namaq",
+      "kind": "detour",
+      "problem": "A second live filter change is computed from URL state that has not caught up with the first change.",
+      "approach": "Keep the latest complete draft in a ref, reconcile only matching navigation responses, restore it on browser history changes, and replace all managed URL filter keys from that draft.",
+      "outcome": "solved",
+      "conditions": "Next.js server-rendered Quran browse results with live multi-select surah and juz filters, React client controls and delayed router replacement.",
+      "evidence": "Namaq PR #514, source commit 0daf6adeb6908032a3212987293853c73661aa0b; GroupFilters.tsx and GroupFilters.test.tsx; Playwright multi-select navigation check.",
+      "implication": "Race tests should leave router.replace pending while another input changes, including a deletion followed by an addition.",
+      "date": "2026-11-04",
+      "topics": [
+        "testing",
+        "ui-state"
+      ],
+      "buildsOn": [
+        "distillate/0005-a-mock-router-too-fast-to-show-a-race"
+      ],
+      "variantOf": [],
+      "text": "Picking a second surah before the first route finished could lose the first pick. The optimistic state reverted before the server returned the updated filter props. A ref holding the latest complete draft kept both selections, and an older response was ignored until the returned filters matched that draft. Browser history changes deliberately restore the draft from the new address. The next review found the reverse failure. Starting with a word-order filter, clearing it and immediately enabling book-only results could restore the cleared filter. The second request began with the old address and replaced only its own key. The fix deletes every managed filter key, then serializes the latest draft. Other URL state, such as the selected view and current group, stays available. Evidence comes from Namaq PR 514 https://github.com/msskzx/namaq/pull/514 , src/app/quran/branches/GroupFilters.tsx and src/app/quran/branches/GroupFilters.test.tsx at commit 0daf6adeb6908032a3212987293853c73661aa0b. The regression leaves the mocked address unchanged between clearing one filter and adding another. The browser check also picks multiple surahs and a juz while navigation remains asynchronous. A complete draft needs complete serialization. Updating only the key of the latest click lets old keys survive in the address."
+    },
+    {
       "id": "namaq/0021-absorbing-a-phrase-must-preserve-its-entry-points",
       "project": "namaq",
       "slug": "0021-absorbing-a-phrase-must-preserve-its-entry-points",

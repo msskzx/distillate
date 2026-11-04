@@ -1,0 +1,111 @@
+export const meta = {
+  title: "Choosing what a comparison group proves",
+  label: "Comparison groups",
+  summary: "Group membership, selected spans, whole-ayah ranking and citation scope answer different questions in Namaq's mutashabih browser.",
+  number: 11,
+  disclosure: "open",
+  sourceProject: "namaq",
+};
+
+This describes Namaq at [commit 0daf6ade](https://github.com/msskzx/namaq/commit/0daf6adeb6908032a3212987293853c73661aa0b), in [Namaq PR #514](https://github.com/msskzx/namaq/pull/514), after the owner approved the comparison group design on 4 November 2026. It continues [Comparing occurrences](/text-to-evidence/0010-comparing-word-occurrences)
+and draws on the records about [cropped comparisons](/records/namaq/0023-a-pairwise-match-can-change-after-cropping)
+and [pending filter URLs](/records/namaq/0024-a-filter-draft-must-outlive-its-pending-url).
+
+## Every automatic pair has to match
+
+Suppose A matches B and B matches C. A connected component would put all three
+on one card even if A and C barely agree. Namaq instead builds groups whose every pair matches, then checks every pair again after selecting shorter word spans. When
+cropping invalidates a larger group, the builder retains the qualifying pairs.
+The code that chooses the representation also runs its final membership check.
+<RepoLink repo="namaq" path="src/lib/quran/mutashabih/engine.ts" />
+
+Cited groups are retained as authored examples. The current evidence file
+contains thirty book cases. Their citation records hold the particular places
+the source compares, the edition, a short quote and a printed locator or section
+link. Additional members of a group need their own basis for belonging.
+<RepoLink repo="namaq" path="src/lib/quran/mutashabih/evidence.json" />
+
+<Quiz
+  question="A matches B, B matches C, and A fails the matching policy against C. What can the automatic builder publish?"
+  options={[
+    "One three-place group, because B connects the other places",
+    "The qualifying pairs, with no three-place group",
+    "Only A and C, because they are the endpoints"
+  ]}
+  answer={2}
+  right="Every pair in an automatic group must pass. A connecting member cannot establish a missing pairwise match."
+  wrong="The membership rule applies to every pair in the proposed group."
+/>
+
+## The thresholds belong to Namaq
+
+The engine records exact spelling, same letters, same lemma and same root as
+separate alignment levels. Exact and letter matches have weight eight, lemma
+matches five, and root matches one in its weighted LCS. Exact, letter and lemma
+matches count as strong matches for retrieval.
+
+The current configuration requires six strong matches and 72% coverage for a
+complete-ayah comparison. A local span requires eight matches, with at most
+three words between successive strong matches. Unattributed shared phrases
+require six words and no more than thirty-six places. These are the engine's
+initial retrieval choices. The books supply the terminology and cited cases.
+The configuration and classification order are in
+<RepoLink repo="namaq" path="src/lib/quran/mutashabih/engine.ts" />.
+
+Exact repetition remains a link kind. The book benchmark set also retains an
+identical sub-ayah phrase as a shared phrase. Difference tags and link kinds
+therefore answer separate questions. A group can carry several difference tags,
+and the extra gender, noun/pronoun, case and frame tags identify Namaq's extensions.
+<RepoLink repo="namaq" path="src/lib/quran/mutashabih/types.ts" />
+
+## A selected phrase needs the right denominator
+
+The selected spans for 2:4 and 4:162 cover eight words in each ayah. Comparing
+those spans alone originally gave the group a perfect closeness score. The
+whole ayat contain twelve and twenty-six words. The final alignment finds nine
+strong matches over the complete ayat, so its coverage is 9/26, about 0.346.
+For 2:48 and 2:123, the coverage is 17/19, about 0.895. “Closest first” now puts
+the latter comparison ahead of the short shared phrase.
+<RepoLink repo="namaq" path="src/app/quran/branches/mutashabih.json" />
+
+The engine keeps the minimum whole-ayah coverage across every pair in a group.
+The selected spans still decide the comparison evidence and highlighted words.
+Changing the denominator for ranking does not require changing those spans.
+<RepoLink repo="namaq" path="src/lib/quran/mutashabih/engine.ts" />
+
+## Evidence keeps its own scope
+
+The owner specified the messenger group containing 2:129, 2:151, 3:164 and 62:2
+as a regression example. Its Z03 citation names
+2:129 and 2:151. The footer displays those cited places beside the edition
+locator. A focused view that excludes the source's comparison hides that citation.
+A reader can distinguish the displayed group from the particular comparison
+supported by the book.
+<RepoLink repo="namaq" path="src/app/quran/branches/GroupDetails.tsx" />
+
+Tree and matrix are two views of the same group. The difference chip below the
+card applies the funnel's corresponding filter and preserves the current group.
+The differing expression sits beside it as plain text. The matching query,
+selected view, scopes and sort order travel in the URL.
+<RepoLink repo="namaq" path="src/app/quran/branches/page.tsx" />
+
+## The latest choice may be newer than the address
+
+The browser can still show the old URL after a filter click. Namaq holds the
+latest complete draft separately, so a second click uses the choices already
+made. A navigation response only reconciles a pending draft when its filters
+match. Browser back and forward deliberately restore the draft from the address.
+
+Clearing a type and immediately adding book-only filtering exposed a second
+requirement. Replacing only the book-only key preserved the cleared type from
+the old URL. The control now deletes all managed filter keys before serializing
+its complete draft. The test keeps the mocked address stale between the two
+clicks, preserving the timing that produced the failure.
+<RepoLink repo="namaq" path="src/app/quran/branches/GroupFilters.tsx" />
+
+## Primary sources
+
+- <RepoLink repo="namaq" path="src/lib/quran/mutashabih/engine.ts" />
+- <RepoLink repo="namaq" path="src/lib/quran/mutashabih/engine.test.ts" />
+- <RepoLink repo="namaq" path="src/app/quran/branches/GroupFilters.test.tsx" />
+- <RepoLink repo="namaq" path="src/app/quran/branches/GroupDetails.test.tsx" />
