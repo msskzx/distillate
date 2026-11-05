@@ -1,0 +1,35 @@
+export const meta = {
+  title: "A detached mockup could not test the real page",
+  summary: "Homepage design review became useful after the sketch reused the running app and its existing Quran controls.",
+  kind: "detour",
+  problem: "A standalone UI mockup omits the existing chrome and behavior that decide whether a proposed page fits its application.",
+  approach: "Replaced the detached HTML mockup with a development-only sketch in the running app, reused its navigation and Quran components, and preserved a baseline screenshot at the same phone width.",
+  outcome: "solved",
+  conditions: "An Arabic-first bilingual Next.js application with existing branch cards, search, filters and navigation; the owner was reviewing a new homepage.",
+  evidence: "Namaq PR #516, source commit 6dae47a3; session design review and baseline screenshots; src/components/homepage/Homepage.tsx.",
+  implication: "For changes whose design depends on existing chrome or cards, review a sketch in the running app against a baseline at the same viewport.",
+  topics: ["ui-state", "testing"],
+  disclosure: "open",
+  sourceProject: "namaq",
+  date: "2026-11-05",
+  buildsOn: [],
+  variantOf: [],
+};
+
+The detached HTML homepage mockup failed owner review because its typography,
+navigation and card behavior did not reproduce the application being changed.
+The replacement ran at the existing homepage route behind a development-only
+sketch parameter. It reused BranchTree, OpeningSearch, FilterButton, PageSpread
+and CardActions instead of approximating them in a separate document.
+A screenshot of the unmodified branches page provided a comparison at the same
+phone width. That made the existing design visible while reviewing the sketch.
+
+**Evidence:** [Namaq PR #516](https://github.com/msskzx/namaq/pull/516). The route and component choice come from the session's design
+review and sketch draft. The final homepage implementation at source commit 6dae47a3 uses
+<RepoLink repo="namaq" path="src/components/homepage/Homepage.tsx" />, including
+its existing search, filter and navigation components. The temporary sketch is
+not part of the proposed default route.
+
+**Implications:** reuse the running application when the question is whether a
+new page fits its existing controls. Keep a baseline before editing so review
+can compare both pages under the same viewport conditions.

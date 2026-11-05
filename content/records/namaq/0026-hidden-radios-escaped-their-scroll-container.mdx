@@ -1,0 +1,40 @@
+export const meta = {
+  title: "Hidden radios escaped their scroll container",
+  summary: "Absolutely positioned screen-reader inputs enlarged the document until each list row established their containing block.",
+  kind: "detour",
+  problem: "A clipped scrolling list leaves a long blank document tail because hidden positioned inputs belong to an ancestor outside the list.",
+  approach: "Measured document height in Playwright, traced the excess to visually hidden radio inputs, and gave each label position: relative so its input stayed inside the scrolling row.",
+  outcome: "solved",
+  conditions: "A homepage Quran picker with 114 radio choices, a fixed-height overflow-y list, and absolutely positioned sr-only inputs inside static labels.",
+  evidence: "Namaq PR #516, source commit 6dae47a3; session Playwright document-height check; src/components/homepage/HomeQuranWidget.module.css and HomeQuranWidget.tsx.",
+  implication: "When testing a bounded scrolling list with hidden controls, measure document height in a browser as well as testing selection behavior.",
+  topics: ["testing", "ui-state"],
+  disclosure: "open",
+  sourceProject: "namaq",
+  date: "2026-11-05",
+  buildsOn: [],
+  variantOf: [],
+};
+
+The Quran picker appeared bounded, but the page had a long blank tail. Its
+scrollable list clipped the visible rows while the hidden radio inputs were
+absolutely positioned relative to an ancestor outside those rows. Their positions
+still enlarged the document's scrollable area: `document.documentElement.scrollHeight` reached 6,098px.
+Changing the scroll wrapper alone did not fix it. Setting `position: relative` on
+each label established the containing block needed by its input.
+
+**Evidence:** [Namaq PR #516](https://github.com/msskzx/namaq/pull/516). <RepoLink repo="namaq" path="src/components/homepage/HomeQuranWidget.tsx" />
+places each `sr-only` radio inside a label;
+<RepoLink repo="namaq" path="src/components/homepage/HomeQuranWidget.module.css" />
+sets `.row` to `position: relative` and keeps `.scroll` at `18rem` with
+`overflow-y: auto`. The session's Playwright document-height check exposed the
+layout failure. A one-off Playwright assertion required document height below
+1,800px and passed at 390px and 1,440px widths in both themes after the fix.
+That script was temporary; there is no committed browser regression test for
+this layout. The jsdom selection tests in
+<RepoLink repo="namaq" path="src/components/homepage/HomeQuranWidget.test.tsx" />
+do not perform browser layout and could not detect it.
+
+**Implications:** a list can have working selection and bounded visible content
+while its hidden controls enlarge the document. Verify the document's vertical
+extent in a browser when adding a long list of visually hidden inputs.
