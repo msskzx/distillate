@@ -1,0 +1,37 @@
+export const meta = {
+  title: "A reused filter kept the wrong route",
+  summary: "Embedding browse filters on the homepage exposed a navigation assumption that their original route had hidden.",
+  kind: "detour",
+  problem: "A reused filter serializes valid query parameters onto a hosting route that does not consume them.",
+  approach: "Made filter changes target the branches route explicitly, passed the homepage surah options to the filter panel, and tested a filter click starting at the root URL.",
+  outcome: "solved",
+  conditions: "Next.js GroupFilterControls previously used only on /quran/branches; the homepage reused FilterButton and did not interpret browse-filter query parameters.",
+  evidence: "Namaq PR #516, source commit 6dae47a3; src/app/quran/branches/GroupFilters.tsx and GroupFilters.test.tsx; src/components/homepage/Homepage.tsx.",
+  implication: "When embedding a navigating control on a second route, test the destination pathname as well as its serialized query.",
+  topics: ["ui-state", "testing"],
+  buildsOn: ["namaq/0024-a-filter-draft-must-outlive-its-pending-url"],
+  disclosure: "open",
+  sourceProject: "namaq",
+  date: "2026-11-05",
+  variantOf: [],
+};
+
+The homepage reused the browse filter panel. Its controls still derived their
+destination pathname from the current address, so selecting a relation there
+navigated to `/?relations=...`. The homepage ignored that query. The filter looked
+interactive without reaching any filtered results.
+
+The fix sets the destination pathname to `/quran/branches` before serializing
+the filters. The homepage also supplies the surah options needed by the reused
+panel. Its route is part of the control's behavior even when another page hosts it.
+
+**Evidence:** [Namaq PR #516](https://github.com/msskzx/namaq/pull/516). <RepoLink repo="namaq" path="src/app/quran/branches/GroupFilters.tsx" />
+sets `url.pathname` explicitly. The regression in
+<RepoLink repo="namaq" path="src/app/quran/branches/GroupFilters.test.tsx" />
+starts at `/`, clicks the verbal-parallel filter, and checks both the branches
+pathname and the relation parameter.
+<RepoLink repo="namaq" path="src/components/homepage/Homepage.tsx" /> passes
+`allSurahs` to FilterButton at source commit 6dae47a3.
+
+**Implications:** reusing a control on a new page needs a check from that page.
+An assertion about query parameters alone would have accepted the broken URL.

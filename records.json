@@ -1,6 +1,86 @@
 {
   "records": [
     {
+      "id": "namaq/0025-a-detached-mockup-could-not-test-the-real-page",
+      "project": "namaq",
+      "slug": "0025-a-detached-mockup-could-not-test-the-real-page",
+      "href": "/records/namaq/0025-a-detached-mockup-could-not-test-the-real-page",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/0025-a-detached-mockup-could-not-test-the-real-page",
+      "title": "A detached mockup could not test the real page",
+      "summary": "Homepage design review became useful after the sketch reused the running app and its existing Quran controls.",
+      "kind": "detour",
+      "problem": "A standalone UI mockup omits the existing chrome and behavior that decide whether a proposed page fits its application.",
+      "approach": "Replaced the detached HTML mockup with a development-only sketch in the running app, reused its navigation and Quran components, and preserved a baseline screenshot at the same phone width.",
+      "outcome": "solved",
+      "conditions": "An Arabic-first bilingual Next.js application with existing branch cards, search, filters and navigation; the owner was reviewing a new homepage.",
+      "evidence": "Namaq PR #516, source commit 6dae47a3; session design review and baseline screenshots; src/components/homepage/Homepage.tsx.",
+      "implication": "For changes whose design depends on existing chrome or cards, review a sketch in the running app against a baseline at the same viewport.",
+      "topics": [
+        "ui-state",
+        "testing"
+      ],
+      "disclosure": "open",
+      "sourceProject": "namaq",
+      "date": "2026-11-05",
+      "buildsOn": [],
+      "variantOf": [],
+      "text": "The detached HTML homepage mockup failed owner review because its typography, navigation and card behavior did not reproduce the application being changed. The replacement ran at the existing homepage route behind a development-only sketch parameter. It reused BranchTree, OpeningSearch, FilterButton, PageSpread and CardActions instead of approximating them in a separate document. A screenshot of the unmodified branches page provided a comparison at the same phone width. That made the existing design visible while reviewing the sketch. Evidence: Namaq PR 516 https://github.com/msskzx/namaq/pull/516 . The route and component choice come from the session's design review and sketch draft. The final homepage implementation at source commit 6dae47a3 uses src/components/homepage/Homepage.tsx, including its existing search, filter and navigation components. The temporary sketch is not part of the proposed default route. Implications: reuse the running application when the question is whether a new page fits its existing controls. Keep a baseline before editing so review can compare both pages under the same viewport conditions."
+    },
+    {
+      "id": "namaq/0026-hidden-radios-escaped-their-scroll-container",
+      "project": "namaq",
+      "slug": "0026-hidden-radios-escaped-their-scroll-container",
+      "href": "/records/namaq/0026-hidden-radios-escaped-their-scroll-container",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/0026-hidden-radios-escaped-their-scroll-container",
+      "title": "Hidden radios escaped their scroll container",
+      "summary": "Absolutely positioned screen-reader inputs enlarged the document until each list row established their containing block.",
+      "kind": "detour",
+      "problem": "A clipped scrolling list leaves a long blank document tail because hidden positioned inputs belong to an ancestor outside the list.",
+      "approach": "Measured document height in Playwright, traced the excess to visually hidden radio inputs, and gave each label position: relative so its input stayed inside the scrolling row.",
+      "outcome": "solved",
+      "conditions": "A homepage Quran picker with 114 radio choices, a fixed-height overflow-y list, and absolutely positioned sr-only inputs inside static labels.",
+      "evidence": "Namaq PR #516, source commit 6dae47a3; session Playwright document-height check; src/components/homepage/HomeQuranWidget.module.css and HomeQuranWidget.tsx.",
+      "implication": "When testing a bounded scrolling list with hidden controls, measure document height in a browser as well as testing selection behavior.",
+      "topics": [
+        "testing",
+        "ui-state"
+      ],
+      "disclosure": "open",
+      "sourceProject": "namaq",
+      "date": "2026-11-05",
+      "buildsOn": [],
+      "variantOf": [],
+      "text": "The Quran picker appeared bounded, but the page had a long blank tail. Its scrollable list clipped the visible rows while the hidden radio inputs were absolutely positioned relative to an ancestor outside those rows. Their positions still enlarged the document's scrollable area: document.documentElement.scrollHeight reached 6,098px. Changing the scroll wrapper alone did not fix it. Setting position: relative on each label established the containing block needed by its input. Evidence: Namaq PR 516 https://github.com/msskzx/namaq/pull/516 . src/components/homepage/HomeQuranWidget.tsx places each sr-only radio inside a label; src/components/homepage/HomeQuranWidget.module.css sets .row to position: relative and keeps .scroll at 18rem with overflow-y: auto . The session's Playwright document-height check exposed the layout failure. A one-off Playwright assertion required document height below 1,800px and passed at 390px and 1,440px widths in both themes after the fix. That script was temporary; there is no committed browser regression test for this layout. The jsdom selection tests in src/components/homepage/HomeQuranWidget.test.tsx do not perform browser layout and could not detect it. Implications: a list can have working selection and bounded visible content while its hidden controls enlarge the document. Verify the document's vertical extent in a browser when adding a long list of visually hidden inputs."
+    },
+    {
+      "id": "namaq/0027-a-reused-filter-kept-the-wrong-route",
+      "project": "namaq",
+      "slug": "0027-a-reused-filter-kept-the-wrong-route",
+      "href": "/records/namaq/0027-a-reused-filter-kept-the-wrong-route",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/0027-a-reused-filter-kept-the-wrong-route",
+      "title": "A reused filter kept the wrong route",
+      "summary": "Embedding browse filters on the homepage exposed a navigation assumption that their original route had hidden.",
+      "kind": "detour",
+      "problem": "A reused filter serializes valid query parameters onto a hosting route that does not consume them.",
+      "approach": "Made filter changes target the branches route explicitly, passed the homepage surah options to the filter panel, and tested a filter click starting at the root URL.",
+      "outcome": "solved",
+      "conditions": "Next.js GroupFilterControls previously used only on /quran/branches; the homepage reused FilterButton and did not interpret browse-filter query parameters.",
+      "evidence": "Namaq PR #516, source commit 6dae47a3; src/app/quran/branches/GroupFilters.tsx and GroupFilters.test.tsx; src/components/homepage/Homepage.tsx.",
+      "implication": "When embedding a navigating control on a second route, test the destination pathname as well as its serialized query.",
+      "topics": [
+        "ui-state",
+        "testing"
+      ],
+      "buildsOn": [
+        "namaq/0024-a-filter-draft-must-outlive-its-pending-url"
+      ],
+      "disclosure": "open",
+      "sourceProject": "namaq",
+      "date": "2026-11-05",
+      "variantOf": [],
+      "text": "The homepage reused the browse filter panel. Its controls still derived their destination pathname from the current address, so selecting a relation there navigated to /?relations=... . The homepage ignored that query. The filter looked interactive without reaching any filtered results. The fix sets the destination pathname to /quran/branches before serializing the filters. The homepage also supplies the surah options needed by the reused panel. Its route is part of the control's behavior even when another page hosts it. Evidence: Namaq PR 516 https://github.com/msskzx/namaq/pull/516 . src/app/quran/branches/GroupFilters.tsx sets url.pathname explicitly. The regression in src/app/quran/branches/GroupFilters.test.tsx starts at / , clicks the verbal-parallel filter, and checks both the branches pathname and the relation parameter. src/components/homepage/Homepage.tsx passes allSurahs to FilterButton at source commit 6dae47a3. Implications: reusing a control on a new page needs a check from that page. An assertion about query parameters alone would have accepted the broken URL."
+    },
+    {
       "id": "namaq/0022-shared-forms-do-not-pair-word-occurrences",
       "project": "namaq",
       "slug": "0022-shared-forms-do-not-pair-word-occurrences",
