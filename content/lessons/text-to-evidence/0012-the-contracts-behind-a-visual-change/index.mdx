@@ -67,9 +67,10 @@ The [contrast record](/records/namaq/0027-a-fixed-action-foreground-does-not-fit
 explains the review finding. The exporter reads computed colors, so the same pair
 reaches the video legend.
 
-The palette is scoped to Quran and quiz routes, including their navigation and overlays.
-Experiments and other routes retain their existing palette. Route tests check both sides
-of that boundary rather than assuming that a shared component change stays local.
+The palette is scoped to the Quran hub, reader, branches and quizzes, including their
+navigation and overlays. Experiments and other Quran tools retain their existing palette.
+Route tests check both sides of that boundary rather than assuming that a shared
+component change stays local.
 
 **Primary sources:** <RepoLink repo="namaq" path="src/app/quran/branches/TreeLinks.test.tsx" />,
 <RepoLink repo="namaq" path="src/app/quran/branches/Grow.test.tsx" />,
