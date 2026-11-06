@@ -1,0 +1,26 @@
+export const meta = {
+  "title": "A child layout effect needs its own DOM ref",
+  "summary": "A connector component measured no geometry when it relied on a parent ref that was not attached yet.",
+  "disclosure": "open",
+  "sourceProject": "namaq",
+  "kind": "detour",
+  "problem": "A child layout effect returns before measuring because its parent ref is still empty.",
+  "approach": "Attach a ref to the child SVG, find the containing list through that node, and register resize and rotation observers from there.",
+  "outcome": "solved",
+  "conditions": "React 19 branch diagrams measured in useLayoutEffect, with resize observers and RTL or top-down layouts.",
+  "evidence": "Namaq PR #520, commit 1ee24d43662e47b945c9c37921069b886ffdf88f.",
+  "implication": "Measure through the component's own attached node when its layout effect needs a containing element.",
+  "date": "2026-11-06",
+  "topics": [
+    "graph-ui",
+    "testing"
+  ]
+};
+
+The first curved-connector component used a ref supplied by its parent. Its layout effect ran before that ref was attached, returned early, and never registered a resize observer. The diagram mounted without any curved paths.
+
+The child now starts from its own SVG ref and finds the containing list through its parent element. Geometry tests check that actual paths appear, then check direction, rotation and changed entries.
+
+**Evidence:** [Namaq PR #520](https://github.com/msskzx/namaq/pull/520), <RepoLink repo="namaq" path="src/app/quran/branches/TreeLinks.tsx" /> and <RepoLink repo="namaq" path="src/app/quran/branches/TreeLinks.test.tsx" />.
+
+**Implications:** mounting successfully does not establish that measurement or observation started. Check the resulting geometry, including a later resize or rotation.

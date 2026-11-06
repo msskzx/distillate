@@ -1,0 +1,78 @@
+export const meta = {
+  title: "The contracts behind a visual change",
+  label: "Visual change contracts",
+  summary: "A branch-tree restyle exposed when geometry can be measured, what playback progress means, and which foreground belongs on a custom fill.",
+  number: 12,
+  disclosure: "open",
+  sourceProject: "namaq",
+};
+
+This lesson describes [Namaq PR #520](https://github.com/msskzx/namaq/pull/520), commit
+`1ee24d43662e47b945c9c37921069b886ffdf88f`. The change gives Quran and quiz trees curved
+connectors and a fig palette. It keeps the source words, references and playback behavior.
+The useful engineering details are the contracts that made the new drawing work.
+
+## Measure from an attached node
+
+<RepoLink repo="namaq" path="src/app/quran/branches/TreeLinks.tsx" /> attaches a ref
+to its SVG. In its layout effect, it finds the containing list through that SVG's parent.
+The first version depended on a ref supplied by the parent component. The child effect
+ran before that ref was attached, returned early and registered no resize observer.
+
+The working version measures immediately, observes the list and its items for resize,
+and observes the content's direction and rotation attributes. Each fan's geometry has
+tests for Arabic and English directions and a top-down tree. A test that only mounted
+the component would have missed the absent paths.
+
+The detour is recorded in [A child layout effect needs its own DOM ref](/records/namaq/0025-a-child-layout-effect-needs-its-own-dom-ref).
+
+## Keep one playback clock
+
+The studio draws each connector before revealing its words.
+<RepoLink repo="namaq" path="src/app/quran/branches/Grow.tsx" /> already had a wait
+loop that tracks playing time and stops advancing while paused. The integration sends
+that loop's progress to both line styles. Straight segments use a clipping fraction.
+Curved paths have a normalized length of one and use `1 - fraction` as their stroke offset.
+
+For example, at one quarter of the playing duration, the fraction is `0.25` and the
+normalized offset is `0.75`. The video exporter converts that offset to the measured
+path length. On a path of length 200, its canvas offset is 150. Pausing freezes progress;
+stopping removes the drawing styles and shows the whole tree.
+
+The earlier pilot used a similarly named variable for a duration. Current main used it
+for a fraction. [Animation progress is a unit contract](/records/namaq/0026-animation-progress-is-a-unit-contract)
+records why preserving both versions would have been wrong.
+
+<Quiz
+  question="A normalized connector is one quarter drawn when the user pauses. What should its stroke offset do?"
+  options={[
+    "Stay at 0.75 until playback resumes",
+    "Keep decreasing because a CSS animation has its own clock",
+    "Jump to zero so the connector is complete",
+  ]}
+  answer={1}
+  right="Yes. Both the words and connector follow the paused playback loop."
+  wrong="The offset is one minus progress. Pausing freezes progress, so the offset remains 0.75."
+/>
+
+## Pair the fill with its foreground
+
+The default filled action uses the same fig red in both modes and a warm-white label.
+Selected connection chips can supply a custom fill. Their dark-mode tones are pale,
+so their labels need the dark paper foreground instead.
+
+<RepoLink repo="namaq" path="src/components/common/Button.tsx" /> lets an explicit
+tone supply that foreground before falling back to the default action label color.
+The [contrast record](/records/namaq/0027-a-fixed-action-foreground-does-not-fit-every-tone)
+explains the review finding. The exporter reads computed colors, so the same pair
+reaches the video legend.
+
+The palette is scoped to Quran and quiz routes, including their navigation and overlays.
+Experiments and other routes retain their existing palette. Route tests check both sides
+of that boundary rather than assuming that a shared component change stays local.
+
+**Primary sources:** <RepoLink repo="namaq" path="src/app/quran/branches/TreeLinks.test.tsx" />,
+<RepoLink repo="namaq" path="src/app/quran/branches/Grow.test.tsx" />,
+<RepoLink repo="namaq" path="src/app/quran/branches/GrowVideo.tsx" />,
+<RepoLink repo="namaq" path="src/app/theme.css" /> and
+<RepoLink repo="namaq" path="src/components/common/AppChrome.test.tsx" />.

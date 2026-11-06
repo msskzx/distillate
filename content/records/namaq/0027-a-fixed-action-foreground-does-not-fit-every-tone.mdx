@@ -1,0 +1,26 @@
+export const meta = {
+  "title": "A fixed action foreground does not fit every tone",
+  "summary": "Warm-white action labels lost contrast on pale semantic chips in dark mode.",
+  "disclosure": "open",
+  "sourceProject": "namaq",
+  "kind": "detour",
+  "problem": "A shared button foreground works on the brand fill but becomes unreadable when callers supply a different tone.",
+  "approach": "Keep warm-white labels for the fixed fig-red action and let custom-tone buttons use the theme paper foreground.",
+  "outcome": "solved",
+  "conditions": "A shared button with primary, outline and active variants, plus pale blue, green and purple semantic tones in dark mode.",
+  "evidence": "Namaq PR #520, commit 1ee24d43662e47b945c9c37921069b886ffdf88f.",
+  "implication": "Treat a custom fill and its contrasting foreground as a pair when changing shared action colors.",
+  "date": "2026-11-06",
+  "topics": [
+    "agent-review",
+    "graph-ui"
+  ]
+};
+
+The theme gave filled actions a constant fig-red background and warm-white labels in both modes. Selected connection chips also use the primary button treatment, but supply their own tone. Their dark-mode fills are pale, so the fixed warm-white foreground reduced contrast.
+
+Independent review found the chip case. Explicit tones now supply the theme paper foreground, which is dark in dark mode. Default fig actions retain warm white. The video legend reads the same computed colors, so the correction also reaches exports.
+
+**Evidence:** [Namaq PR #520](https://github.com/msskzx/namaq/pull/520), <RepoLink repo="namaq" path="src/components/common/Button.tsx" />, <RepoLink repo="namaq" path="src/app/theme.css" /> and <RepoLink repo="namaq" path="src/app/quran/branches/GrowVideo.tsx" />.
+
+**Implications:** review a shared button's custom-tone callers alongside its default action. A readable brand button does not prove that selected semantic chips remain readable.

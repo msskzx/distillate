@@ -1,0 +1,26 @@
+export const meta = {
+  "title": "Animation progress is a unit contract",
+  "summary": "An older duration-valued CSS variable conflicted with upstream playback that used the same name for a fraction.",
+  "disclosure": "open",
+  "sourceProject": "namaq",
+  "kind": "obstacle",
+  "problem": "A visual change reuses an animation variable after upstream changed its units.",
+  "approach": "Integrate current main, keep the pause-aware progress loop, and map its fraction to SVG stroke offset instead of retaining a separate CSS duration.",
+  "outcome": "solved",
+  "conditions": "A tree studio with pause, replay, speed controls, straight-line clipping and normalized SVG path lengths.",
+  "evidence": "Namaq PR #520, commit 1ee24d43662e47b945c9c37921069b886ffdf88f.",
+  "implication": "Check animation units and their consumers when replaying visual work onto a changed base.",
+  "date": "2026-11-06",
+  "topics": [
+    "ui-state",
+    "testing"
+  ]
+};
+
+The visual pilot used an animation variable as a duration. Current main had introduced pause-aware JavaScript playback and used that name for numeric progress. Carrying both implementations forward would have mixed time and fraction values under one name.
+
+The integration keeps the existing playback loop. Straight segments receive its fraction as a clipping variable; curved paths receive one minus that fraction as their normalized stroke offset. Pause freezes the same loop, and stop clears the inline drawing state.
+
+**Evidence:** [Namaq PR #520](https://github.com/msskzx/namaq/pull/520), <RepoLink repo="namaq" path="src/app/quran/branches/Grow.tsx" /> and <RepoLink repo="namaq" path="src/app/quran/branches/Grow.test.tsx" />.
+
+**Implications:** integrating current main before edits exposes changed runtime contracts while the local change is still small. Read the consumers of a variable before preserving its name.
