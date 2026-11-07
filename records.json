@@ -1,6 +1,96 @@
 {
   "records": [
     {
+      "id": "namaq/0025-filtered-identities-need-the-original-selection",
+      "project": "namaq",
+      "slug": "0025-filtered-identities-need-the-original-selection",
+      "href": "/records/namaq/0025-filtered-identities-need-the-original-selection",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/0025-filtered-identities-need-the-original-selection",
+      "title": "Filtered identities need the original selection",
+      "summary": "Autocomplete hashed filtered passages that the full-corpus resolver could not find.",
+      "disclosure": "open",
+      "sourceProject": "namaq",
+      "kind": "challenge",
+      "problem": "A filtered list creates identifiers from reduced membership while its detail resolver identifies the original full selection.",
+      "approach": "Assign comparison IDs before filtering, keep legacy aliases, and share the same scoped inventory between browsing and autocomplete.",
+      "outcome": "solved",
+      "conditions": "Quran trees over 6,236 ayat; review found 232 of 298 range-generated suggestion IDs absent from the full resolver.",
+      "evidence": "Namaq PR #524 at c63417e1 and PR #525 at 6896a5db; regression tests and independent audit.",
+      "implication": "All juz-one word-tree suggestion IDs resolve against the full-corpus inventory; scoped search and saved-only results obey the same eligibility filters.",
+      "date": "2026-11-07",
+      "topics": [
+        "testing",
+        "text-matching",
+        "ui-state"
+      ],
+      "buildsOn": [
+        "namaq/0021-absorbing-a-phrase-must-preserve-its-entry-points"
+      ],
+      "lesson": "text-to-evidence/0012-evidence-belongs-to-the-selection",
+      "variantOf": [],
+      "text": "The page resolved tree IDs against the full corpus, but autocomplete rebuilt phrase trees inside the juz range and hashed their reduced membership. Independent review reproduced 232 unresolved IDs among 298 juz-one candidates. The shared inventory now assigns the ID from the original word selections, then prunes occurrences for the current scope. The displayed shared phrase can expand after filtering without changing the comparison identity. Saved-only browsing also intersects the eligible inventory; a direct old bookmark URL remains a separate compatibility path. Evidence comes from Namaq PR 524 https://github.com/msskzx/namaq/pull/524 and PR 525 https://github.com/msskzx/namaq/pull/525 . src/lib/quran/branchInventory.ts owns scoped inventory eligibility; src/lib/quran/mutashabih/evidence.ts scopes citations; src/app/quran/compare/CompareView.test.tsx independently checks rendered passage coverage. The implication is to check the final visible selection, including its evidence, identity and initially displayed text, after every scope transformation."
+    },
+    {
+      "id": "namaq/0026-a-citation-does-not-authorize-every-chip",
+      "project": "namaq",
+      "slug": "0026-a-citation-does-not-authorize-every-chip",
+      "href": "/records/namaq/0026-a-citation-does-not-authorize-every-chip",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/0026-a-citation-does-not-authorize-every-chip",
+      "title": "A citation does not authorize every chip",
+      "summary": "A valid source comparison still carried an incorrect singular/plural label and spread chips to uncited members.",
+      "disclosure": "open",
+      "sourceProject": "namaq",
+      "kind": "obstacle",
+      "problem": "A container has a source citation, so its generated labels are treated as supported for every member and every filtered view.",
+      "approach": "Retain exact source selections, scope citations first, and derive published chips, examples and connectors only from surviving evidence.",
+      "outcome": "solved",
+      "conditions": "Thirty recorded book cases across seventeen cited comparison groups in a 1,141-group inventory; both خطاياكم and خطيئاتكم are plural.",
+      "evidence": "Namaq PR #524 at c63417e1 and PR #525 at 6896a5db; regression tests and independent audit.",
+      "implication": "Uncited gender chips are hidden; the incorrect number tag for two plural forms is removed; filtering out the source comparison removes its chips and book-only eligibility.",
+      "date": "2026-11-07",
+      "topics": [
+        "evidence-model",
+        "testing",
+        "text-matching"
+      ],
+      "buildsOn": [
+        "namaq/0023-a-pairwise-match-can-change-after-cropping"
+      ],
+      "lesson": "text-to-evidence/0012-evidence-belongs-to-the-selection",
+      "variantOf": [],
+      "text": "The خطاياكم / خطيئاتكم comparison had book evidence but was labelled جمع وإفراد. Source support for comparing the words did not support that label: both forms are plural. The tag was removed. Another group carried a citation for 2:129 and 2:151 plus uncited members 3:164 and 62:2. Filtering to those latter members previously hid the citation while leaving its chip and example. Evidence now carries the exact selections and is scoped before chips, connectors or the book-only filter are computed. Evidence comes from Namaq PR 524 https://github.com/msskzx/namaq/pull/524 and PR 525 https://github.com/msskzx/namaq/pull/525 . src/lib/quran/branchInventory.ts owns scoped inventory eligibility; src/lib/quran/mutashabih/evidence.ts scopes citations; src/app/quran/compare/CompareView.test.tsx independently checks rendered passage coverage. The implication is to check the final visible selection, including its evidence, identity and initially displayed text, after every scope transformation."
+    },
+    {
+      "id": "namaq/0027-rendered-context-needs-coverage-checks",
+      "project": "namaq",
+      "slug": "0027-rendered-context-needs-coverage-checks",
+      "href": "/records/namaq/0027-rendered-context-needs-coverage-checks",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/0027-rendered-context-needs-coverage-checks",
+      "title": "Rendered context needs coverage checks",
+      "summary": "Every selected ayah existed in computed rows, but most were initially hidden in one curated comparison.",
+      "disclosure": "open",
+      "sourceProject": "namaq",
+      "kind": "challenge",
+      "problem": "A comparison reports complete selected coverage while its renderer collapses the unmatched parts by default.",
+      "approach": "Reuse the existing passage renderer, open unmatched context for curated selections, and derive expected verse coverage independently from the Quran text.",
+      "outcome": "solved",
+      "conditions": "The Salih comparison selects 7:73-79 and 26:141-159; previously only one of nineteen ayat on the second side was visible initially.",
+      "evidence": "Namaq PR #524 at c63417e1 and PR #525 at 6896a5db; regression tests and independent audit.",
+      "implication": "Tests verify all seven curated selections are initially visible with original verse numbers and without duplicates; explicit custom comparisons retain their previous collapsed context.",
+      "date": "2026-11-07",
+      "topics": [
+        "testing",
+        "text-matching",
+        "ui-state"
+      ],
+      "buildsOn": [
+        "namaq/0005-checks-that-dont-rederive-pass-the-wrong-inputs"
+      ],
+      "lesson": "text-to-evidence/0012-evidence-belongs-to-the-selection",
+      "variantOf": [],
+      "text": "The existing matcher already retained every selected ayah in either a matched block or an unmatched context row. That did not make the complete passage visible. Its context rows started collapsed, so the Salih selection initially exposed only one of nineteen ayat on the second side. Curated mode now opens the context and reuses the same renderer. Tests derive each expected ayah and reference from the corpus rather than trusting the aligner row counts. The interface calls the algorithmic links lexical matches because shared words can connect different narrative moments. Evidence comes from Namaq PR 524 https://github.com/msskzx/namaq/pull/524 and PR 525 https://github.com/msskzx/namaq/pull/525 . src/lib/quran/branchInventory.ts owns scoped inventory eligibility; src/lib/quran/mutashabih/evidence.ts scopes citations; src/app/quran/compare/CompareView.test.tsx independently checks rendered passage coverage. The implication is to check the final visible selection, including its evidence, identity and initially displayed text, after every scope transformation."
+    },
+    {
       "id": "namaq/0022-shared-forms-do-not-pair-word-occurrences",
       "project": "namaq",
       "slug": "0022-shared-forms-do-not-pair-word-occurrences",
