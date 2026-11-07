@@ -16,4 +16,4 @@ An open PR means the work is finished. Run the phases in order and keep each sub
 7. **PR.** The summary says what and why; a Review section lists findings and what was done with each; end with Next steps so another agent can resume. Commit messages are Conventional Commits.
 8. **Merge.** After CI is green, merge by hand (`gh pr merge --squash`) unless the repo allows auto-merge. A migration the owner applies never blocks the merge; write the change so the app works before it (`expand-contract-migration`).
 9. **Clean up.** Delete the remote and local branch and remove the worktree. Then tell the user it is a good moment to `/compact`.
-10. **Records.** Publish the session's records with `capture-record`: the challenges, obstacles and detours met on the way.
+10. **Records.** Use `capture-record` for worthwhile local findings and actual read/used activity. Stop at those file writes. Lessons and batch publication are separate user-requested workflows; completing a PR does not trigger either.

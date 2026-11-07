@@ -1,74 +1,22 @@
 ---
 name: capture-record
-description: Search Distillate records before designing a change and after a first fix fails; write a record when a challenge, obstacle or detour happens during work. Records go to github.com/msskzx/distillate through one pull request per session.
+description: Consult relevant Distillate records, append read/used activity, and capture a short local MDX record after a non-obvious challenge, obstacle or detour. Agents and users may invoke this; routine work needs no record.
 ---
 
-# Records: search first, record at the moment
+# Local records and usage
 
-Distillate holds records of past work across the owner's projects so a problem met once is not paid for twice. Terms (record, kind, outcome, conditions, topic, disclosure) are defined in distillate's `CONTEXT.md`.
+Use the existing local Distillate checkout, normally `~/Projects/distillate`. Records are MDX files under `content/records/`; usage goes in the checkout's root `activity.jsonl`. Preserve existing edits and pending PRs. If the checkout is unavailable, report that once and continue the source task.
 
-## Search
+## Consult
 
-Search at two moments:
+Before a non-trivial design decision, or after an attempted fix fails, search local records with `rg`. Read relevant matches, including their outcome and conditions. A failed approach is evidence about those conditions, not a universal prohibition. Local files may include records that have not been published yet; search the MDX files rather than relying on a stale generated index.
 
-- **Before designing** a non-trivial change: search for the problem and its topics.
-- **When stuck**: after the first fix for a problem fails, search before trying a second. The error text, the library and the symptom make good queries.
+For each record actually consulted, append a `read` event using [references/activity.md](references/activity.md). Search hits alone are not reads. Append `used` only when the record changes a concrete decision, check, implementation or investigation, with a sentence explaining the effect. Reference the influence in the task's reasoning when useful. Relevance alone is not use, and use does not prove time saved or a bug prevented.
 
-```bash
-curl -sfG https://distillate-kappa.vercel.app/api/records --data-urlencode "q=<words>" --data-urlencode "topic=<topic>"
-```
+## Capture
 
-`kind`, `outcome` and `project` filter too. If the site is down, read `https://raw.githubusercontent.com/msskzx/distillate/main/records.json`.
+An agent may capture a surprising constraint, meaningful tradeoff, failed approach or reusable finding without waiting for a request. A user may request a record directly. Skip routine summaries and avoid writing multiple records about the same insight.
 
-Read each hit's `outcome` and `conditions` before using it. A `failed` record says the approach failed under those conditions; when yours differ, say how and try it. In the plan or the reply, name the records that applied and what you took from them, or say that the search found none.
+Write one concise local MDX file using [references/record-format.md](references/record-format.md). Include the problem, what failed or changed, the outcome, why the approach worked, and available evidence. Keep unknowns honest. Finish when the local record is written.
 
-## Record
-
-Record the moment one of these happens, while the route is still visible, not at the end when the final code has hidden it:
-
-- **challenge**: the problem the work exists to solve, and how it was approached.
-- **obstacle**: a constraint discovered while implementing that shaped the solution.
-- **detour**: something tried that broke and was then fixed.
-
-Record what a skilled engineer would want to know before meeting the same problem: a surprising constraint, a non-obvious failure, a trade-off that decided the design. Routine work, typos and first-try fixes stay out.
-
-Keep a draft list during the session; publish it once at the end of the session, or when the user asks.
-
-### Disclosure
-
-Decide first.
-
-- **open** when the source project's repository is public (`gh repo view --json visibility`): name files, pull requests, figures and code freely, and link files with `<RepoLink repo="<repo>" path="<path>" />`.
-- **generic** in every other case, including when you cannot tell. Tell the problem and the idea of the solution the way a candidate describes past work in an interview: no project, client or people names, no paths, no code, no figures. The project folder and `sourceProject` are a neutral name you choose (`client-work`). "A batch import silently dropped rows when a column was added" is generic; "`importBatch.ts` dropped 312 rows in namaq" is not.
-
-Distillate's site is public and deploys on merge, so a merged record is published.
-
-### Fields
-
-A record is `content/records/<project>/NNNN-dash-case-title.mdx` (the next number in that folder). Copy the `meta` block of a recent record and fill every field:
-
-| Field | What it holds |
-| --- | --- |
-| `title` | the surprise or the problem, in a sentence |
-| `summary` | one sentence for listings |
-| `kind` | `challenge`, `obstacle` or `detour` |
-| `problem` | one sentence phrased so the same problem in another project would match a search |
-| `approach` | what was tried, ending with what held |
-| `outcome` | `solved`, `failed` (with the reason in the body), `partial` or `open` |
-| `conditions` | what was true when it was tried: versions, data size, setup, constraints |
-| `evidence` | commit, PR, log line or file |
-| `implication` | the rule, check or skill that should change, or `none` |
-| `date` | the day it happened, `YYYY-MM-DD` |
-| `disclosure`, `sourceProject` | as above |
-| `topics` | from `content/topics.json`; add a topic there when none fits |
-| `buildsOn`, `variantOf` | ids (`<project>/<file name without .mdx>`) of records it continues or repeats |
-
-The body tells the story in a few plain sentences: what happened, with the number or error text that made it concrete, then **Evidence** and **Implications** paragraphs. Write for someone who was not there. Humor is welcome when the failure was funny, never at a person's expense.
-
-### Publish
-
-1. Work in a distillate checkout (the owner's is `~/Projects/distillate`; otherwise clone `github.com/msskzx/distillate`), in a worktree on an `<agent>/records-<topic>` branch, and add the session's records.
-2. Run `bun run records:index`, then `bun run lint`, `bunx tsc --noEmit`, `bunx vitest run` and `bun run build`.
-3. Open one pull request for the session, and link it from the pull request of the work the records came from.
-
-When an implication names a skill or rule in this repository, change it in the same pull request or say in the body which follow-up will.
+Capture and usage logging stop at local file writes. They do not create lessons, invoke MCP tools, regenerate indexes, run tests/builds, create worktrees, commit, push or open a PR. Leave existing PRs open. Lessons require a separate user request; batch publication requires an explicit request through `publish-distillate`.
