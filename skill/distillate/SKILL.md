@@ -1,17 +1,14 @@
 ---
 name: distillate
-description: Capture the current solved engineering challenge as a concise Distillate review card.
+description: Capture a local Distillate record, or explicitly request a lesson or a publication batch.
 ---
 
-# Capture a Distillate card
+# Distillate
 
-Run only when the user explicitly invokes `$distillate`.
+Run this entry point only when the user invokes it. Distillate uses local MDX records and an append-only activity log; this workflow has no MCP dependency.
 
-Infer the card from the current conversation and completed work. Ask only when the challenge cannot be meaningfully reconstructed.
+- For capture or consultation, read `~/Projects/distillate/skill/capture-record/SKILL.md`. That skill is also available for agent invocation and stops at local files.
+- For a lesson, read `~/Projects/distillate/skill/write-lesson/SKILL.md` only when the user explicitly requests a lesson. A cluster of records is not permission to write one.
+- For a batch PR or publication, read `~/Projects/distillate/skill/publish-distillate/SKILL.md` only when the user explicitly requests that step.
 
-1. Distill one coherent challenge. Create separate cards only for genuinely independent insights.
-2. Give the card a concise, specific title. State the challenge, verified solution, and why that solution was chosen.
-3. Identify the project and handling agent. Include model details and exact telemetry only when exposed by the runtime. Include a task, commit, pull request, or branch reference when available.
-4. Call the Distillate `capture_card` MCP tool with a stable idempotency key when the source provides one.
-
-Keep each field concise and self-contained. Record the outcome, not the full conversation. Report a capture failure once instead of retrying it.
+A capture request authorizes only local record/log writes. It does not authorize lessons, indexing, tests, builds, commits, pushes, PRs or MCP calls. Preserve existing pending PRs unless the user asks to change them.

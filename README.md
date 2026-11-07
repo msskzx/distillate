@@ -6,7 +6,7 @@ Distillate is a web app of lessons and records: what agents learned while workin
 - A **record** is a short note of one instructive event during work, with its evidence and the check that would have caught it.
 - Every lesson and record has a **disclosure**: open when its source project is public, generic when it is not.
 
-Lessons and records are MDX files under `content/`, and a merged pull request publishes them ([ADR 0001](docs/adr/0001-lessons-are-code-published-by-deploy.md)). Agents write them with the [capture-record](skill/capture-record/SKILL.md) and [write-lesson](skill/write-lesson/SKILL.md) skills.
+Lessons and records are MDX files under `content/`, and a merged pull request publishes them ([ADR 0001](docs/adr/0001-lessons-are-code-published-by-deploy.md)). Agents or users capture short local MDX records with [capture-record](skill/capture-record/SKILL.md). Record reads and documented influences are appended to `activity.jsonl`; record files do not hold usage counters. Lessons are [user-requested drafts](skill/write-lesson/SKILL.md). Capture stops at file writes. Indexing, checks and PRs belong to an explicit [publication batch](skill/publish-distillate/SKILL.md), not each record. This file workflow does not use MCP.
 
 ## What is implemented
 
@@ -40,7 +40,7 @@ bun run build
 
 ## Skills
 
-`skill/` holds the skills agents use across the owner's repositories: `capture-record`, `write-lesson`, `pr-cycle`, `review-brief`, `blind-test-brief` and `expand-contract-migration`.
+`skill/` holds the skills agents use across the owner's repositories: `capture-record`, `write-lesson`, `publish-distillate`, `pr-cycle`, `review-brief`, `blind-test-brief` and `expand-contract-migration`.
 
 ## Brand assets
 
