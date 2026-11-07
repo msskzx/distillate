@@ -1,0 +1,48 @@
+export const meta = {
+  title: "Evidence belongs to the selected passages",
+  label: "Scope and evidence",
+  summary: "Keep comparison identity, editorial purpose, source support and visible text separate when filters change a comparison.",
+  number: 12,
+  disclosure: "open",
+  sourceProject: "namaq",
+};
+
+This describes [Namaq PR #524](https://github.com/msskzx/namaq/pull/524), merged at `c63417e1`, and the compare refinements in [PR #525](https://github.com/msskzx/namaq/pull/525), reviewed at `6896a5db`.
+
+## A reviewed category and a cited difference answer different questions
+
+Namaq records purpose categories in <RepoLink repo="namaq" path="src/lib/quran/mutashabih/categories.json" />. Mutashabeh and pondering are selected by default; word trees are optional. An editorial mutashabeh classification can exist without a book reference. A published grammatical difference chip needs evidence for the particular difference in the displayed passages.
+
+The inventory contains 1,141 generated comparisons, with thirty source cases attached to seventeen cited groups. Source presence alone is insufficient. The comparison خطاياكم / خطيئاتكم had been labelled singular/plural although both forms are plural. Removing that mapping preserves the source comparison without attributing the wrong grammatical distinction to it. The [record](/records/namaq/0026-a-citation-does-not-authorize-every-chip) traces the correction.
+
+## Filtering changes which evidence applies
+
+The messenger group contains 2:129, 2:151, 3:164 and 62:2. Its recorded Z03 citation compares the first two passages. Filtering the group to 3:164 and 62:2 leaves a useful comparison, but it removes the selections supporting that citation. Its source chip, example and book-only eligibility must disappear too.
+
+<RepoLink repo="namaq" path="src/lib/quran/mutashabih/evidence.ts" /> first checks that every cited selection is contained in the visible passage selections. It derives published tags from the surviving citations and restricts connector tags to the cited selections. An additional group member cannot inherit evidence merely by joining the group.
+
+<Quiz
+  question="A source compares A and B. The displayed group also contains C and D. After filtering to C and D, what remains authorized?"
+  options={[
+    "The editorial comparison may remain, but the A/B citation cannot authorize its chips or book-only eligibility",
+    "All source chips remain because the original group had a citation",
+    "The comparison must be deleted because every mutashabeh classification requires a book",
+  ]}
+  answer={1}
+  right="Yes. Purpose and evidence remain separate, and the citation applies only to the selections it supports."
+  wrong="Group membership does not extend the scope of a citation. Mutashabeh classification itself does not require book evidence."
+/>
+
+## Preserve identity before transforming the view
+
+A short comparison ID hashes the original passage locations, word offsets and continuation bounds. Filters remove occurrences and can reveal a longer common phrase among the survivors. Those changes affect the view, not the original identity. Old IDs remain aliases for links and bookmarks.
+
+The [identity record](/records/namaq/0025-filtered-identities-need-the-original-selection) shows why autocomplete and browsing share <RepoLink repo="namaq" path="src/lib/quran/branchInventory.ts" />. Hashing reduced range-specific trees produced 232 unresolved IDs among 298 juz-one candidates. IDs now come from the full selection before filtering.
+
+## Check what the reader initially sees
+
+Every selected ayah can exist in computed rows while most of the passage remains hidden. In the Salih comparison, the second selection covers 26:141–159, nineteen ayat. Its old initial view showed only one. Curated mode now opens unmatched context using the existing renderer; explicit custom mode keeps its previous behavior.
+
+<RepoLink repo="namaq" path="src/app/quran/compare/CompareView.test.tsx" /> derives the expected text and verse numbers independently from the Quran corpus and checks all seven curated pairs for complete visible coverage without duplicates. The [coverage record](/records/namaq/0027-rendered-context-needs-coverage-checks) explains why checking aligner output counts would have missed the defect.
+
+The primary sources are the saved book evidence in <RepoLink repo="namaq" path="src/lib/quran/mutashabih/evidence.json" />, the selected-passage checks in <RepoLink repo="namaq" path="src/lib/quran/mutashabih/evidence.test.ts" />, and the curated ranges in <RepoLink repo="namaq" path="src/lib/quran/curatedComparisons.ts" />. The editorial categories are app decisions, and the executable checks describe their implemented limits.
