@@ -1,193 +1,193 @@
 {
   "repo": "msskzx/namaq",
   "records": {
-    "namaq/0001-eligibility-is-not-extractability": {
-      "file": "docs/records/0001-eligibility-is-not-extractability.md",
+    "namaq/R0001-eligibility-is-not-extractability": {
+      "file": "docs/records/R0001-eligibility-is-not-extractability.md",
       "createdIn": 706
     },
-    "namaq/0002-mission-set-to-design-evolution": {
-      "file": "docs/records/0002-mission-set-to-design-evolution.md",
+    "namaq/R0002-mission-set-to-design-evolution": {
+      "file": "docs/records/R0002-mission-set-to-design-evolution.md",
       "createdIn": 706
     },
-    "namaq/0003-page-keyed-by-reader-not-book": {
-      "file": "docs/records/0003-page-keyed-by-reader-not-book.md",
+    "namaq/R0003-page-keyed-by-reader-not-book": {
+      "file": "docs/records/R0003-page-keyed-by-reader-not-book.md",
       "createdIn": 706
     },
-    "namaq/0004-no-legacy-during-dev": {
-      "file": "docs/records/0004-no-legacy-during-dev.md",
+    "namaq/R0004-no-legacy-during-dev": {
+      "file": "docs/records/R0004-no-legacy-during-dev.md",
       "createdIn": 706
     },
-    "namaq/0005-checks-that-dont-rederive-pass-the-wrong-inputs": {
-      "file": "docs/records/0005-checks-that-dont-rederive-pass-the-wrong-inputs.md",
+    "namaq/R0005-checks-that-dont-rederive-pass-the-wrong-inputs": {
+      "file": "docs/records/R0005-checks-that-dont-rederive-pass-the-wrong-inputs.md",
       "createdIn": 706
     },
-    "namaq/0006-a-rule-that-stops-a-clear-reading": {
-      "file": "docs/records/0006-a-rule-that-stops-a-clear-reading.md",
+    "namaq/R0006-a-rule-that-stops-a-clear-reading": {
+      "file": "docs/records/R0006-a-rule-that-stops-a-clear-reading.md",
       "createdIn": 706
     },
-    "namaq/0007-a-page-that-reads-the-repo-at-request-time": {
-      "file": "docs/records/0007-a-page-that-reads-the-repo-at-request-time.md",
+    "namaq/R0007-a-page-that-reads-the-repo-at-request-time": {
+      "file": "docs/records/R0007-a-page-that-reads-the-repo-at-request-time.md",
       "createdIn": 706
     },
-    "namaq/0008-prove-a-split-by-putting-it-back-together": {
-      "file": "docs/records/0008-prove-a-split-by-putting-it-back-together.md",
+    "namaq/R0008-prove-a-split-by-putting-it-back-together": {
+      "file": "docs/records/R0008-prove-a-split-by-putting-it-back-together.md",
       "createdIn": 706
     },
-    "namaq/0009-a-fix-in-the-code-does-not-fix-the-rows-built-before-it": {
-      "file": "docs/records/0009-a-fix-in-the-code-does-not-fix-the-rows-built-before-it.md",
+    "namaq/R0009-a-fix-in-the-code-does-not-fix-the-rows-built-before-it": {
+      "file": "docs/records/R0009-a-fix-in-the-code-does-not-fix-the-rows-built-before-it.md",
       "createdIn": 706
     },
-    "namaq/0010-a-subagent-said-green-while-lint-and-tsc-were-red": {
-      "file": "docs/records/0010-a-subagent-said-green-while-lint-and-tsc-were-red.md",
+    "namaq/R0010-a-subagent-said-green-while-lint-and-tsc-were-red": {
+      "file": "docs/records/R0010-a-subagent-said-green-while-lint-and-tsc-were-red.md",
       "createdIn": 706
     },
-    "namaq/0011-physics-on-two-chains-became-one": {
-      "file": "docs/records/0011-physics-on-two-chains-became-one.md",
+    "namaq/R0011-physics-on-two-chains-became-one": {
+      "file": "docs/records/R0011-physics-on-two-chains-became-one.md",
       "createdIn": 706
     },
-    "namaq/0012-a-new-column-breaks-every-query-until-the-migration": {
-      "file": "docs/records/0012-a-new-column-breaks-every-query-until-the-migration.md",
+    "namaq/R0012-a-new-column-breaks-every-query-until-the-migration": {
+      "file": "docs/records/R0012-a-new-column-breaks-every-query-until-the-migration.md",
       "createdIn": 706
     },
-    "namaq/0013-a-reader-that-reads-must-also-refuse": {
-      "file": "docs/records/0013-a-reader-that-reads-must-also-refuse.md",
+    "namaq/R0013-a-reader-that-reads-must-also-refuse": {
+      "file": "docs/records/R0013-a-reader-that-reads-must-also-refuse.md",
       "createdIn": 706
     },
-    "namaq/0014-completely-migrated-does-not-mean-every-sentence-is-modeled": {
-      "file": "docs/records/0014-completely-migrated-does-not-mean-every-sentence-is-modeled.md",
+    "namaq/R0014-completely-migrated-does-not-mean-every-sentence-is-modeled": {
+      "file": "docs/records/R0014-completely-migrated-does-not-mean-every-sentence-is-modeled.md",
       "createdIn": 706
     },
-    "namaq/0015-two-sources-that-disagree-are-not-an-error": {
-      "file": "docs/records/0015-two-sources-that-disagree-are-not-an-error.md",
+    "namaq/R0015-two-sources-that-disagree-are-not-an-error": {
+      "file": "docs/records/R0015-two-sources-that-disagree-are-not-an-error.md",
       "createdIn": 706
     },
-    "namaq/0016-works-on-node-twenty-two-fails-on-node-twenty": {
-      "file": "docs/records/0016-works-on-node-twenty-two-fails-on-node-twenty.md",
+    "namaq/R0016-works-on-node-twenty-two-fails-on-node-twenty": {
+      "file": "docs/records/R0016-works-on-node-twenty-two-fails-on-node-twenty.md",
       "createdIn": 706
     },
-    "namaq/0017-a-name-heuristic-counts-battles-as-unresolved-people": {
-      "file": "docs/records/0017-a-name-heuristic-counts-battles-as-unresolved-people.md",
+    "namaq/R0017-a-name-heuristic-counts-battles-as-unresolved-people": {
+      "file": "docs/records/R0017-a-name-heuristic-counts-battles-as-unresolved-people.md",
       "createdIn": 706
     },
-    "namaq/0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own": {
-      "file": "docs/records/0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own.md",
+    "namaq/R0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own": {
+      "file": "docs/records/R0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own.md",
       "createdIn": 706
     },
-    "namaq/0019-fixing-the-example-broke-the-ayah-next-door": {
-      "file": "docs/records/0019-fixing-the-example-broke-the-ayah-next-door.md",
+    "namaq/R0019-fixing-the-example-broke-the-ayah-next-door": {
+      "file": "docs/records/R0019-fixing-the-example-broke-the-ayah-next-door.md",
       "createdIn": 706
     },
-    "namaq/0020-a-tree-answer-must-preserve-the-path": {
-      "file": "docs/records/0020-a-tree-answer-must-preserve-the-path.md",
+    "namaq/R0020-a-tree-answer-must-preserve-the-path": {
+      "file": "docs/records/R0020-a-tree-answer-must-preserve-the-path.md",
       "createdIn": 706
     },
-    "namaq/0021-absorbing-a-phrase-must-preserve-its-entry-points": {
-      "file": "docs/records/0021-absorbing-a-phrase-must-preserve-its-entry-points.md",
+    "namaq/R0021-absorbing-a-phrase-must-preserve-its-entry-points": {
+      "file": "docs/records/R0021-absorbing-a-phrase-must-preserve-its-entry-points.md",
       "createdIn": 706
     },
-    "namaq/0022-shared-forms-do-not-pair-word-occurrences": {
-      "file": "docs/records/0022-shared-forms-do-not-pair-word-occurrences.md",
+    "namaq/R0022-shared-forms-do-not-pair-word-occurrences": {
+      "file": "docs/records/R0022-shared-forms-do-not-pair-word-occurrences.md",
       "createdIn": 706
     },
-    "namaq/0023-a-pairwise-match-can-change-after-cropping": {
-      "file": "docs/records/0023-a-pairwise-match-can-change-after-cropping.md",
+    "namaq/R0023-a-pairwise-match-can-change-after-cropping": {
+      "file": "docs/records/R0023-a-pairwise-match-can-change-after-cropping.md",
       "createdIn": 706
     },
-    "namaq/0024-a-filter-draft-must-outlive-its-pending-url": {
-      "file": "docs/records/0024-a-filter-draft-must-outlive-its-pending-url.md",
+    "namaq/R0024-a-filter-draft-must-outlive-its-pending-url": {
+      "file": "docs/records/R0024-a-filter-draft-must-outlive-its-pending-url.md",
       "createdIn": 706
     },
-    "namaq/0025-filtered-identities-need-the-original-selection": {
-      "file": "docs/records/0025-filtered-identities-need-the-original-selection.md",
+    "namaq/R0025-filtered-identities-need-the-original-selection": {
+      "file": "docs/records/R0025-filtered-identities-need-the-original-selection.md",
       "createdIn": 706
     },
-    "namaq/0026-a-citation-does-not-authorize-every-chip": {
-      "file": "docs/records/0026-a-citation-does-not-authorize-every-chip.md",
+    "namaq/R0026-a-citation-does-not-authorize-every-chip": {
+      "file": "docs/records/R0026-a-citation-does-not-authorize-every-chip.md",
       "createdIn": 706
     },
-    "namaq/0027-rendered-context-needs-coverage-checks": {
-      "file": "docs/records/0027-rendered-context-needs-coverage-checks.md",
+    "namaq/R0027-rendered-context-needs-coverage-checks": {
+      "file": "docs/records/R0027-rendered-context-needs-coverage-checks.md",
       "createdIn": 706
     },
-    "namaq/0028-a-second-text-may-only-correct-what-it-can-see": {
-      "file": "docs/records/0028-a-second-text-may-only-correct-what-it-can-see.md",
+    "namaq/R0028-a-second-text-may-only-correct-what-it-can-see": {
+      "file": "docs/records/R0028-a-second-text-may-only-correct-what-it-can-see.md",
       "createdIn": 720
     },
-    "namaq/0029-a-pair-must-be-named-in-the-quoted-sentence": {
-      "file": "docs/records/0029-a-pair-must-be-named-in-the-quoted-sentence.md",
-      "createdIn": 729
-    },
-    "namaq/0029-questions-in-one-quiz-can-answer-each-other": {
-      "file": "docs/records/0029-questions-in-one-quiz-can-answer-each-other.md",
+    "namaq/R0029-questions-in-one-quiz-can-answer-each-other": {
+      "file": "docs/records/R0029-questions-in-one-quiz-can-answer-each-other.md",
       "createdIn": 726
     },
-    "namaq/0030-a-fixed-height-box-clips-ios-text-mid-word": {
-      "file": "docs/records/0030-a-fixed-height-box-clips-ios-text-mid-word.md",
+    "namaq/R0030-a-fixed-height-box-clips-ios-text-mid-word": {
+      "file": "docs/records/R0030-a-fixed-height-box-clips-ios-text-mid-word.md",
       "createdIn": 737
     },
-    "namaq/0031-a-card-that-redraws-a-feature-loses-its-behaviour": {
-      "file": "docs/records/0031-a-card-that-redraws-a-feature-loses-its-behaviour.md",
+    "namaq/R0031-a-card-that-redraws-a-feature-loses-its-behaviour": {
+      "file": "docs/records/R0031-a-card-that-redraws-a-feature-loses-its-behaviour.md",
       "createdIn": 740
     },
-    "namaq/0031-a-scaled-page-is-a-picture-not-bigger-text": {
-      "file": "docs/records/0031-a-scaled-page-is-a-picture-not-bigger-text.md",
-      "createdIn": 741
-    },
-    "namaq/0032-a-branch-key-names-where-it-starts-not-what-its-leaf-shows": {
-      "file": "docs/records/0032-a-branch-key-names-where-it-starts-not-what-its-leaf-shows.md",
+    "namaq/R0032-a-branch-key-names-where-it-starts-not-what-its-leaf-shows": {
+      "file": "docs/records/R0032-a-branch-key-names-where-it-starts-not-what-its-leaf-shows.md",
       "createdIn": 742
     },
-    "namaq/0032-a-hidden-box-still-holds-its-place": {
-      "file": "docs/records/0032-a-hidden-box-still-holds-its-place.md",
-      "createdIn": 743
-    },
-    "namaq/0033-a-reader-book-has-more-routes-than-the-dataset": {
-      "file": "docs/records/0033-a-reader-book-has-more-routes-than-the-dataset.md",
+    "namaq/R0033-a-reader-book-has-more-routes-than-the-dataset": {
+      "file": "docs/records/R0033-a-reader-book-has-more-routes-than-the-dataset.md",
       "createdIn": 748
     },
-    "namaq/0034-a-dump-keyed-by-ayah-can-hold-pages-not-passages": {
-      "file": "docs/records/0034-a-dump-keyed-by-ayah-can-hold-pages-not-passages.md",
+    "namaq/R0034-a-dump-keyed-by-ayah-can-hold-pages-not-passages": {
+      "file": "docs/records/R0034-a-dump-keyed-by-ayah-can-hold-pages-not-passages.md",
       "createdIn": 751
     },
-    "namaq/0035-letting-go-of-a-shared-studio-closes-it": {
-      "file": "docs/records/0035-letting-go-of-a-shared-studio-closes-it.md",
+    "namaq/R0035-letting-go-of-a-shared-studio-closes-it": {
+      "file": "docs/records/R0035-letting-go-of-a-shared-studio-closes-it.md",
       "createdIn": 752
     },
-    "namaq/0036-a-video-that-copies-the-app-drifts-from-it": {
-      "file": "docs/records/0036-a-video-that-copies-the-app-drifts-from-it.md",
+    "namaq/R0036-a-video-that-copies-the-app-drifts-from-it": {
+      "file": "docs/records/R0036-a-video-that-copies-the-app-drifts-from-it.md",
       "createdIn": 754
     },
-    "namaq/0037-a-video-that-redraws-a-screen-drifts-from-it": {
-      "file": "docs/records/0037-a-video-that-redraws-a-screen-drifts-from-it.md",
+    "namaq/R0037-a-video-that-redraws-a-screen-drifts-from-it": {
+      "file": "docs/records/R0037-a-video-that-redraws-a-screen-drifts-from-it.md",
       "createdIn": 755
     },
-    "namaq/0038-a-light-import-pulled-all-tree-data-into-the-first-frame": {
-      "file": "docs/records/0038-a-light-import-pulled-all-tree-data-into-the-first-frame.md",
+    "namaq/R0038-a-light-import-pulled-all-tree-data-into-the-first-frame": {
+      "file": "docs/records/R0038-a-light-import-pulled-all-tree-data-into-the-first-frame.md",
       "createdIn": 766
     },
-    "namaq/0038-a-tab-page-cannot-swipe-back": {
-      "file": "docs/records/0038-a-tab-page-cannot-swipe-back.md",
-      "createdIn": 767
-    },
-    "namaq/0039-one-to-many-compare-cards-reuse-link-ids": {
-      "file": "docs/records/0039-one-to-many-compare-cards-reuse-link-ids.md",
+    "namaq/R0039-one-to-many-compare-cards-reuse-link-ids": {
+      "file": "docs/records/R0039-one-to-many-compare-cards-reuse-link-ids.md",
       "createdIn": 775
     },
-    "namaq/0040-a-dump-page-gap-is-not-always-lost-text": {
-      "file": "docs/records/0040-a-dump-page-gap-is-not-always-lost-text.md",
+    "namaq/R0040-a-dump-page-gap-is-not-always-lost-text": {
+      "file": "docs/records/R0040-a-dump-page-gap-is-not-always-lost-text.md",
       "createdIn": 777
     },
-    "namaq/0041-an-off-screen-sr-only-label-widens-the-page": {
-      "file": "docs/records/0041-an-off-screen-sr-only-label-widens-the-page.md",
+    "namaq/R0041-an-off-screen-sr-only-label-widens-the-page": {
+      "file": "docs/records/R0041-an-off-screen-sr-only-label-widens-the-page.md",
       "createdIn": 790
     },
-    "namaq/0042-a-rule-kept-in-one-branch-of-a-component-misses-its-other-paths": {
-      "file": "docs/records/0042-a-rule-kept-in-one-branch-of-a-component-misses-its-other-paths.md",
+    "namaq/R0042-a-rule-kept-in-one-branch-of-a-component-misses-its-other-paths": {
+      "file": "docs/records/R0042-a-rule-kept-in-one-branch-of-a-component-misses-its-other-paths.md",
       "createdIn": 796
     },
-    "namaq/0043-a-book-quoting-the-quran-in-its-own-spelling-meets-the-mushaf-by-consonants": {
-      "file": "docs/records/0043-a-book-quoting-the-quran-in-its-own-spelling-meets-the-mushaf-by-consonants.md",
+    "namaq/R0043-a-book-quoting-the-quran-in-its-own-spelling-meets-the-mushaf-by-consonants": {
+      "file": "docs/records/R0043-a-book-quoting-the-quran-in-its-own-spelling-meets-the-mushaf-by-consonants.md",
       "createdIn": 797
+    },
+    "namaq/R0044-a-pair-must-be-named-in-the-quoted-sentence": {
+      "file": "docs/records/R0044-a-pair-must-be-named-in-the-quoted-sentence.md",
+      "createdIn": 729
+    },
+    "namaq/R0045-a-scaled-page-is-a-picture-not-bigger-text": {
+      "file": "docs/records/R0045-a-scaled-page-is-a-picture-not-bigger-text.md",
+      "createdIn": 741
+    },
+    "namaq/R0046-a-hidden-box-still-holds-its-place": {
+      "file": "docs/records/R0046-a-hidden-box-still-holds-its-place.md",
+      "createdIn": 743
+    },
+    "namaq/R0047-a-tab-page-cannot-swipe-back": {
+      "file": "docs/records/R0047-a-tab-page-cannot-swipe-back.md",
+      "createdIn": 767
     }
   },
   "prs": [
@@ -269,8 +269,8 @@
       "mergedAt": "2026-11-13",
       "line": "0008, 0027",
       "used": [
-        "namaq/0008-prove-a-split-by-putting-it-back-together",
-        "namaq/0027-rendered-context-needs-coverage-checks"
+        "namaq/R0008-prove-a-split-by-putting-it-back-together",
+        "namaq/R0027-rendered-context-needs-coverage-checks"
       ],
       "unresolved": []
     },
@@ -288,7 +288,7 @@
       "mergedAt": "2026-11-13",
       "line": "0016",
       "used": [
-        "namaq/0016-works-on-node-twenty-two-fails-on-node-twenty"
+        "namaq/R0016-works-on-node-twenty-two-fails-on-node-twenty"
       ],
       "unresolved": []
     },
@@ -298,7 +298,7 @@
       "mergedAt": "2026-11-13",
       "line": "0015-two-sources-that-disagree-are-not-an-error",
       "used": [
-        "namaq/0015-two-sources-that-disagree-are-not-an-error"
+        "namaq/R0015-two-sources-that-disagree-are-not-an-error"
       ],
       "unresolved": []
     },
@@ -308,7 +308,7 @@
       "mergedAt": "2026-11-13",
       "line": "0018",
       "used": [
-        "namaq/0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own"
+        "namaq/R0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own"
       ],
       "unresolved": []
     },
@@ -326,7 +326,7 @@
       "mergedAt": "2026-11-13",
       "line": "distillate/0005-a-mock-router-too-fast-to-show-a-race",
       "used": [
-        "distillate/0005-a-mock-router-too-fast-to-show-a-race"
+        "distillate/R0005-a-mock-router-too-fast-to-show-a-race"
       ],
       "unresolved": []
     },
@@ -336,7 +336,7 @@
       "mergedAt": "2026-11-13",
       "line": "0004",
       "used": [
-        "namaq/0004-no-legacy-during-dev"
+        "namaq/R0004-no-legacy-during-dev"
       ],
       "unresolved": []
     },
@@ -346,7 +346,7 @@
       "mergedAt": "2026-11-13",
       "line": "distillate/0005-a-mock-router-too-fast-to-show-a-race",
       "used": [
-        "distillate/0005-a-mock-router-too-fast-to-show-a-race"
+        "distillate/R0005-a-mock-router-too-fast-to-show-a-race"
       ],
       "unresolved": []
     },
@@ -364,7 +364,7 @@
       "mergedAt": "2026-11-13",
       "line": "0021-absorbing-a-phrase-must-preserve-its-entry-points (saved ids of an absorbed tree still reach it)",
       "used": [
-        "namaq/0021-absorbing-a-phrase-must-preserve-its-entry-points"
+        "namaq/R0021-absorbing-a-phrase-must-preserve-its-entry-points"
       ],
       "unresolved": []
     },
@@ -374,8 +374,8 @@
       "mergedAt": "2026-11-13",
       "line": "0026, 0018",
       "used": [
-        "namaq/0026-a-citation-does-not-authorize-every-chip",
-        "namaq/0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own"
+        "namaq/R0026-a-citation-does-not-authorize-every-chip",
+        "namaq/R0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own"
       ],
       "unresolved": []
     },
@@ -454,7 +454,7 @@
       "mergedAt": "2026-11-13",
       "line": "0030",
       "used": [
-        "namaq/0030-a-fixed-height-box-clips-ios-text-mid-word"
+        "namaq/R0030-a-fixed-height-box-clips-ios-text-mid-word"
       ],
       "unresolved": []
     },
@@ -464,7 +464,7 @@
       "mergedAt": "2026-11-13",
       "line": "0018",
       "used": [
-        "namaq/0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own"
+        "namaq/R0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own"
       ],
       "unresolved": []
     },
@@ -474,7 +474,7 @@
       "mergedAt": "2026-11-14",
       "line": "0018",
       "used": [
-        "namaq/0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own"
+        "namaq/R0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own"
       ],
       "unresolved": []
     },
@@ -484,7 +484,7 @@
       "mergedAt": "2026-11-14",
       "line": "0030",
       "used": [
-        "namaq/0030-a-fixed-height-box-clips-ios-text-mid-word"
+        "namaq/R0030-a-fixed-height-box-clips-ios-text-mid-word"
       ],
       "unresolved": []
     },
@@ -494,7 +494,7 @@
       "mergedAt": "2026-11-14",
       "line": "0005 (new record 0032)",
       "used": [
-        "namaq/0005-checks-that-dont-rederive-pass-the-wrong-inputs"
+        "namaq/R0005-checks-that-dont-rederive-pass-the-wrong-inputs"
       ],
       "unresolved": []
     },
@@ -512,9 +512,9 @@
       "mergedAt": "2026-11-14",
       "line": "namaq/0015-two-sources-that-disagree-are-not-an-error, namaq/0026-a-citation-does-not-authorize-every-chip, namaq/0028-a-second-text-may-only-correct-what-it-can-see",
       "used": [
-        "namaq/0015-two-sources-that-disagree-are-not-an-error",
-        "namaq/0026-a-citation-does-not-authorize-every-chip",
-        "namaq/0028-a-second-text-may-only-correct-what-it-can-see"
+        "namaq/R0015-two-sources-that-disagree-are-not-an-error",
+        "namaq/R0026-a-citation-does-not-authorize-every-chip",
+        "namaq/R0028-a-second-text-may-only-correct-what-it-can-see"
       ],
       "unresolved": []
     },
@@ -537,9 +537,9 @@
       "mergedAt": "2026-11-14",
       "line": "0026, 0028, 0033",
       "used": [
-        "namaq/0026-a-citation-does-not-authorize-every-chip",
-        "namaq/0028-a-second-text-may-only-correct-what-it-can-see",
-        "namaq/0033-a-reader-book-has-more-routes-than-the-dataset"
+        "namaq/R0026-a-citation-does-not-authorize-every-chip",
+        "namaq/R0028-a-second-text-may-only-correct-what-it-can-see",
+        "namaq/R0033-a-reader-book-has-more-routes-than-the-dataset"
       ],
       "unresolved": []
     },
@@ -574,7 +574,7 @@
       "mergedAt": "2026-11-14",
       "line": "0031, 0010",
       "used": [
-        "namaq/0010-a-subagent-said-green-while-lint-and-tsc-were-red"
+        "namaq/R0010-a-subagent-said-green-while-lint-and-tsc-were-red"
       ],
       "unresolved": [
         {
@@ -652,7 +652,7 @@
       "mergedAt": "2026-11-14",
       "line": "0036 (video follows the app's measured layout).",
       "used": [
-        "namaq/0036-a-video-that-copies-the-app-drifts-from-it"
+        "namaq/R0036-a-video-that-copies-the-app-drifts-from-it"
       ],
       "unresolved": []
     },
@@ -670,7 +670,7 @@
       "mergedAt": "2026-11-14",
       "line": "0037",
       "used": [
-        "namaq/0037-a-video-that-redraws-a-screen-drifts-from-it"
+        "namaq/R0037-a-video-that-redraws-a-screen-drifts-from-it"
       ],
       "unresolved": []
     },
@@ -688,7 +688,7 @@
       "mergedAt": "2026-11-14",
       "line": "0036-a-video-that-copies-the-app-drifts-from-it",
       "used": [
-        "namaq/0036-a-video-that-copies-the-app-drifts-from-it"
+        "namaq/R0036-a-video-that-copies-the-app-drifts-from-it"
       ],
       "unresolved": []
     },
@@ -730,8 +730,8 @@
       "mergedAt": "2026-11-14",
       "line": "0034-a-dump-keyed-by-ayah-can-hold-pages-not-passages, 0031-a-card-that-redraws-a-feature-loses-its-behaviour",
       "used": [
-        "namaq/0034-a-dump-keyed-by-ayah-can-hold-pages-not-passages",
-        "namaq/0031-a-card-that-redraws-a-feature-loses-its-behaviour"
+        "namaq/R0034-a-dump-keyed-by-ayah-can-hold-pages-not-passages",
+        "namaq/R0031-a-card-that-redraws-a-feature-loses-its-behaviour"
       ],
       "unresolved": []
     },
@@ -825,7 +825,7 @@
       "mergedAt": "2026-11-15",
       "line": "0037",
       "used": [
-        "namaq/0037-a-video-that-redraws-a-screen-drifts-from-it"
+        "namaq/R0037-a-video-that-redraws-a-screen-drifts-from-it"
       ],
       "unresolved": []
     },
@@ -835,7 +835,7 @@
       "mergedAt": "2026-11-15",
       "line": "0037",
       "used": [
-        "namaq/0037-a-video-that-redraws-a-screen-drifts-from-it"
+        "namaq/R0037-a-video-that-redraws-a-screen-drifts-from-it"
       ],
       "unresolved": []
     },
@@ -957,7 +957,7 @@
       "mergedAt": "2026-11-15",
       "line": "0038, 0041",
       "used": [
-        "namaq/0041-an-off-screen-sr-only-label-widens-the-page"
+        "namaq/R0041-an-off-screen-sr-only-label-widens-the-page"
       ],
       "unresolved": [
         {
@@ -972,7 +972,7 @@
       "mergedAt": "2026-11-15",
       "line": "0041",
       "used": [
-        "namaq/0041-an-off-screen-sr-only-label-widens-the-page"
+        "namaq/R0041-an-off-screen-sr-only-label-widens-the-page"
       ],
       "unresolved": []
     },
@@ -998,7 +998,7 @@
       "mergedAt": "2026-11-15",
       "line": "0034",
       "used": [
-        "namaq/0034-a-dump-keyed-by-ayah-can-hold-pages-not-passages"
+        "namaq/R0034-a-dump-keyed-by-ayah-can-hold-pages-not-passages"
       ],
       "unresolved": []
     },
@@ -1008,7 +1008,7 @@
       "mergedAt": "2026-11-16",
       "line": "0042",
       "used": [
-        "namaq/0042-a-rule-kept-in-one-branch-of-a-component-misses-its-other-paths"
+        "namaq/R0042-a-rule-kept-in-one-branch-of-a-component-misses-its-other-paths"
       ],
       "unresolved": []
     }

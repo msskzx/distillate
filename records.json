@@ -1,11 +1,11 @@
 {
   "records": [
     {
-      "id": "namaq/0040-a-dump-page-gap-is-not-always-lost-text",
+      "id": "namaq/R0040-a-dump-page-gap-is-not-always-lost-text",
       "project": "namaq",
-      "slug": "0040-a-dump-page-gap-is-not-always-lost-text",
-      "href": "/records/namaq/0040-a-dump-page-gap-is-not-always-lost-text",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0040-a-dump-page-gap-is-not-always-lost-text",
+      "slug": "R0040-a-dump-page-gap-is-not-always-lost-text",
+      "href": "/records/namaq/R0040-a-dump-page-gap-is-not-always-lost-text",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0040-a-dump-page-gap-is-not-always-lost-text",
       "title": "A dump's missing page numbers are not always lost text",
       "summary": "Quranpedia's al-Sa'di dump has no piece for 42 page numbers, which the first build read as 42 lost pages; walking every passage against Shamela's copy of the same edition showed most of those pages sit inside the piece before, and the real losses are seven passages whose piece breaks off, which the build now fills from Shamela.",
       "disclosure": "open",
@@ -26,11 +26,11 @@
       "text": "The audit also catches false alarms from refrains «فبأي آلاء ربكما تكذبان» matching early; it ignores a jump whose skipped words are in the passage or the one before."
     },
     {
-      "id": "namaq/0041-an-off-screen-sr-only-label-widens-the-page",
+      "id": "namaq/R0041-an-off-screen-sr-only-label-widens-the-page",
       "project": "namaq",
-      "slug": "0041-an-off-screen-sr-only-label-widens-the-page",
-      "href": "/records/namaq/0041-an-off-screen-sr-only-label-widens-the-page",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0041-an-off-screen-sr-only-label-widens-the-page",
+      "slug": "R0041-an-off-screen-sr-only-label-widens-the-page",
+      "href": "/records/namaq/R0041-an-off-screen-sr-only-label-widens-the-page",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0041-an-off-screen-sr-only-label-widens-the-page",
       "title": "An off-screen page's sr-only labels widen the whole document",
       "summary": "Putting the website's three utilities side by side in a scroll-snap row blanked the page in screenshots: the calendar's sr-only day labels are position absolute, so in the off-screen pane they escaped the row's clip and stretched the right-to-left document 650px to the left.",
       "disclosure": "open",
@@ -51,11 +51,11 @@
       "text": "Removing panes one at a time found the calendar as the cause; elementFromPoint still saw the page, which is why the content looked present but never painted where the screenshot looked."
     },
     {
-      "id": "namaq/0042-a-rule-kept-in-one-branch-of-a-component-misses-its-other-paths",
+      "id": "namaq/R0042-a-rule-kept-in-one-branch-of-a-component-misses-its-other-paths",
       "project": "namaq",
-      "slug": "0042-a-rule-kept-in-one-branch-of-a-component-misses-its-other-paths",
-      "href": "/records/namaq/0042-a-rule-kept-in-one-branch-of-a-component-misses-its-other-paths",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0042-a-rule-kept-in-one-branch-of-a-component-misses-its-other-paths",
+      "slug": "R0042-a-rule-kept-in-one-branch-of-a-component-misses-its-other-paths",
+      "href": "/records/namaq/R0042-a-rule-kept-in-one-branch-of-a-component-misses-its-other-paths",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0042-a-rule-kept-in-one-branch-of-a-component-misses-its-other-paths",
       "title": "A rule kept in one branch of a component misses its other paths; a shrink-to-fit label that only iOS shrinks",
       "summary": "Top-down trees were never meant to have tabs, yet the home pair card drew them, and on the owner's iPhone every tab label was a speck. The no-tab rule lived only in BranchTree's own node branch; the compare tree, added later, went through its nodeContent branch, which drew a tab with no direction check. The speck came from adjustsFontSizeToFit, which the web export the tests run on ignores.",
       "disclosure": "open",
@@ -77,11 +77,11 @@
       "text": "The same day a third case of the pattern showed: 785 let the surah chips rise into the studio bar's empty room under a tree TreeCard , but the matrix view's chips are drawn by TreePager's footer, so on the home card's matrix they kept the whole bar's room and left a gap under the buttons. Fixed by tucking them there too whenever no studio bar is showing. The owner asked how the pills got there, not only to remove them. Two separate changes met on one card: 776's tabs on compare trees the rule's other path , and 783's shrink-to-fit a native-only prop no test could see . Follow-up owner, 2026-11-16 : one layout for every tree. Tabs are gone; every box, side by side or top down, names its ayah inside over a rule, so there is no second path left to miss. treeTabs.test.ts fails if a tab comes back."
     },
     {
-      "id": "namaq/0043-a-book-quoting-the-quran-in-its-own-spelling-meets-the-mushaf-by-consonants",
+      "id": "namaq/R0043-a-book-quoting-the-quran-in-its-own-spelling-meets-the-mushaf-by-consonants",
       "project": "namaq",
-      "slug": "0043-a-book-quoting-the-quran-in-its-own-spelling-meets-the-mushaf-by-consonants",
-      "href": "/records/namaq/0043-a-book-quoting-the-quran-in-its-own-spelling-meets-the-mushaf-by-consonants",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0043-a-book-quoting-the-quran-in-its-own-spelling-meets-the-mushaf-by-consonants",
+      "slug": "R0043-a-book-quoting-the-quran-in-its-own-spelling-meets-the-mushaf-by-consonants",
+      "href": "/records/namaq/R0043-a-book-quoting-the-quran-in-its-own-spelling-meets-the-mushaf-by-consonants",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0043-a-book-quoting-the-quran-in-its-own-spelling-meets-the-mushaf-by-consonants",
       "title": "A grammar book quoting the Quran in its own spelling meets the mushaf by consonants",
       "summary": "Al-'Ukbari's headings name Quran words in standard spelling, so finding them in the mushaf's Uthmani words worked once both were cut to consonants and searched first among the quoted ayat.",
       "disclosure": "open",
@@ -99,44 +99,17 @@
         "source-extraction"
       ],
       "buildsOn": [
-        "namaq/0034-a-dump-keyed-by-ayah-can-hold-pages-not-passages"
+        "namaq/R0034-a-dump-keyed-by-ayah-can-hold-pages-not-passages"
       ],
       "variantOf": [],
       "text": "The first pass placed 2,964 of 4,737 passages on words. Three things held the rest back. The mushaf text writes tanwin with the open forms in Arabic Extended-A ࣰ ࣱ ࣲ , outside the usual U+064B-065F range, so «مُّحَمَّدࣱ» never met «مُحَمَّدٌ». About a fifth of the quotes put the ayah number after the closing parenthesis, « … ٨٢ .», so the ayah context lagged one quote behind and later headings were searched in the wrong ayah. And much of the book names words inline, «وَ هَلُوعًا : حَالٌ», without «قوله تعالى». Dropping alif, waw and ya from both sides is what makes the rasm and the book's spelling meet «ٱلصَّلَوٰةَ» and «الصَّلَاةَ» both become «صله» . Within one ayah, collisions are rare enough that the first run of matching words is the right one. Tried - Match after stripping only U+064B-065F and U+06D6-06ED → tanwin in Extended-A blocked every word that carried it. - Read quote numbers only inside the parenthesis → passages after « … ٨٢ .» landed on the ayah of the quote before. - Search the whole surah for a unique match → a word spelled with a prefix the match did not forgive «رَءُوفٌ» for «لَرَءُوفࣱ» landed on a later ayah that has it bare 2:143 → 2:207 ; a review found it by listing passages that run back in book order. - Leave unmatched line headings as new passages on the quoted ayah → cross-references to other surahs « الأنعام: ١٥٣ » became passages on al-Baqara; they now stay in the passage before."
     },
     {
-      "id": "namaq/0031-a-scaled-page-is-a-picture-not-bigger-text",
+      "id": "namaq/R0032-a-branch-key-names-where-it-starts-not-what-its-leaf-shows",
       "project": "namaq",
-      "slug": "0031-a-scaled-page-is-a-picture-not-bigger-text",
-      "href": "/records/namaq/0031-a-scaled-page-is-a-picture-not-bigger-text",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0031-a-scaled-page-is-a-picture-not-bigger-text",
-      "title": "Zooming a page with a scale transform enlarges a picture, not the text",
-      "summary": "The mushaf reader zoomed by drawing the page bigger and scaling the view; on iPhone the text came out blurry and cut off at the sides, so zoom became a font size with the words wrapped again and the page scrolled down.",
-      "disclosure": "open",
-      "sourceProject": "namaq",
-      "kind": "challenge",
-      "problem": "Pinch zoom in the app's reader (#664) drew the page at width times zoom inside a view scaled back down, then scaled that view up again. On the owner's iPhone the text was blurry and pixelated, and the lines ran past both edges of the screen, so reading meant dragging sideways.",
-      "approach": "Make zoom a text size. At 1 the printed page stays as it is. Above 1 each word group is measured once at a base size, the page's words are broken into new lines at the screen's width (breakLines in mobile/src/lib/pageZoom.ts), every line except a paragraph's last is spread edge to edge, and the page grows taller inside a vertical scroll view. While the fingers move, a scale transform only previews the new size; when they lift, the page is set again at that size. On the website, the lines become inline text with text-align: justify in flow mode, and a two-finger touch or ctrl+wheel sets the size.",
-      "outcome": "solved",
-      "conditions": "Expo app on iOS with Reanimated transforms on a view of nested Text; Next.js reader on phone browsers. Web-export screenshots don't show the blur: transforms there re-rasterize text sharply.",
-      "evidence": "mobile/src/components/ReaderPager.tsx, MushafPageView.tsx (rows), Reader.tsx (scroll, anchor); src/app/quran/read/MushafPage.tsx fit(), Mushaf.module.css [data-flow]",
-      "implication": "Don't zoom text with a transform past the gesture itself: change the font size and lay the text out again. Check anything that measures positions (highlight bands, write boxes, kept scroll) at the new layout, after it is drawn, not in the same render.",
-      "date": "2026-11-14",
-      "topics": [
-        "mobile"
-      ],
-      "buildsOn": [
-        "namaq/0030-a-fixed-height-box-clips-ios-text-mid-word"
-      ],
-      "variantOf": [],
-      "text": "The old zoom kept the page's 15 lines and made everything bigger, which is what a picture viewer does. iOS draws text once into a layer and a scale transform then stretches those pixels, so the letters blurred. The owner asked for the behaviour of a book app instead: bigger words, more lines, scroll down. Flowing lines need each word's width, not each line's, so the page now measures every word group once at the base size; a printed line's width is the sum of its groups and the gaps, the same number as before. The pinch needs an anchor: the share of the page's height that was between the fingers is kept, and once the page reports its new height the scroll puts the same words back under them. The first try used the anchor in the same render as the new size, before the page had reported its new height, and landed at the top. Tried - Anchor applied when zoom changed → used the old height; fixed by waiting until the page reports a different height. - Restoring the saved scroll on the first height report → the first report is the screen's height before words are set , so it clamped to 0; fixed by waiting for a height past the screen's."
-    },
-    {
-      "id": "namaq/0032-a-branch-key-names-where-it-starts-not-what-its-leaf-shows",
-      "project": "namaq",
-      "slug": "0032-a-branch-key-names-where-it-starts-not-what-its-leaf-shows",
-      "href": "/records/namaq/0032-a-branch-key-names-where-it-starts-not-what-its-leaf-shows",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0032-a-branch-key-names-where-it-starts-not-what-its-leaf-shows",
+      "slug": "R0032-a-branch-key-names-where-it-starts-not-what-its-leaf-shows",
+      "href": "/records/namaq/R0032-a-branch-key-names-where-it-starts-not-what-its-leaf-shows",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0032-a-branch-key-names-where-it-starts-not-what-its-leaf-shows",
       "title": "A branch key names where it starts, not what its leaf shows",
       "summary": "Tree labels printed each branch's ayah key, so a leaf grown into the next ayah or surah showed text under the wrong ayah or surah name.",
       "disclosure": "open",
@@ -154,43 +127,17 @@
         "text-matching"
       ],
       "buildsOn": [
-        "namaq/0005-checks-that-dont-rederive-pass-the-wrong-inputs"
+        "namaq/R0005-checks-that-dont-rederive-pass-the-wrong-inputs"
       ],
       "variantOf": [],
       "text": "The owner saw «بسم الله الرحمن الرحيم ص والقرآن ذي الذكر» under «الصافات ١٨٢» on the الحمد لله رب العالمين tree. The tree was right: 37:182 and 1:2 are identical, so both grow into their next ayah until they split. The label was wrong: it printed the key, and the key is where the branch starts. The same was true inside a surah al-Fatiha 2's leaf reads ayah 3 , which is why the data test found thousands of nodes, not one. The test reads the text from the corpus rather than from the tree, so it would also catch a label that names the wrong ayah inside the right surah."
     },
     {
-      "id": "namaq/0032-a-hidden-box-still-holds-its-place",
+      "id": "namaq/R0033-a-reader-book-has-more-routes-than-the-dataset",
       "project": "namaq",
-      "slug": "0032-a-hidden-box-still-holds-its-place",
-      "href": "/records/namaq/0032-a-hidden-box-still-holds-its-place",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0032-a-hidden-box-still-holds-its-place",
-      "title": "A box hidden by opacity still holds its place, and lines drawn from layout reach it",
-      "summary": "The app's growth studio drew each branch's spine from the full layout, so lines ran down to boxes not grown yet; the fan now draws the spine only as far as the children shown.",
-      "disclosure": "open",
-      "sourceProject": "namaq",
-      "kind": "challenge",
-      "problem": "In the tree studio, a fan's children are laid out from the start and hidden with opacity. Each child's elbow carried its own stretch of the spine, so the first child shown drew a line toward siblings that were still invisible, and on the owner's phone the half-grown tree had lines running into empty space.",
-      "approach": "While any child of a fan is hidden, the elbows leave out their spine stretch and the fan draws one spine from the parent's line to the children shown, with the litSpine() helper the tap highlight already used. The lit (blue) spine and stub only count children already shown.",
-      "outcome": "solved",
-      "conditions": "Expo app, BranchTree.tsx Fan/Elbow/Stub, growth driven by growPlayer hidden ids, 2026-11-14.",
-      "evidence": "mobile/src/components/BranchTree.tsx; e2e/app/quran.spec.ts 'the studio grows a tree to its end'",
-      "implication": "When an animation hides parts of a laid-out view with opacity, anything drawn from that layout (spines, overlays, measured lines) must also be gated by what is shown, or it points at the hidden parts.",
-      "date": "2026-11-14",
-      "topics": [
-        "mobile",
-        "graph-ui"
-      ],
-      "buildsOn": [],
-      "variantOf": [],
-      "text": "The growth studio keeps the whole tree laid out so the camera never jumps, and fades boxes and connectors in by id. The connectors were split per child: every child's elbow drew half the spine toward each neighbour. Hiding a child's connector hid only its own elbow, so a shown child's half still reached into the hidden sibling's place. The lit path had the same shape of bug once the growing ayah lit its path: the blue spine went to children on the path that were not grown yet. Both now read the hidden set. Tried - First fix lit the spine from lit alone → review caught blue lines toward hidden children; gated by shown."
-    },
-    {
-      "id": "namaq/0033-a-reader-book-has-more-routes-than-the-dataset",
-      "project": "namaq",
-      "slug": "0033-a-reader-book-has-more-routes-than-the-dataset",
-      "href": "/records/namaq/0033-a-reader-book-has-more-routes-than-the-dataset",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0033-a-reader-book-has-more-routes-than-the-dataset",
+      "slug": "R0033-a-reader-book-has-more-routes-than-the-dataset",
+      "href": "/records/namaq/R0033-a-reader-book-has-more-routes-than-the-dataset",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0033-a-reader-book-has-more-routes-than-the-dataset",
       "title": "A reader book has more routes than the dataset",
       "summary": "Al-Nashr gives some riwayat a second reading from al-Tayyiba routes; checked against the Shatibiyya routes the dataset follows, four 'doubtful' qira'at entries were right and one correction added a reading too many.",
       "disclosure": "open",
@@ -208,17 +155,17 @@
         "source-extraction"
       ],
       "buildsOn": [
-        "namaq/0028-a-second-text-may-only-correct-what-it-can-see"
+        "namaq/R0028-a-second-text-may-only-correct-what-it-can-see"
       ],
       "variantOf": [],
       "text": "Al-Nashr collects every route Ibn al-Jazari accepted, so it often says a riwaya reads a word two ways. The dataset, like the King Fahd mushafs, follows one route per riwaya, the one in al-Shatibiyya or al-Durra. An audit that compares the two without naming that scope finds \"missing\" readings that are not missing. At 2:97 and 2:98 the dump wrongly put Shuba with Ibn Kathir. The first fix gave him both al-Nashr forms, جَبْرَئِيل al-Ulaymi and جَبْرَئِل Yahya ibn Adam . Al-Shatibiyya reads Shuba through Yahya ibn Adam «وَالْيَاءُ يَحْذِفُ شُعْبَةٌ» , and the King Fahd Shuba mushaf prints جَبۡرَئِلَ, so only that one stays. Tried - give Shuba both al-Nashr routes → a second reading the app's riwayat do not have - leave four entries \"doubtful\" pending a scope decision → the scope was already fixed by the riwayat list"
     },
     {
-      "id": "namaq/0034-a-dump-keyed-by-ayah-can-hold-pages-not-passages",
+      "id": "namaq/R0034-a-dump-keyed-by-ayah-can-hold-pages-not-passages",
       "project": "namaq",
-      "slug": "0034-a-dump-keyed-by-ayah-can-hold-pages-not-passages",
-      "href": "/records/namaq/0034-a-dump-keyed-by-ayah-can-hold-pages-not-passages",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0034-a-dump-keyed-by-ayah-can-hold-pages-not-passages",
+      "slug": "R0034-a-dump-keyed-by-ayah-can-hold-pages-not-passages",
+      "href": "/records/namaq/R0034-a-dump-keyed-by-ayah-can-hold-pages-not-passages",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0034-a-dump-keyed-by-ayah-can-hold-pages-not-passages",
       "title": "A tafsir dump keyed by ayah can hold book pages, not the passages that explain the ayah",
       "summary": "Quranpedia's al-Sa'di dump gives each ayah the page pieces its passage touches, so an ayah's text started with the passage before; the book had to be laid end to end and cut again at its own range markers.",
       "disclosure": "open",
@@ -240,11 +187,11 @@
       "text": "The handover's converter deduplicated the per-ayah content and treated each group as a passage. Two reviews found what that hid: al-Fatiha carried al-Baqara's heading, 2:11 opened on 2:10's commentary, 28:35 showed all of 28:1-51 under one header, and volume title pages sat after the last passage of each volume. The dump's schema calls the field content, but its unit is the printed page. Reading the book once, in page order, and cutting where al-Sa'di cut is the only grouping that is his. Tried - Dedupe each ayah's pieces and keep the dump's grouping → passages began mid-commentary and ranges were the dump's, not the book's. - Cut at markers but start a new surah when a range repeats → al-Sharh and al-Tin are both «\\{١ - ٨\\}» and merged; the basmala after the marker is the reliable sign. - Keep each marker's full range → ranges nested \\{١ - ٥١\\} then \\{٣٠ - ٥١\\} served two passages under one header."
     },
     {
-      "id": "namaq/0035-letting-go-of-a-shared-studio-closes-it",
+      "id": "namaq/R0035-letting-go-of-a-shared-studio-closes-it",
       "project": "namaq",
-      "slug": "0035-letting-go-of-a-shared-studio-closes-it",
-      "href": "/records/namaq/0035-letting-go-of-a-shared-studio-closes-it",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0035-letting-go-of-a-shared-studio-closes-it",
+      "slug": "R0035-letting-go-of-a-shared-studio-closes-it",
+      "href": "/records/namaq/R0035-letting-go-of-a-shared-studio-closes-it",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0035-letting-go-of-a-shared-studio-closes-it",
       "title": "Letting go of a shared studio to swap its target closes the studio",
       "summary": "The app's branches pager re-claimed the growth studio through an effect cleanup, so any change of what the studio plays went through 'no owner' and closed it; a switch inside the studio needs the target swapped in place.",
       "disclosure": "open",
@@ -265,11 +212,11 @@
       "text": "The first build of the switch flipped the matrix from its connections to the read-along and the studio vanished at once. Nothing in the switch closed it: the pager's effect cleanup released the studio, claimTarget saw its owner change from the branches tab to nobody and closed it, then the new claim saw nobody become the branches tab and closed it again. Releasing in the cleanup had been harmless only because every earlier re-run also meant \"a different tree\", where closing is wanted. Splitting the two meanings swap the target in place; close on a new piece keeps both behaviours. Tried - toggle the switch with the cleanup release in place → studio closed on every switch"
     },
     {
-      "id": "namaq/0036-a-video-that-copies-the-app-drifts-from-it",
+      "id": "namaq/R0036-a-video-that-copies-the-app-drifts-from-it",
       "project": "namaq",
-      "slug": "0036-a-video-that-copies-the-app-drifts-from-it",
-      "href": "/records/namaq/0036-a-video-that-copies-the-app-drifts-from-it",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0036-a-video-that-copies-the-app-drifts-from-it",
+      "slug": "R0036-a-video-that-copies-the-app-drifts-from-it",
+      "href": "/records/namaq/R0036-a-video-that-copies-the-app-drifts-from-it",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0036-a-video-that-copies-the-app-drifts-from-it",
       "title": "A video that redraws the app from its own constants drifts from the app",
       "summary": "The tree video drew boxes, lines and labels from numbers copied out of BranchTree, so every later change to the app left the video behind; it now takes each label's and line of words' place from the app's own layout.",
       "disclosure": "open",
@@ -291,11 +238,11 @@
       "text": "The owner put the app's studio beside a video frame and named four gaps: the path, the spacing, the node shapes and the font. All four came from the same cause: the recorder had its own idea of the tree. Tried - matching each constant by hand 753 → right on the day, wrong once the app changed"
     },
     {
-      "id": "namaq/0037-a-video-that-redraws-a-screen-drifts-from-it",
+      "id": "namaq/R0037-a-video-that-redraws-a-screen-drifts-from-it",
       "project": "namaq",
-      "slug": "0037-a-video-that-redraws-a-screen-drifts-from-it",
-      "href": "/records/namaq/0037-a-video-that-redraws-a-screen-drifts-from-it",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0037-a-video-that-redraws-a-screen-drifts-from-it",
+      "slug": "R0037-a-video-that-redraws-a-screen-drifts-from-it",
+      "href": "/records/namaq/R0037-a-video-that-redraws-a-screen-drifts-from-it",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0037-a-video-that-redraws-a-screen-drifts-from-it",
       "title": "A video that redraws a screen drifts from it",
       "summary": "The compare video drew its own version of the compare card in a canvas, so every later change to the app's card (marks, sizes, the read word, the story parts) left the video behind; it now draws from the same measures and the same layout pieces the app renders.",
       "disclosure": "open",
@@ -313,19 +260,19 @@
         "graph-ui"
       ],
       "buildsOn": [
-        "namaq/0031-a-card-that-redraws-a-feature-loses-its-behaviour"
+        "namaq/R0031-a-card-that-redraws-a-feature-loses-its-behaviour"
       ],
       "variantOf": [
-        "namaq/0036-a-video-that-copies-the-app-drifts-from-it"
+        "namaq/R0036-a-video-that-copies-the-app-drifts-from-it"
       ],
       "text": "The video's canvas cannot hold React Native views, so \"reuse the component\" here means reusing everything under the component: the measures, the colour rule and the code that decides what a side shows. Only the last step, turning a piece into pixels, is written twice once as views, once as canvas calls , and it is short. Recording the real screen instead capturing the rendered card per word would reuse the views themselves, but it needs a phone build to test and hundreds of captures per page video; it stays an option if the canvas drifts again. Tried - shrinking the text until a story card fits the frame → at 30 px a long story card still overflowed and the text was too small to read; scrolling with the reading replaced it"
     },
     {
-      "id": "namaq/0038-a-light-import-pulled-all-tree-data-into-the-first-frame",
+      "id": "namaq/R0038-a-light-import-pulled-all-tree-data-into-the-first-frame",
       "project": "namaq",
-      "slug": "0038-a-light-import-pulled-all-tree-data-into-the-first-frame",
-      "href": "/records/namaq/0038-a-light-import-pulled-all-tree-data-into-the-first-frame",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0038-a-light-import-pulled-all-tree-data-into-the-first-frame",
+      "slug": "R0038-a-light-import-pulled-all-tree-data-into-the-first-frame",
+      "href": "/records/namaq/R0038-a-light-import-pulled-all-tree-data-into-the-first-frame",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0038-a-light-import-pulled-all-tree-data-into-the-first-frame",
       "title": "A type import through settings pulled all tree data into the first frame",
       "summary": "The theme read settings, settings read branchList for one empty value, and branchList loaded trees.json and mutashabih.json, so even a loading screen waited for 12 MB of data.",
       "disclosure": "open",
@@ -346,37 +293,11 @@
       "text": "Metro evaluates a module when it is first required, and an ES import is a require at the top of the module, so one import of a small constant evaluates everything that constant's file imports. settings.ts needed only the empty branches-list value, but branchList.ts also builds the tree inventory, so the theme read by every screen, the loading screen included waited for trees.json, mutashabih.json and branchVerdicts.json. expo-router builds every screen of a navigator when the navigator mounts, which requires every route file, so each route file's imports load at launch whether or not the screen is opened. The route files now only require their screen inside a component; AppShell starts warmScreens after home is drawn so the first visit to a tab is still quick. Home's own data trees, mutashabih, branch verdicts, compare cards, mushaf words still loads at launch; splitting it needs the home feed to change how it picks its first cards. Tried - Metro inlineRequires → Expo turns it off on purpose because it ignores side effects the storage setup import and the splash call depend on order ; not used."
     },
     {
-      "id": "namaq/0038-a-tab-page-cannot-swipe-back",
+      "id": "namaq/R0039-one-to-many-compare-cards-reuse-link-ids",
       "project": "namaq",
-      "slug": "0038-a-tab-page-cannot-swipe-back",
-      "href": "/records/namaq/0038-a-tab-page-cannot-swipe-back",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0038-a-tab-page-cannot-swipe-back",
-      "title": "A tab page cannot swipe back",
-      "summary": "The Quran tools and the search were hidden tab routes with a back arrow, so iPhone's back swipe (a native stack gesture) never existed for them; putting each bar button's pages in a native stack, set right to left, gave the swipe from the right edge with the page before peeking under it.",
-      "disclosure": "open",
-      "sourceProject": "namaq",
-      "kind": "challenge",
-      "problem": "The owner asked for a back gesture. The pages people go back from (trees, compare, prophets, Tuhfa, the search) were tab routes, so a back arrow switched tabs and nothing could follow the finger or show the page underneath. The pages that were in the root stack (ayah, library, a prophet's story, quiz pages) did swipe back, but from the LEFT edge, against the back arrow on the right.",
-      "approach": "app/(tabs)/(quran) and app/(tabs)/(home) are native Stack groups (URLs unchanged, unstable_settings.initialRouteName keeps the hub or home under a tool opened from anywhere). expo-router's LocaleProvider direction=\"rtl\" at the root makes react-native-screens set the stacks' semanticContentAttribute to right to left, so the back swipe starts at the right edge and pages arrive from the left. fullScreenGestureEnabled is false, because on iOS 26 it defaults to the full-content pop that would fight the cards' own sideways swipes; the gesture-handler pans of the cards also leave the right 24 pt to the back swipe (hitSlop). The tab bar reads the open page from useSegments. toTab navigates withAnchor (initialRouteName only anchors a parsed URL, not an in-app navigate into a stack that has not been drawn), each Quran tool is dangerouslySingular so opening it again brings the one copy forward with its intent, home is reached by navigate then dismissAll (only from inside the tabs: from a page over them the pop would close the page just opened), and toTab only closes the root stack when a root page is in front, so a tree's compare goes back to the tree.",
-      "outcome": "solved",
-      "conditions": "expo-router ~58 (its own react-navigation fork), react-native-screens 4.30, iOS in Expo Go; Android keeps its system back. 2026-11-14.",
-      "evidence": "e2e/app/back.spec.ts; mobile/src/lib/stackOptions.ts; react-native-screens ios/RNSScreenStackHeaderConfig.mm applySemanticContentAttributeIfNeededToNavCtrl (applied even with the header hidden).",
-      "implication": "A page that has a back arrow belongs in a stack, not in the tab bar's hidden routes. A style direction: 'rtl' on a View does not reach native navigation; the navigator's locale direction does.",
-      "date": "2026-11-14",
-      "topics": [
-        "ui-rtl",
-        "ui-state"
-      ],
-      "buildsOn": [],
-      "variantOf": [],
-      "text": "The direction: 'rtl' style on the root view lays out rows right to left but never reaches UIKit, so the root stack still slid in from the right and swiped back from the left. react-native-screens reads the direction from the stack's header config, which native-stack fills from the navigation locale, and applies it even when the header is hidden. The web export cannot show the gesture; it checks the stacks back arrow one page back, the hub under a deep-linked tool, the Quran button returning to the open tool . The swipe itself needs a phone. Tried - reading the nested stack from the tab bar's state → the js-tabs bar gets a flattened state without the nested routes; useSegments has them - unstable_settings.initialRouteName alone → a tool opened from home before the Quran tab was ever drawn had no hub under it; navigate needs withAnchor - plain navigate to a tool already lower in the stack → a second copy was pushed and the hidden first copy took the intent; one copy per tool dangerouslySingular, the new name of getId fixes it - dismissTo '/' from another tab → did nothing; navigate then dismissAll goes home and drops the search"
-    },
-    {
-      "id": "namaq/0039-one-to-many-compare-cards-reuse-link-ids",
-      "project": "namaq",
-      "slug": "0039-one-to-many-compare-cards-reuse-link-ids",
-      "href": "/records/namaq/0039-one-to-many-compare-cards-reuse-link-ids",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0039-one-to-many-compare-cards-reuse-link-ids",
+      "slug": "R0039-one-to-many-compare-cards-reuse-link-ids",
+      "href": "/records/namaq/R0039-one-to-many-compare-cards-reuse-link-ids",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0039-one-to-many-compare-cards-reuse-link-ids",
       "title": "One-to-many compare cards reuse link ids",
       "summary": "Finding which compare-card links pair words written differently, across all partners of a one-to-many card at once, coloured an exact pair amber, because every partner numbers its links from the same ids; counting only the partner picked fixed it.",
       "disclosure": "open",
@@ -398,11 +319,90 @@
       "text": "A second review caught it; the first test gave each partner distinct link ids, so it passed."
     },
     {
-      "id": "namaq/0028-a-second-text-may-only-correct-what-it-can-see",
+      "id": "namaq/R0045-a-scaled-page-is-a-picture-not-bigger-text",
       "project": "namaq",
-      "slug": "0028-a-second-text-may-only-correct-what-it-can-see",
-      "href": "/records/namaq/0028-a-second-text-may-only-correct-what-it-can-see",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0028-a-second-text-may-only-correct-what-it-can-see",
+      "slug": "R0045-a-scaled-page-is-a-picture-not-bigger-text",
+      "href": "/records/namaq/R0045-a-scaled-page-is-a-picture-not-bigger-text",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0045-a-scaled-page-is-a-picture-not-bigger-text",
+      "title": "Zooming a page with a scale transform enlarges a picture, not the text",
+      "summary": "The mushaf reader zoomed by drawing the page bigger and scaling the view; on iPhone the text came out blurry and cut off at the sides, so zoom became a font size with the words wrapped again and the page scrolled down.",
+      "disclosure": "open",
+      "sourceProject": "namaq",
+      "kind": "challenge",
+      "problem": "Pinch zoom in the app's reader (#664) drew the page at width times zoom inside a view scaled back down, then scaled that view up again. On the owner's iPhone the text was blurry and pixelated, and the lines ran past both edges of the screen, so reading meant dragging sideways.",
+      "approach": "Make zoom a text size. At 1 the printed page stays as it is. Above 1 each word group is measured once at a base size, the page's words are broken into new lines at the screen's width (breakLines in mobile/src/lib/pageZoom.ts), every line except a paragraph's last is spread edge to edge, and the page grows taller inside a vertical scroll view. While the fingers move, a scale transform only previews the new size; when they lift, the page is set again at that size. On the website, the lines become inline text with text-align: justify in flow mode, and a two-finger touch or ctrl+wheel sets the size.",
+      "outcome": "solved",
+      "conditions": "Expo app on iOS with Reanimated transforms on a view of nested Text; Next.js reader on phone browsers. Web-export screenshots don't show the blur: transforms there re-rasterize text sharply.",
+      "evidence": "mobile/src/components/ReaderPager.tsx, MushafPageView.tsx (rows), Reader.tsx (scroll, anchor); src/app/quran/read/MushafPage.tsx fit(), Mushaf.module.css [data-flow]",
+      "implication": "Don't zoom text with a transform past the gesture itself: change the font size and lay the text out again. Check anything that measures positions (highlight bands, write boxes, kept scroll) at the new layout, after it is drawn, not in the same render.",
+      "date": "2026-11-14",
+      "topics": [
+        "mobile"
+      ],
+      "buildsOn": [
+        "namaq/R0030-a-fixed-height-box-clips-ios-text-mid-word"
+      ],
+      "variantOf": [],
+      "text": "The old zoom kept the page's 15 lines and made everything bigger, which is what a picture viewer does. iOS draws text once into a layer and a scale transform then stretches those pixels, so the letters blurred. The owner asked for the behaviour of a book app instead: bigger words, more lines, scroll down. Flowing lines need each word's width, not each line's, so the page now measures every word group once at the base size; a printed line's width is the sum of its groups and the gaps, the same number as before. The pinch needs an anchor: the share of the page's height that was between the fingers is kept, and once the page reports its new height the scroll puts the same words back under them. The first try used the anchor in the same render as the new size, before the page had reported its new height, and landed at the top. Tried - Anchor applied when zoom changed → used the old height; fixed by waiting until the page reports a different height. - Restoring the saved scroll on the first height report → the first report is the screen's height before words are set , so it clamped to 0; fixed by waiting for a height past the screen's."
+    },
+    {
+      "id": "namaq/R0046-a-hidden-box-still-holds-its-place",
+      "project": "namaq",
+      "slug": "R0046-a-hidden-box-still-holds-its-place",
+      "href": "/records/namaq/R0046-a-hidden-box-still-holds-its-place",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0046-a-hidden-box-still-holds-its-place",
+      "title": "A box hidden by opacity still holds its place, and lines drawn from layout reach it",
+      "summary": "The app's growth studio drew each branch's spine from the full layout, so lines ran down to boxes not grown yet; the fan now draws the spine only as far as the children shown.",
+      "disclosure": "open",
+      "sourceProject": "namaq",
+      "kind": "challenge",
+      "problem": "In the tree studio, a fan's children are laid out from the start and hidden with opacity. Each child's elbow carried its own stretch of the spine, so the first child shown drew a line toward siblings that were still invisible, and on the owner's phone the half-grown tree had lines running into empty space.",
+      "approach": "While any child of a fan is hidden, the elbows leave out their spine stretch and the fan draws one spine from the parent's line to the children shown, with the litSpine() helper the tap highlight already used. The lit (blue) spine and stub only count children already shown.",
+      "outcome": "solved",
+      "conditions": "Expo app, BranchTree.tsx Fan/Elbow/Stub, growth driven by growPlayer hidden ids, 2026-11-14.",
+      "evidence": "mobile/src/components/BranchTree.tsx; e2e/app/quran.spec.ts 'the studio grows a tree to its end'",
+      "implication": "When an animation hides parts of a laid-out view with opacity, anything drawn from that layout (spines, overlays, measured lines) must also be gated by what is shown, or it points at the hidden parts.",
+      "date": "2026-11-14",
+      "topics": [
+        "mobile",
+        "graph-ui"
+      ],
+      "buildsOn": [],
+      "variantOf": [],
+      "text": "The growth studio keeps the whole tree laid out so the camera never jumps, and fades boxes and connectors in by id. The connectors were split per child: every child's elbow drew half the spine toward each neighbour. Hiding a child's connector hid only its own elbow, so a shown child's half still reached into the hidden sibling's place. The lit path had the same shape of bug once the growing ayah lit its path: the blue spine went to children on the path that were not grown yet. Both now read the hidden set. Tried - First fix lit the spine from lit alone → review caught blue lines toward hidden children; gated by shown."
+    },
+    {
+      "id": "namaq/R0047-a-tab-page-cannot-swipe-back",
+      "project": "namaq",
+      "slug": "R0047-a-tab-page-cannot-swipe-back",
+      "href": "/records/namaq/R0047-a-tab-page-cannot-swipe-back",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0047-a-tab-page-cannot-swipe-back",
+      "title": "A tab page cannot swipe back",
+      "summary": "The Quran tools and the search were hidden tab routes with a back arrow, so iPhone's back swipe (a native stack gesture) never existed for them; putting each bar button's pages in a native stack, set right to left, gave the swipe from the right edge with the page before peeking under it.",
+      "disclosure": "open",
+      "sourceProject": "namaq",
+      "kind": "challenge",
+      "problem": "The owner asked for a back gesture. The pages people go back from (trees, compare, prophets, Tuhfa, the search) were tab routes, so a back arrow switched tabs and nothing could follow the finger or show the page underneath. The pages that were in the root stack (ayah, library, a prophet's story, quiz pages) did swipe back, but from the LEFT edge, against the back arrow on the right.",
+      "approach": "app/(tabs)/(quran) and app/(tabs)/(home) are native Stack groups (URLs unchanged, unstable_settings.initialRouteName keeps the hub or home under a tool opened from anywhere). expo-router's LocaleProvider direction=\"rtl\" at the root makes react-native-screens set the stacks' semanticContentAttribute to right to left, so the back swipe starts at the right edge and pages arrive from the left. fullScreenGestureEnabled is false, because on iOS 26 it defaults to the full-content pop that would fight the cards' own sideways swipes; the gesture-handler pans of the cards also leave the right 24 pt to the back swipe (hitSlop). The tab bar reads the open page from useSegments. toTab navigates withAnchor (initialRouteName only anchors a parsed URL, not an in-app navigate into a stack that has not been drawn), each Quran tool is dangerouslySingular so opening it again brings the one copy forward with its intent, home is reached by navigate then dismissAll (only from inside the tabs: from a page over them the pop would close the page just opened), and toTab only closes the root stack when a root page is in front, so a tree's compare goes back to the tree.",
+      "outcome": "solved",
+      "conditions": "expo-router ~58 (its own react-navigation fork), react-native-screens 4.30, iOS in Expo Go; Android keeps its system back. 2026-11-14.",
+      "evidence": "e2e/app/back.spec.ts; mobile/src/lib/stackOptions.ts; react-native-screens ios/RNSScreenStackHeaderConfig.mm applySemanticContentAttributeIfNeededToNavCtrl (applied even with the header hidden).",
+      "implication": "A page that has a back arrow belongs in a stack, not in the tab bar's hidden routes. A style direction: 'rtl' on a View does not reach native navigation; the navigator's locale direction does.",
+      "date": "2026-11-14",
+      "topics": [
+        "ui-rtl",
+        "ui-state"
+      ],
+      "buildsOn": [],
+      "variantOf": [],
+      "text": "The direction: 'rtl' style on the root view lays out rows right to left but never reaches UIKit, so the root stack still slid in from the right and swiped back from the left. react-native-screens reads the direction from the stack's header config, which native-stack fills from the navigation locale, and applies it even when the header is hidden. The web export cannot show the gesture; it checks the stacks back arrow one page back, the hub under a deep-linked tool, the Quran button returning to the open tool . The swipe itself needs a phone. Tried - reading the nested stack from the tab bar's state → the js-tabs bar gets a flattened state without the nested routes; useSegments has them - unstable_settings.initialRouteName alone → a tool opened from home before the Quran tab was ever drawn had no hub under it; navigate needs withAnchor - plain navigate to a tool already lower in the stack → a second copy was pushed and the hidden first copy took the intent; one copy per tool dangerouslySingular, the new name of getId fixes it - dismissTo '/' from another tab → did nothing; navigate then dismissAll goes home and drops the search"
+    },
+    {
+      "id": "namaq/R0028-a-second-text-may-only-correct-what-it-can-see",
+      "project": "namaq",
+      "slug": "R0028-a-second-text-may-only-correct-what-it-can-see",
+      "href": "/records/namaq/R0028-a-second-text-may-only-correct-what-it-can-see",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0028-a-second-text-may-only-correct-what-it-can-see",
       "title": "A second text may only correct what it can see",
       "summary": "The King Fahd riwaya texts fixed real slips in the qira'at dump, but they also moved readings their spelling cannot show, so they now correct only a lone riwaya back to Hafs.",
       "disclosure": "open",
@@ -421,45 +421,17 @@
         "evidence-model"
       ],
       "buildsOn": [
-        "namaq/0015-two-sources-that-disagree-are-not-an-error"
+        "namaq/R0015-two-sources-that-disagree-are-not-an-error"
       ],
       "variantOf": [],
       "text": "The dump names who reads each word; the King Fahd texts print what seven riwayat actually read. A first pass let the texts overrule the dump wherever a riwaya's text matched another group's reading better than its own. It fixed real slips, but it also moved Qunbul's سراط the text marks the sin with a small letter over the sad , riwayat with tashil between two hamzas a dot the letter comparison drops and al-Bazzi's doubled ta a mark the texts place differently . Each of those looked like a disagreement only because the second source writes the reading in a way the comparison cannot read. The correction is now narrow: a riwaya the dump sets apart on its own, whose own reading does not occur in its King Fahd text, and whose text reads exactly Hafs's word, goes back to the Hafs group. Every move is listed in the build's review file. Tried - the texts overrule any group → Qunbul, al-Bazzi and the tashil riwayat moved wrongly - a separate check script that only reports → 254 disagreements, almost all spelling, too many to review"
     },
     {
-      "id": "namaq/0029-a-pair-must-be-named-in-the-quoted-sentence",
+      "id": "namaq/R0029-questions-in-one-quiz-can-answer-each-other",
       "project": "namaq",
-      "slug": "0029-a-pair-must-be-named-in-the-quoted-sentence",
-      "href": "/records/namaq/0029-a-pair-must-be-named-in-the-quoted-sentence",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0029-a-pair-must-be-named-in-the-quoted-sentence",
-      "title": "A pair must be named in the quoted sentence, not the one next to it",
-      "summary": "Ayah pairs shown under a book quote came from sentences around the quote, so the page showed links the quote did not make.",
-      "disclosure": "open",
-      "sourceProject": "namaq",
-      "kind": "challenge",
-      "problem": "A book passage on why one surah follows another names ayat in several sentences. We quoted one sentence and showed ayah pairs taken from the others, so the card's quote did not support its pairs.",
-      "approach": "Check every pair against the displayed quote only. Widen the quote with «…» cuts until it names both ayat, or drop the pair. Match every quote to its cited page in the turath.io text of the book, fuzzily only where an obvious typo of the digital text was corrected.",
-      "outcome": "solved",
-      "conditions": "/quran/order: 74 aims from al-Biqa'i and 73 links from al-Suyuti and Ibn al-Zubayr, from Shamela books 9098, 1404, 9992 and 1388. The review found 10 links whose pairs were named outside the quote.",
-      "evidence": "Namaq PR for /quran/order (commits 1bcae6d and 5fc5977); shared/quran/surahOrder.ts; docs/plans/quran-order-sources.md.",
-      "implication": "When a citation carries derived items (pairs, chips, colours), check each item against the exact text shown, not against the page or passage it came from.",
-      "date": "2026-11-13",
-      "topics": [
-        "evidence-model",
-        "source-extraction"
-      ],
-      "buildsOn": [
-        "namaq/0026-a-citation-does-not-authorize-every-chip"
-      ],
-      "variantOf": [],
-      "text": "Al-Suyuti often makes a link in three steps: it names an ayah at the end of one surah, names another at the start of the next, then concludes in a short sentence. The short conclusion read best on a card, so we quoted it and showed the ayat from the earlier sentences. An independent review against the book's pages found that the pairs on 10 of the 73 links were not in the quoted words. The fix keeps the earlier sentences, with «…» marking each cut, so the reader sees the book name both ayat. The quotes were also checked by script against their cited pages: the text was normalized diacritics, hamza forms and inline references removed , and fuzzy matching was used only for corrected typos such as «الحدسيد» to «الحديد». Tried - Quoting the concluding sentence and taking the pairs from the same page → the quotes were accurate, but the pairs were not supported by them."
-    },
-    {
-      "id": "namaq/0029-questions-in-one-quiz-can-answer-each-other",
-      "project": "namaq",
-      "slug": "0029-questions-in-one-quiz-can-answer-each-other",
-      "href": "/records/namaq/0029-questions-in-one-quiz-can-answer-each-other",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0029-questions-in-one-quiz-can-answer-each-other",
+      "slug": "R0029-questions-in-one-quiz-can-answer-each-other",
+      "href": "/records/namaq/R0029-questions-in-one-quiz-can-answer-each-other",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0029-questions-in-one-quiz-can-answer-each-other",
       "title": "Questions mixed into one quiz can answer each other",
       "summary": "Each question kind hid its own answer, but a recite question naming «يس ٢٠» gave away a which-surah question on the same ayah, and a party question's key named the surah.",
       "disclosure": "open",
@@ -481,11 +453,11 @@
       "text": "The review found that 26 of 50 mixed quizzes over surah 36 asked the same ayah twice. The recite question said «يس ٢٠», and a which-surah question on the same ayah followed. Each kind on its own was right. In a party, the answer fields were blanked before the reveal, but the key SURAH:2:34 went to every phone with the question."
     },
     {
-      "id": "namaq/0030-a-fixed-height-box-clips-ios-text-mid-word",
+      "id": "namaq/R0030-a-fixed-height-box-clips-ios-text-mid-word",
       "project": "namaq",
-      "slug": "0030-a-fixed-height-box-clips-ios-text-mid-word",
-      "href": "/records/namaq/0030-a-fixed-height-box-clips-ios-text-mid-word",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0030-a-fixed-height-box-clips-ios-text-mid-word",
+      "slug": "R0030-a-fixed-height-box-clips-ios-text-mid-word",
+      "href": "/records/namaq/R0030-a-fixed-height-box-clips-ios-text-mid-word",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0030-a-fixed-height-box-clips-ios-text-mid-word",
       "title": "A fixed-height box makes iOS cram the rest of a text onto its last line",
       "summary": "Quran text in a fixed-height, overflow-hidden box showed two lines on iPhone, the second holding all the remaining words and clipped mid-word; numberOfLines and a box sized to its content fix it.",
       "disclosure": "open",
@@ -506,11 +478,11 @@
       "text": "Without numberOfLines, iOS lays text out with clipping line breaks inside whatever height the text view gets. When that height is short of the text, the last line that fits takes every remaining word on one line, and the box clips it. With a justified rtl line, what showed was the end of that long line with a word cut at the right edge, and the space for a third line stayed empty. numberOfLines makes React Native wrap by words, stop at the given line, and end it with an ellipsis, and the box then sizes itself to those lines. Tried - Checked the app's web export → three lines and a fade, no clipping; the bug only shows on the phone. - Fix checked in the web export and the site at phone size, light and dark; not yet confirmed on the iPhone when written."
     },
     {
-      "id": "namaq/0031-a-card-that-redraws-a-feature-loses-its-behaviour",
+      "id": "namaq/R0031-a-card-that-redraws-a-feature-loses-its-behaviour",
       "project": "namaq",
-      "slug": "0031-a-card-that-redraws-a-feature-loses-its-behaviour",
-      "href": "/records/namaq/0031-a-card-that-redraws-a-feature-loses-its-behaviour",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0031-a-card-that-redraws-a-feature-loses-its-behaviour",
+      "slug": "R0031-a-card-that-redraws-a-feature-loses-its-behaviour",
+      "href": "/records/namaq/R0031-a-card-that-redraws-a-feature-loses-its-behaviour",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0031-a-card-that-redraws-a-feature-loses-its-behaviour",
       "title": "A card that redraws a feature loses everything the feature does",
       "summary": "The home feed's tree, recall and pair cards were drawn again from the data, so none of them zoomed, took typing or opened where it should; rebuilt as wrappers around the real components.",
       "disclosure": "open",
@@ -528,17 +500,45 @@
         "graph-ui"
       ],
       "buildsOn": [
-        "namaq/0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own"
+        "namaq/R0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own"
       ],
       "variantOf": [],
       "text": "The home feed was built as a social-style page with its own post cards. Each post took the feature's data and drew it again: the tree card put BranchTree in a sideways ScrollView , wrapped it in a Pressable and turned its pointer events off, so it could not zoom, pan, light a path or switch trees, and the press fought the page's scroll. The recall card drew a frame per hidden word with no field behind it. The pair card drew both ayat as text. All three passed review and screenshots, because a screenshot only shows how a card looks, not what it does. The fix was to delete the copies and render the real components. Each component needed a small prop for its new place. The branches pager must not overwrite the tab's saved place or claim its studio, and on the home page an unzoomed tree must leave vertical drags to the page. The reader's write mode kept its typing rules inline, so they moved into a hook that the reader and the card both call. Opening a tree also hit a separate bug. change on the branches tab blanks the list and then sets the list again. When the new list was the same object the shared empty list , the effect that rebuilds the trees did not run, and the tab showed the spinner forever. Anything that opened a tree into the default list could hit it. Tried - Fix each card's symptom a pan here, an input there → stopped by the owner: every symptom came from the cards being copies."
     },
     {
-      "id": "namaq/0025-filtered-identities-need-the-original-selection",
+      "id": "namaq/R0044-a-pair-must-be-named-in-the-quoted-sentence",
       "project": "namaq",
-      "slug": "0025-filtered-identities-need-the-original-selection",
-      "href": "/records/namaq/0025-filtered-identities-need-the-original-selection",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0025-filtered-identities-need-the-original-selection",
+      "slug": "R0044-a-pair-must-be-named-in-the-quoted-sentence",
+      "href": "/records/namaq/R0044-a-pair-must-be-named-in-the-quoted-sentence",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0044-a-pair-must-be-named-in-the-quoted-sentence",
+      "title": "A pair must be named in the quoted sentence, not the one next to it",
+      "summary": "Ayah pairs shown under a book quote came from sentences around the quote, so the page showed links the quote did not make.",
+      "disclosure": "open",
+      "sourceProject": "namaq",
+      "kind": "challenge",
+      "problem": "A book passage on why one surah follows another names ayat in several sentences. We quoted one sentence and showed ayah pairs taken from the others, so the card's quote did not support its pairs.",
+      "approach": "Check every pair against the displayed quote only. Widen the quote with «…» cuts until it names both ayat, or drop the pair. Match every quote to its cited page in the turath.io text of the book, fuzzily only where an obvious typo of the digital text was corrected.",
+      "outcome": "solved",
+      "conditions": "/quran/order: 74 aims from al-Biqa'i and 73 links from al-Suyuti and Ibn al-Zubayr, from Shamela books 9098, 1404, 9992 and 1388. The review found 10 links whose pairs were named outside the quote.",
+      "evidence": "Namaq PR for /quran/order (commits 1bcae6d and 5fc5977); shared/quran/surahOrder.ts; docs/plans/quran-order-sources.md.",
+      "implication": "When a citation carries derived items (pairs, chips, colours), check each item against the exact text shown, not against the page or passage it came from.",
+      "date": "2026-11-13",
+      "topics": [
+        "evidence-model",
+        "source-extraction"
+      ],
+      "buildsOn": [
+        "namaq/R0026-a-citation-does-not-authorize-every-chip"
+      ],
+      "variantOf": [],
+      "text": "Al-Suyuti often makes a link in three steps: it names an ayah at the end of one surah, names another at the start of the next, then concludes in a short sentence. The short conclusion read best on a card, so we quoted it and showed the ayat from the earlier sentences. An independent review against the book's pages found that the pairs on 10 of the 73 links were not in the quoted words. The fix keeps the earlier sentences, with «…» marking each cut, so the reader sees the book name both ayat. The quotes were also checked by script against their cited pages: the text was normalized diacritics, hamza forms and inline references removed , and fuzzy matching was used only for corrected typos such as «الحدسيد» to «الحديد». Tried - Quoting the concluding sentence and taking the pairs from the same page → the quotes were accurate, but the pairs were not supported by them."
+    },
+    {
+      "id": "namaq/R0025-filtered-identities-need-the-original-selection",
+      "project": "namaq",
+      "slug": "R0025-filtered-identities-need-the-original-selection",
+      "href": "/records/namaq/R0025-filtered-identities-need-the-original-selection",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0025-filtered-identities-need-the-original-selection",
       "title": "Filtered identities need the original selection",
       "summary": "Autocomplete hashed filtered passages that the full-corpus resolver could not find.",
       "disclosure": "open",
@@ -557,18 +557,18 @@
         "ui-state"
       ],
       "buildsOn": [
-        "namaq/0021-absorbing-a-phrase-must-preserve-its-entry-points"
+        "namaq/R0021-absorbing-a-phrase-must-preserve-its-entry-points"
       ],
       "lesson": "text-to-evidence/0012-evidence-belongs-to-the-selection",
       "variantOf": [],
       "text": "The page resolved tree IDs against the full corpus, but autocomplete rebuilt phrase trees inside the juz range and hashed their reduced membership. Independent review reproduced 232 unresolved IDs among 298 juz-one candidates. The shared inventory now assigns the ID from the original word selections, then prunes occurrences for the current scope. The displayed shared phrase can expand after filtering without changing the comparison identity. Saved-only browsing also intersects the eligible inventory; a direct old bookmark URL remains a separate compatibility path. Evidence comes from Namaq PR 524 https://github.com/msskzx/namaq/pull/524 and PR 525 https://github.com/msskzx/namaq/pull/525 . src/lib/quran/branchInventory.ts owns scoped inventory eligibility; src/lib/quran/mutashabih/evidence.ts scopes citations; src/app/quran/compare/CompareView.test.tsx independently checks rendered passage coverage. The implication is to check the final visible selection, including its evidence, identity and initially displayed text, after every scope transformation."
     },
     {
-      "id": "namaq/0026-a-citation-does-not-authorize-every-chip",
+      "id": "namaq/R0026-a-citation-does-not-authorize-every-chip",
       "project": "namaq",
-      "slug": "0026-a-citation-does-not-authorize-every-chip",
-      "href": "/records/namaq/0026-a-citation-does-not-authorize-every-chip",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0026-a-citation-does-not-authorize-every-chip",
+      "slug": "R0026-a-citation-does-not-authorize-every-chip",
+      "href": "/records/namaq/R0026-a-citation-does-not-authorize-every-chip",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0026-a-citation-does-not-authorize-every-chip",
       "title": "A citation does not authorize every chip",
       "summary": "A valid source comparison still carried an incorrect singular/plural label and spread chips to uncited members.",
       "disclosure": "open",
@@ -587,18 +587,18 @@
         "text-matching"
       ],
       "buildsOn": [
-        "namaq/0023-a-pairwise-match-can-change-after-cropping"
+        "namaq/R0023-a-pairwise-match-can-change-after-cropping"
       ],
       "lesson": "text-to-evidence/0012-evidence-belongs-to-the-selection",
       "variantOf": [],
       "text": "The خطاياكم / خطيئاتكم comparison had book evidence but was labelled جمع وإفراد. Source support for comparing the words did not support that label: both forms are plural. The tag was removed. Another group carried a citation for 2:129 and 2:151 plus uncited members 3:164 and 62:2. Filtering to those latter members previously hid the citation while leaving its chip and example. Evidence now carries the exact selections and is scoped before chips, connectors or the book-only filter are computed. Evidence comes from Namaq PR 524 https://github.com/msskzx/namaq/pull/524 and PR 525 https://github.com/msskzx/namaq/pull/525 . src/lib/quran/branchInventory.ts owns scoped inventory eligibility; src/lib/quran/mutashabih/evidence.ts scopes citations; src/app/quran/compare/CompareView.test.tsx independently checks rendered passage coverage. The implication is to check the final visible selection, including its evidence, identity and initially displayed text, after every scope transformation."
     },
     {
-      "id": "namaq/0027-rendered-context-needs-coverage-checks",
+      "id": "namaq/R0027-rendered-context-needs-coverage-checks",
       "project": "namaq",
-      "slug": "0027-rendered-context-needs-coverage-checks",
-      "href": "/records/namaq/0027-rendered-context-needs-coverage-checks",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0027-rendered-context-needs-coverage-checks",
+      "slug": "R0027-rendered-context-needs-coverage-checks",
+      "href": "/records/namaq/R0027-rendered-context-needs-coverage-checks",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0027-rendered-context-needs-coverage-checks",
       "title": "Rendered context needs coverage checks",
       "summary": "Every selected ayah existed in computed rows, but most were initially hidden in one curated comparison.",
       "disclosure": "open",
@@ -617,18 +617,18 @@
         "ui-state"
       ],
       "buildsOn": [
-        "namaq/0005-checks-that-dont-rederive-pass-the-wrong-inputs"
+        "namaq/R0005-checks-that-dont-rederive-pass-the-wrong-inputs"
       ],
       "lesson": "text-to-evidence/0012-evidence-belongs-to-the-selection",
       "variantOf": [],
       "text": "The existing matcher already retained every selected ayah in either a matched block or an unmatched context row. That did not make the complete passage visible. Its context rows started collapsed, so the Salih selection initially exposed only one of nineteen ayat on the second side. Curated mode now opens the context and reuses the same renderer. Tests derive each expected ayah and reference from the corpus rather than trusting the aligner row counts. The interface calls the algorithmic links lexical matches because shared words can connect different narrative moments. Evidence comes from Namaq PR 524 https://github.com/msskzx/namaq/pull/524 and PR 525 https://github.com/msskzx/namaq/pull/525 . src/lib/quran/branchInventory.ts owns scoped inventory eligibility; src/lib/quran/mutashabih/evidence.ts scopes citations; src/app/quran/compare/CompareView.test.tsx independently checks rendered passage coverage. The implication is to check the final visible selection, including its evidence, identity and initially displayed text, after every scope transformation."
     },
     {
-      "id": "namaq/0022-shared-forms-do-not-pair-word-occurrences",
+      "id": "namaq/R0022-shared-forms-do-not-pair-word-occurrences",
       "project": "namaq",
-      "slug": "0022-shared-forms-do-not-pair-word-occurrences",
-      "href": "/records/namaq/0022-shared-forms-do-not-pair-word-occurrences",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0022-shared-forms-do-not-pair-word-occurrences",
+      "slug": "R0022-shared-forms-do-not-pair-word-occurrences",
+      "href": "/records/namaq/R0022-shared-forms-do-not-pair-word-occurrences",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0022-shared-forms-do-not-pair-word-occurrences",
       "title": "Shared forms do not pair repeated word occurrences",
       "summary": "A repeated ما inherited another occurrence's exact match, while similarity-search keys omitted the preposition needed for مِنْ and مِنْهَا.",
       "disclosure": "open",
@@ -647,19 +647,19 @@
         "ui-state"
       ],
       "buildsOn": [
-        "namaq/0019-fixing-the-example-broke-the-ayah-next-door",
-        "namaq/0021-absorbing-a-phrase-must-preserve-its-entry-points"
+        "namaq/R0019-fixing-the-example-broke-the-ayah-next-door",
+        "namaq/R0021-absorbing-a-phrase-must-preserve-its-entry-points"
       ],
-      "variantOf": [],
       "lesson": "text-to-evidence/0010-comparing-word-occurrences",
+      "variantOf": [],
       "text": "In 2:170 and 31:21, the first ما pair agreed, but the second pair differed in its marks. The matcher collected every form under the shared key and used that collection to classify each occurrence. The first pair's shared form therefore made the second occurrence in 2:170 look exact. Selecting concrete occurrences and comparing their corresponding forms made the second pair purple on both sides. The other report crossed a different boundary. The similarity-search keys intentionally omitted prepositions and classified حيث differently by part of speech. Full STEM metadata was already available in the tree inventory. Reusing it paired مِنْ with مِنْهَا by lemma and recognized حَيْثُ as exact. The legend now says “Same lemma or root.” Independent review also found that a subtree link dropped an explicit tree override above a saved matrix default. A page regression followed the generated link before the fix, then verified that the destination stayed a tree. The second review found no further defects. Evidence is Namaq PR 512 https://github.com/msskzx/namaq/pull/512 , src/lib/quran/ayahContext.test.ts and src/app/quran/branches/page.test.tsx. The full inventory test checks equal exact and lemma/root counts and disjoint, in-range marks. All 3,502 tests passed with two workers; the production build, lint and TypeScript checks passed too. The implication is to distinguish a search index's selection policy from a comparison's evidence needs. An exact match belongs to a tuple of occurrences, not to a word key's collection of possible forms."
     },
     {
-      "id": "namaq/0023-a-pairwise-match-can-change-after-cropping",
+      "id": "namaq/R0023-a-pairwise-match-can-change-after-cropping",
       "project": "namaq",
-      "slug": "0023-a-pairwise-match-can-change-after-cropping",
-      "href": "/records/namaq/0023-a-pairwise-match-can-change-after-cropping",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0023-a-pairwise-match-can-change-after-cropping",
+      "slug": "R0023-a-pairwise-match-can-change-after-cropping",
+      "href": "/records/namaq/R0023-a-pairwise-match-can-change-after-cropping",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0023-a-pairwise-match-can-change-after-cropping",
       "title": "A pairwise match can change after cropping",
       "summary": "Candidate pairs passed the matching policy, but selecting shorter spans required checking those exact spans again.",
       "disclosure": "open",
@@ -678,18 +678,18 @@
         "evidence-model"
       ],
       "buildsOn": [
-        "namaq/0021-absorbing-a-phrase-must-preserve-its-entry-points",
-        "namaq/0022-shared-forms-do-not-pair-word-occurrences"
+        "namaq/R0021-absorbing-a-phrase-must-preserve-its-entry-points",
+        "namaq/R0022-shared-forms-do-not-pair-word-occurrences"
       ],
       "variantOf": [],
       "text": "The new comparison inventory first compared complete ayat and built groups whose members all matched one another. It then chose shorter word spans for the card. Those choices can remove different parts of different ayat, so the earlier pairwise result does not establish that the displayed spans still meet the same policy. The builder now checks every cropped pair and falls back to qualifying pairs when a larger group loses that property. Review found a related denominator error. A short shared phrase could score one when measured against itself, putting it ahead of nearly identical complete ayat in “closest first.” The final score uses whole-ayah coverage across every pair. The 2:4/4:162 group scores about 0.346, while 2:48/2:123 scores about 0.895. The selected spans still decide what to compare and highlight. Evidence comes from Namaq PR 514 https://github.com/msskzx/namaq/pull/514 , src/lib/quran/mutashabih/engine.ts and src/lib/quran/mutashabih/engine.test.ts at commit 0daf6adeb6908032a3212987293853c73661aa0b. Tests cover the final published word spans and compare a short shared phrase against a near-complete parallel. The invariant belongs to the final representation. Ranking also needs its own measure when the UI asks how much of a complete item agrees."
     },
     {
-      "id": "namaq/0024-a-filter-draft-must-outlive-its-pending-url",
+      "id": "namaq/R0024-a-filter-draft-must-outlive-its-pending-url",
       "project": "namaq",
-      "slug": "0024-a-filter-draft-must-outlive-its-pending-url",
-      "href": "/records/namaq/0024-a-filter-draft-must-outlive-its-pending-url",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0024-a-filter-draft-must-outlive-its-pending-url",
+      "slug": "R0024-a-filter-draft-must-outlive-its-pending-url",
+      "href": "/records/namaq/R0024-a-filter-draft-must-outlive-its-pending-url",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0024-a-filter-draft-must-outlive-its-pending-url",
       "title": "A filter draft must outlive its pending URL",
       "summary": "Rapid filter changes lost a picked value, and a partial fix restored a cleared value from the old address.",
       "disclosure": "open",
@@ -707,17 +707,17 @@
         "ui-state"
       ],
       "buildsOn": [
-        "distillate/0005-a-mock-router-too-fast-to-show-a-race"
+        "distillate/R0005-a-mock-router-too-fast-to-show-a-race"
       ],
       "variantOf": [],
       "text": "Picking a second surah before the first route finished could lose the first pick. The optimistic state reverted before the server returned the updated filter props. A ref holding the latest complete draft kept both selections, and an older response was ignored until the returned filters matched that draft. Browser history changes deliberately restore the draft from the new address. The next review found the reverse failure. Starting with a word-order filter, clearing it and immediately enabling book-only results could restore the cleared filter. The second request began with the old address and replaced only its own key. The fix deletes every managed filter key, then serializes the latest draft. Other URL state, such as the selected view and current group, stays available. Evidence comes from Namaq PR 514 https://github.com/msskzx/namaq/pull/514 , src/app/quran/branches/GroupFilters.tsx and src/app/quran/branches/GroupFilters.test.tsx at commit 0daf6adeb6908032a3212987293853c73661aa0b. The regression leaves the mocked address unchanged between clearing one filter and adding another. The browser check also picks multiple surahs and a juz while navigation remains asynchronous. A complete draft needs complete serialization. Updating only the key of the latest click lets old keys survive in the address."
     },
     {
-      "id": "namaq/0021-absorbing-a-phrase-must-preserve-its-entry-points",
+      "id": "namaq/R0021-absorbing-a-phrase-must-preserve-its-entry-points",
       "project": "namaq",
-      "slug": "0021-absorbing-a-phrase-must-preserve-its-entry-points",
-      "href": "/records/namaq/0021-absorbing-a-phrase-must-preserve-its-entry-points",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0021-absorbing-a-phrase-must-preserve-its-entry-points",
+      "slug": "R0021-absorbing-a-phrase-must-preserve-its-entry-points",
+      "href": "/records/namaq/R0021-absorbing-a-phrase-must-preserve-its-entry-points",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0021-absorbing-a-phrase-must-preserve-its-entry-points",
       "title": "Absorbing a phrase must preserve its entry points",
       "summary": "Combining overlapping Quran trees fixed duplicate diagrams but needed separate checks for autocomplete, zoom targets, and answer offsets.",
       "disclosure": "open",
@@ -736,22 +736,21 @@
         "ui-state"
       ],
       "buildsOn": [
-        "namaq/0019-fixing-the-example-broke-the-ayah-next-door"
+        "namaq/R0019-fixing-the-example-broke-the-ayah-next-door"
       ],
       "variantOf": [],
       "text": "The branch page showed the wording shared by 43:83 and 70:42 separately from an overlapping tree that included 52:45. It also put an attached ف in its own node. A three-ayah fixture caught the duplicate and the detached letter. The actual juz 25–30 page then exposed another overlap: الذي يوعدون and يومهم الذي share a word without either anchor containing the other. Retaining larger groups first and absorbing a smaller group only where every occurrence overlaps a retained anchor produced one tree for the reported passages. That changed more than the list. Independent review found that submitted search and the suggestion API had aliases, but local autocomplete did not. It also found that absorbed phrases could still open by URL while their zoom buttons had vanished. Page tests reproduced both failures before the fixes. Moving a whole first-word variant before the trunk also changed the answer offset used by the quiz, so a separate regression checks where its answers begin. Evidence comes from Namaq PR 473 https://github.com/msskzx/namaq/pull/473 , src/app/quran/branches/page.test.tsx, src/lib/quran/phraseTrees.test.ts, and src/lib/quiz/branchQuestions.test.ts. The regenerated inventory matched its builder, the underlying ayah data stayed unchanged, and all 3,289 tests passed. Combining groups needs checks for typing a query, submitting it, opening an old link, discovering a focused view, and consuming the resulting offsets. A correct diagram alone does not establish that those entry points still work."
     },
     {
-      "id": "namaq/0020-a-tree-answer-must-preserve-the-path",
+      "id": "namaq/R0020-a-tree-answer-must-preserve-the-path",
       "project": "namaq",
-      "slug": "0020-a-tree-answer-must-preserve-the-path",
-      "href": "/records/namaq/0020-a-tree-answer-must-preserve-the-path",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0020-a-tree-answer-must-preserve-the-path",
+      "slug": "R0020-a-tree-answer-must-preserve-the-path",
+      "href": "/records/namaq/R0020-a-tree-answer-must-preserve-the-path",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0020-a-tree-answer-must-preserve-the-path",
       "title": "A tree answer must preserve the path, including where a text ends",
       "summary": "Completing every branch node requires whole-subtree matching and citations on internal nodes as well as leaves.",
       "disclosure": "open",
       "sourceProject": "namaq",
-      "lesson": "text-to-evidence/0007-grading-a-tree-without-losing-the-text",
       "kind": "challenge",
       "problem": "A free-text quiz must ask for every node of a compressed text tree while accepting reordered answers without detaching children from their parents.",
       "approach": "Reused the explorer tree with custom non-root fields, required every node's complete words, paired whole subtrees by shape, and retained each node's ending-text references in feedback.",
@@ -765,16 +764,17 @@
         "ui-state",
         "testing"
       ],
+      "lesson": "text-to-evidence/0007-grading-a-tree-without-losing-the-text",
       "buildsOn": [],
       "variantOf": [],
       "text": "The shared-opening quiz previously asked for the first split. Asking for the whole tree changes what an answer means: every non-root node needs all its words, and sibling reordering must move a parent together with its descendants. The implementation reuses the explorer's renderer and pairs subtrees only when their shapes agree, choosing the pairing with the most correct nodes. The real يطوف عليهم tree exposes a quieter constraint. Of its three non-root nodes, ولدان مخلدون ends 56:17 and also has a child continuing 76:19. A leaf-only citation pass would lose 56:17 even though the tree still looked complete. Feedback keeps the references held by every node. Evidence: src/lib/quran/branches.ts keeps ending ayat separately from children; src/lib/quiz/branchAnswers.ts pairs subtrees; src/app/quizzes/BranchAnswers.tsx renders each matched node's references. The real-tree assertion lives in src/lib/quiz/branchQuestions.test.ts. Implications: test a real tree whose internal node also ends a text. Checking only leaf count or a flat bag of answer strings cannot prove that paths and references survived."
     },
     {
-      "id": "distillate/0001-mdx-outside-page-extensions-broke-only-dev",
+      "id": "distillate/R0001-mdx-outside-page-extensions-broke-only-dev",
       "project": "distillate",
-      "slug": "0001-mdx-outside-page-extensions-broke-only-dev",
-      "href": "/records/distillate/0001-mdx-outside-page-extensions-broke-only-dev",
-      "url": "https://distillate-kappa.vercel.app/records/distillate/0001-mdx-outside-page-extensions-broke-only-dev",
+      "slug": "R0001-mdx-outside-page-extensions-broke-only-dev",
+      "href": "/records/distillate/R0001-mdx-outside-page-extensions-broke-only-dev",
+      "url": "https://distillate-kappa.vercel.app/records/distillate/R0001-mdx-outside-page-extensions-broke-only-dev",
       "title": "Leaving mdx out of pageExtensions broke only the dev server",
       "summary": "The production build passed while every lesson page in dev failed with an error about React internals.",
       "disclosure": "open",
@@ -795,11 +795,11 @@
       "text": "Lessons live under content/ , outside app/ , so pageExtensions was set to \"ts\", \"tsx\" to keep MDX files from becoming routes by accident. next build passed and rendered every page. next dev failed on every lesson with Cannot read properties of undefined reading 'recentlyCreatedOwnerStacks' , an error from React's development JSX runtime that says nothing about MDX or configuration. The compiled lesson chunk imported node_modules/react/jsx-dev-runtime.js , the userland React, while the page around it ran on the React that Next vendors. Next aliases react/jsx-runtime to its own copy only for files that match its code condition, and that condition is built from pageExtensions . An .mdx file outside the list was compiled but never aliased. Production uses the plain JSX runtime, which does not touch the field, so only development broke. Evidence: .next/server/_rsc_content_lessons_..._index_mdx.js importing rsc /./node_modules/react/jsx-runtime.js ; the alias rules in node_modules/next/dist/build/create-compiler-aliases.js ; the fix in next.config.ts pageExtensions: \"ts\", \"tsx\", \"mdx\" . Implications: a green next build does not show that next dev works. When a change touches next.config.ts , open one page of each kind in the dev server before calling it done. An error from deep inside React that mentions internals usually means two copies of React met, so check which react each chunk imports before reading the stack."
     },
     {
-      "id": "distillate/0002-deleted-the-sources-a-subagent-was-reading",
+      "id": "distillate/R0002-deleted-the-sources-a-subagent-was-reading",
       "project": "distillate",
-      "slug": "0002-deleted-the-sources-a-subagent-was-reading",
-      "href": "/records/distillate/0002-deleted-the-sources-a-subagent-was-reading",
-      "url": "https://distillate-kappa.vercel.app/records/distillate/0002-deleted-the-sources-a-subagent-was-reading",
+      "slug": "R0002-deleted-the-sources-a-subagent-was-reading",
+      "href": "/records/distillate/R0002-deleted-the-sources-a-subagent-was-reading",
+      "url": "https://distillate-kappa.vercel.app/records/distillate/R0002-deleted-the-sources-a-subagent-was-reading",
       "title": "The coordinator deleted the folder a subagent was converting",
       "summary": "While four subagents converted lessons, the coordinator committed the deletion of the folder one of them was reading from.",
       "disclosure": "open",
@@ -820,11 +820,11 @@
       "text": "Four subagents converted namaq's lessons to MDX in parallel, each told to read the old HTML from namaq's docs/lessons/ . While they ran, the coordinator moved on to the namaq half of the move and ran git rm -r docs/lessons in the same checkout. One subagent found its sources gone halfway through lesson 0001. It recovered them from the commit before the deletion with git archive and finished, and the text-parity check later showed nothing lost. A less careful agent would have reported \"files not found\" or, worse, converted from memory. Evidence: namaq commit 773a035d removing docs/lessons/ , made while the text-to-evidence conversion was still running; that subagent's report of reading from git archive 607669f6 . Implications: a delegated task's inputs are frozen until it reports back. Hand a subagent a snapshot a commit hash, or a copy in the scratchpad , not a live path in a checkout someone else is editing, and do not delete or move anything a running subagent was told to read."
     },
     {
-      "id": "distillate/0003-date-parse-accepts-days-that-do-not-exist",
+      "id": "distillate/R0003-date-parse-accepts-days-that-do-not-exist",
       "project": "distillate",
-      "slug": "0003-date-parse-accepts-days-that-do-not-exist",
-      "href": "/records/distillate/0003-date-parse-accepts-days-that-do-not-exist",
-      "url": "https://distillate-kappa.vercel.app/records/distillate/0003-date-parse-accepts-days-that-do-not-exist",
+      "slug": "R0003-date-parse-accepts-days-that-do-not-exist",
+      "href": "/records/distillate/R0003-date-parse-accepts-days-that-do-not-exist",
+      "url": "https://distillate-kappa.vercel.app/records/distillate/R0003-date-parse-accepts-days-that-do-not-exist",
       "title": "Date.parse accepted the thirtieth of February",
       "summary": "A date check built on Date.parse let 2026-02-30 through, and its test could not notice because it only tried a month that does not exist.",
       "disclosure": "open",
@@ -841,17 +841,17 @@
         "testing"
       ],
       "variantOf": [
-        "namaq/0005-checks-that-dont-rederive-pass-the-wrong-inputs"
+        "namaq/R0005-checks-that-dont-rederive-pass-the-wrong-inputs"
       ],
       "buildsOn": [],
       "text": "The record schema requires a date in YYYY-MM-DD form. The first check matched the pattern and called Date.parse , treating NaN as invalid. The test for \"not a real calendar date\" used 2026-13-45 , which every parser rejects, so it passed. The reviewer tried 2026-02-30 . Date.parse returned a timestamp for March 2: the engine rolls an overflowing day into the next month instead of refusing it. Any record could have claimed a day that never happened. The fix parses the string as UTC midnight and requires toISOString .slice 0, 10 to give back the same string. A rolled-over date comes back different and fails. Evidence: lib/records.ts checkRecord , and the tests for 2026-02-30 and 2026-04-31 in lib/records.test.ts. Implications: a date check is only as good as the cases it is shown to reject. Include a day that overflows its month, since that is the case lenient parsers accept."
     },
     {
-      "id": "distillate/0004-the-fix-for-a-stale-search-box-wiped-what-was-typed",
+      "id": "distillate/R0004-the-fix-for-a-stale-search-box-wiped-what-was-typed",
       "project": "distillate",
-      "slug": "0004-the-fix-for-a-stale-search-box-wiped-what-was-typed",
-      "href": "/records/distillate/0004-the-fix-for-a-stale-search-box-wiped-what-was-typed",
-      "url": "https://distillate-kappa.vercel.app/records/distillate/0004-the-fix-for-a-stale-search-box-wiped-what-was-typed",
+      "slug": "R0004-the-fix-for-a-stale-search-box-wiped-what-was-typed",
+      "href": "/records/distillate/R0004-the-fix-for-a-stale-search-box-wiped-what-was-typed",
+      "url": "https://distillate-kappa.vercel.app/records/distillate/R0004-the-fix-for-a-stale-search-box-wiped-what-was-typed",
       "title": "The fix for a stale search box wiped what the reader was typing",
       "summary": "Resyncing a search box from the URL treated the URL's own lag as an outside change and reset the box mid-typing.",
       "disclosure": "open",
@@ -869,17 +869,17 @@
         "testing"
       ],
       "buildsOn": [
-        "distillate/0005-a-mock-router-too-fast-to-show-a-race"
+        "distillate/R0005-a-mock-router-too-fast-to-show-a-race"
       ],
       "variantOf": [],
       "text": "The records search box keeps its text in React state and writes it to the URL as q . Review found that the box kept \"highlight\" after the reader followed a link to /records , because the state was read from the URL only on mount. The first fix compared the URL's q on every render with the last value the component had written, and reset the box when they differed. Writing the regression test showed what that did while typing: router.replace lands after the input's own re-render, so for a moment the URL still holds the previous text, which differs from what was just written, and the box was reset to it. A fast typist would have watched letters vanish. The fix that held keeps a short list of values the component wrote. When the URL's q changes to one of them, it is the component's own write arriving late and is ignored. Any other value came from outside, so the box takes it. The check only reads the list and clears it, so running it twice in one render changes nothing. Evidence: components/records/RecordSearch.tsx; the tests \"keeps the latest typed text when the URL arrives one keystroke behind\" and \"clears the search box when the URL loses its query after mount\" in components/records/RecordSearch.test.tsx. Implications: two-way sync between an input and the URL needs to know which changes are its own. Test it with the URL lagging, not only with the URL updating at once."
     },
     {
-      "id": "distillate/0005-a-mock-router-too-fast-to-show-a-race",
+      "id": "distillate/R0005-a-mock-router-too-fast-to-show-a-race",
       "project": "distillate",
-      "slug": "0005-a-mock-router-too-fast-to-show-a-race",
-      "href": "/records/distillate/0005-a-mock-router-too-fast-to-show-a-race",
-      "url": "https://distillate-kappa.vercel.app/records/distillate/0005-a-mock-router-too-fast-to-show-a-race",
+      "slug": "R0005-a-mock-router-too-fast-to-show-a-race",
+      "href": "/records/distillate/R0005-a-mock-router-too-fast-to-show-a-race",
+      "url": "https://distillate-kappa.vercel.app/records/distillate/R0005-a-mock-router-too-fast-to-show-a-race",
       "title": "A mock router too fast to show the race it was meant to catch",
       "summary": "A regression test for a URL race passed on the broken code, because the mocked router updated the URL instantly.",
       "disclosure": "open",
@@ -901,11 +901,11 @@
       "text": "Review reported that changing a filter right after typing could drop the typed text from the URL. The test written for it typed, changed a filter, and checked the URL. It passed on the fixed code, and it also passed on the old code. The mock for next/navigation updated the search string inside router.replace , so the next render already saw the new URL. In the browser, replace lands later, which is the whole bug. The mock had removed the delay the test was about. Making the mocked replace skip the update for the typing step put the delay back. The test then failed on the old code, passed on the fix, and in passing exposed a second bug in the first fix see the record that builds on this one . Evidence: components/records/RecordSearch.test.tsx, where the test calls nav.replace.mockImplementationOnce = {} before typing. Implications: a test that has not been seen to fail on the old code has not been shown to test anything. For timing bugs, the double has to keep the timing."
     },
     {
-      "id": "distillate/0006-a-trailing-slash-let-a-symlink-into-the-commit",
+      "id": "distillate/R0006-a-trailing-slash-let-a-symlink-into-the-commit",
       "project": "distillate",
-      "slug": "0006-a-trailing-slash-let-a-symlink-into-the-commit",
-      "href": "/records/distillate/0006-a-trailing-slash-let-a-symlink-into-the-commit",
-      "url": "https://distillate-kappa.vercel.app/records/distillate/0006-a-trailing-slash-let-a-symlink-into-the-commit",
+      "slug": "R0006-a-trailing-slash-let-a-symlink-into-the-commit",
+      "href": "/records/distillate/R0006-a-trailing-slash-let-a-symlink-into-the-commit",
+      "url": "https://distillate-kappa.vercel.app/records/distillate/R0006-a-trailing-slash-let-a-symlink-into-the-commit",
       "title": "A trailing slash in .gitignore let a node_modules symlink into the commit",
       "summary": "node_modules/ in .gitignore matches only directories, so a worktree's node_modules symlink was committed.",
       "disclosure": "open",
@@ -926,11 +926,11 @@
       "text": "Worktrees here share the main checkout's packages through a symlink: each worktree's node_modules points at the main checkout's. The repository ignored node_modules/ . In git's ignore syntax a trailing slash means \"directories only\", and a symlink is a file, so git add -A staged it. The commit summary listed A node_modules . The fix was git rm --cached node_modules and an ignore rule without the slash, which matches a file, a symlink or a directory of that name. Evidence: .gitignore. Implications: where worktrees symlink shared folders, ignore them without the trailing slash, and look at what git add -A staged before committing."
     },
     {
-      "id": "distillate/0007-arabic-inside-english-prose-has-no-element-to-style",
+      "id": "distillate/R0007-arabic-inside-english-prose-has-no-element-to-style",
       "project": "distillate",
-      "slug": "0007-arabic-inside-english-prose-has-no-element-to-style",
-      "href": "/records/distillate/0007-arabic-inside-english-prose-has-no-element-to-style",
-      "url": "https://distillate-kappa.vercel.app/records/distillate/0007-arabic-inside-english-prose-has-no-element-to-style",
+      "slug": "R0007-arabic-inside-english-prose-has-no-element-to-style",
+      "href": "/records/distillate/R0007-arabic-inside-english-prose-has-no-element-to-style",
+      "url": "https://distillate-kappa.vercel.app/records/distillate/R0007-arabic-inside-english-prose-has-no-element-to-style",
       "title": "Arabic inside English prose has no element to style, so the font itself had to be larger",
       "summary": "Inline Arabic in MDX paragraphs carries no markup, so setting it larger than the English needed size-adjust on a self-hosted Arabic face.",
       "disclosure": "open",
@@ -951,11 +951,11 @@
       "text": "The restyle asked for Arabic set larger than English. Blocks were easy: ArabicQuote is a component and takes its own size. Most Arabic in the lessons is inline, though, inside an English sentence, such as the lemmas «كلا، إن، لا، ما» in lesson 6. Lessons may not carry class , className or style , and the words carry no lang , so there is no element to give a size. The size went into the font instead. The serif stack lists EB Garamond first and Amiri second, so every Arabic glyph falls back to Amiri. A size-adjust declaration on Amiri's @font-face scales only those glyphs. next/font/google has no option for declarations, so Amiri's Arabic subset is self-hosted under app/fonts/ with its licence and loaded through next/font/local , which does. The first value, 122%, still read smaller than the English beside it in a screenshot; 140% matched. Evidence: app/fonts.ts and the --font-serif token in app/globals.css. Implications: when one script appears inline in another's prose and the content cannot carry markup, scale it with the face's size-adjust and check the result in a screenshot rather than by the number."
     },
     {
-      "id": "distillate/0008-a-test-that-asserts-class-names-pins-the-palette",
+      "id": "distillate/R0008-a-test-that-asserts-class-names-pins-the-palette",
       "project": "distillate",
-      "slug": "0008-a-test-that-asserts-class-names-pins-the-palette",
-      "href": "/records/distillate/0008-a-test-that-asserts-class-names-pins-the-palette",
-      "url": "https://distillate-kappa.vercel.app/records/distillate/0008-a-test-that-asserts-class-names-pins-the-palette",
+      "slug": "R0008-a-test-that-asserts-class-names-pins-the-palette",
+      "href": "/records/distillate/R0008-a-test-that-asserts-class-names-pins-the-palette",
+      "url": "https://distillate-kappa.vercel.app/records/distillate/R0008-a-test-that-asserts-class-names-pins-the-palette",
       "title": "A quiz test that asserted colour class names pinned the palette",
       "summary": "Moving the quiz's right and wrong colours to theme tokens failed a test that matched /green/ and /red/ in the class string.",
       "disclosure": "open",
@@ -976,11 +976,11 @@
       "text": "The restyle moved every colour to theme tokens. The quiz's right and wrong answers became border-solved and border-failed , and the suite failed: expected 'w-full rounded-sm border … border-solved text-solved' to match /green/ . The test was named for what the reader sees \"marks the correct option green\" but checked the class string. Nothing the reader would notice had changed. The owner had asked to keep tests as they were, so the quiz went back to Tailwind's green and red utilities with dark variants, and the two quiz colours stay outside the token set. Evidence: components/mdx/Quiz.test.tsx and components/mdx/Quiz.tsx. Implications: a test of a visual state should assert the state the reader is given, here the ✓ and ✗ marks and the screen-reader text the component already renders. Rewriting this test that way is the follow-up that lets the quiz take the palette."
     },
     {
-      "id": "namaq/0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own",
+      "id": "namaq/R0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own",
       "project": "namaq",
-      "slug": "0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own",
-      "href": "/records/namaq/0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own",
+      "slug": "R0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own",
+      "href": "/records/namaq/R0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0018-a-test-against-the-shared-list-misses-a-menu-that-keeps-its-own",
       "title": "A test against the shared link list misses a menu that keeps its own",
       "summary": "A test against the shared link list missed a menu that keeps its own array of hrefs.",
       "disclosure": "open",
@@ -1001,16 +1001,15 @@
       "text": "/quran/branches shipped in 398 with a card on /quran and an entry in getAllNavLinks , and the owner could not find it in the navbar. The desktop Quran menu does not read that list. It keeps its own array of hrefs, QURAN_SUBMENU_HREFS in src/components/common/NavBar.tsx , and nothing tied the two together. The hub test compares the cards against getAllNavLinks , so it passed, and the NavBar test named each page by hand, so it passed too. Both checks were green, and neither one could see the gap. Evidence: 398's diff added the page to src/lib/siteLinks.ts and QuranHub.tsx only. 399 adds it to QURAN_SUBMENU_HREFS , and its test loops over every /quran/ link in getAllNavLinks and expects each one in the desktop submenu. The test fails with the fix removed. Implications: when a page is added, look for every list that names pages, not only the one a test compares against: grep for a sibling page's href here /quran/words and touch every hit. A test that names its expected values by hand only catches the pages someone thought of. A test that derives them from the shared list catches the next page too."
     },
     {
-      "id": "namaq/0019-fixing-the-example-broke-the-ayah-next-door",
+      "id": "namaq/R0019-fixing-the-example-broke-the-ayah-next-door",
       "project": "namaq",
-      "slug": "0019-fixing-the-example-broke-the-ayah-next-door",
-      "href": "/records/namaq/0019-fixing-the-example-broke-the-ayah-next-door",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0019-fixing-the-example-broke-the-ayah-next-door",
+      "slug": "R0019-fixing-the-example-broke-the-ayah-next-door",
+      "href": "/records/namaq/R0019-fixing-the-example-broke-the-ayah-next-door",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0019-fixing-the-example-broke-the-ayah-next-door",
       "title": "Fixing the highlight the owner pointed at broke the one next to it",
       "summary": "Four highlight rules, each checked only on the ayah named in the message, each moved highlights nobody looked at.",
       "disclosure": "open",
       "sourceProject": "namaq",
-      "lesson": "text-to-evidence/0006-the-ayah-next-door",
       "kind": "detour",
       "problem": "A rule that runs over a whole text was fixed and checked only on the example the owner named, and it moved results nobody looked at.",
       "approach": "Four highlight rules each broke a neighbouring ayah; a before/after diff of every mark over all 5,082 matches led to pairing the ayat of equal windows in order, which changed 93 matches and held.",
@@ -1023,16 +1022,17 @@
         "testing",
         "text-matching"
       ],
+      "lesson": "text-to-evidence/0006-the-ayah-next-door",
       "buildsOn": [],
       "variantOf": [],
       "text": "The similar-ayat view colours a word amber when the other side has it letter for letter. The owner asked why the لا of الحاقة ٣٩ وما لا تبصرون was amber: it matched the فلا of an oath in الواقعة ٧٥. The fix stopped colouring a particle that stands alone. It was checked against that one ayah, which came out right, and shipped. The owner's next message: the إنه that opens both الواقعة ٧٧ and الحاقة ٤٠ had lost its colour. Four highlight rules went in that way in under an hour, each checked only on the ayah named in the message, and each moved highlights nobody looked at. The rule that finally held came from a before/after diff of every mark in all 5,082 matches. The diff showed that pairing the ayat of two equal windows in order ٧٥↔٣٨، ٧٦↔٣٩، ٧٧↔٤٠ changed 93 matches, against hundreds for the earlier rules, and the changed rows could be read one by one. Evidence: the commits on claude/similar-ayat from \"ignore a leading wa or fa\" to \"link each similar-ayat highlight to its partner\", and src/lib/quran/similar.ts marks and paired . Implications: a rule that runs over the whole text has to be judged over the whole text. Before reporting a change to similar.json , diff its marks against the previous file and read a sample of what changed. Every rule that can be stated as an invariant belongs in src/lib/quran/similar.test.ts as a check over every pair, as \"no mark lacks a partner\" now is. The example the owner named only shows that the rule handles one case."
     },
     {
-      "id": "namaq/0017-a-name-heuristic-counts-battles-as-unresolved-people",
+      "id": "namaq/R0017-a-name-heuristic-counts-battles-as-unresolved-people",
       "project": "namaq",
-      "slug": "0017-a-name-heuristic-counts-battles-as-unresolved-people",
-      "href": "/records/namaq/0017-a-name-heuristic-counts-battles-as-unresolved-people",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0017-a-name-heuristic-counts-battles-as-unresolved-people",
+      "slug": "R0017-a-name-heuristic-counts-battles-as-unresolved-people",
+      "href": "/records/namaq/R0017-a-name-heuristic-counts-battles-as-unresolved-people",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0017-a-name-heuristic-counts-battles-as-unresolved-people",
       "title": "The unresolved-name count includes battles, and no edit can clear them",
       "summary": "The unresolved-name count includes battles, which no edit can clear because they are events, not people.",
       "disclosure": "open",
@@ -1054,11 +1054,11 @@
       "text": "Sixteen names were unresolved in al-Zubayr's entry, and the task was to resolve them. None moved, and five of them are not people at all: بَدْرٍ twice , اليَرْمُوْكِ , الخَنْدَقِ and فَتْحِ مَكَّةَ are the objects of PARTICIPATED_IN . coverageOf counts every mention without a live identification, and an identification names an agent, so an event mention can never leave the count. Evidence: src/lib/model/coverage.ts the unresolved filter , and the \"Unresolved names, dated sentences and office\" section of data/works/siyar-alam-al-nubala/summary.md . Implications: the number \"16 unresolved names\" mixes people owed an identification with events that have no mechanism for one. Decide how a mention points at an event, or report event mentions apart from people, before anyone treats the count as work to finish."
     },
     {
-      "id": "namaq/0009-a-fix-in-the-code-does-not-fix-the-rows-built-before-it",
+      "id": "namaq/R0009-a-fix-in-the-code-does-not-fix-the-rows-built-before-it",
       "project": "namaq",
-      "slug": "0009-a-fix-in-the-code-does-not-fix-the-rows-built-before-it",
-      "href": "/records/namaq/0009-a-fix-in-the-code-does-not-fix-the-rows-built-before-it",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0009-a-fix-in-the-code-does-not-fix-the-rows-built-before-it",
+      "slug": "R0009-a-fix-in-the-code-does-not-fix-the-rows-built-before-it",
+      "href": "/records/namaq/R0009-a-fix-in-the-code-does-not-fix-the-rows-built-before-it",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0009-a-fix-in-the-code-does-not-fix-the-rows-built-before-it",
       "title": "A fix in the code does not fix the rows built before it",
       "summary": "A fix in the code did not change the stored rows built before it, and the page kept serving them.",
       "disclosure": "open",
@@ -1076,17 +1076,17 @@
         "testing"
       ],
       "variantOf": [
-        "namaq/0007-a-page-that-reads-the-repo-at-request-time"
+        "namaq/R0007-a-page-that-reads-the-repo-at-request-time"
       ],
       "buildsOn": [],
-      "text": "Scene 1 of both hadith began by repeating the last narrator of the isnad: عَنْ أَبِي هُرَيْرَةَ، right under a bubble already labelled أَبِي هُرَيْرَةَ . The cause was one line in sceneLines src/lib/model/hadithView.ts that started the scene at the last isnad link instead of after it. The fix was small, the new test passed, and the page on localhost still showed the repeat. The page reads model_units first and only falls back to the files when the row is missing, so it was faithfully serving a view built before the fix. The owner then ran the projection to rebuild the rows. Nothing changed. That command ran in the main checkout, which did not have the branch, so it rebuilt the rows from the old code with great care. Running the same command from the worktree finished the job. Evidence: the same text on screen after the fix, then the correct text after the second projection npm run model:project -- --units --root src/lib/model/fixtures/jibril --apply --env preview , run from the checkout that holds the change . The unit test never saw the problem, because hadithView builds from the files and the page does not. Implications: a green test says the builder is right, not that the page is. Any change to the code that builds a stored view needs a projection run from the checkout that holds the change, and the PR should say so. An improvement axis: store a builder version or a hash in each model_units row, and let the page rebuild from the files when it does not match, so a stale row cannot outlive the code that made it. Same family as 0007-a-page-that-reads-the-repo-at-request-time /records/namaq/0007-a-page-that-reads-the-repo-at-request-time ."
+      "text": "Scene 1 of both hadith began by repeating the last narrator of the isnad: عَنْ أَبِي هُرَيْرَةَ، right under a bubble already labelled أَبِي هُرَيْرَةَ . The cause was one line in sceneLines src/lib/model/hadithView.ts that started the scene at the last isnad link instead of after it. The fix was small, the new test passed, and the page on localhost still showed the repeat. The page reads model_units first and only falls back to the files when the row is missing, so it was faithfully serving a view built before the fix. The owner then ran the projection to rebuild the rows. Nothing changed. That command ran in the main checkout, which did not have the branch, so it rebuilt the rows from the old code with great care. Running the same command from the worktree finished the job. Evidence: the same text on screen after the fix, then the correct text after the second projection npm run model:project -- --units --root src/lib/model/fixtures/jibril --apply --env preview , run from the checkout that holds the change . The unit test never saw the problem, because hadithView builds from the files and the page does not. Implications: a green test says the builder is right, not that the page is. Any change to the code that builds a stored view needs a projection run from the checkout that holds the change, and the PR should say so. An improvement axis: store a builder version or a hash in each model_units row, and let the page rebuild from the files when it does not match, so a stale row cannot outlive the code that made it. Same family as R0007-a-page-that-reads-the-repo-at-request-time /records/namaq/R0007-a-page-that-reads-the-repo-at-request-time ."
     },
     {
-      "id": "namaq/0010-a-subagent-said-green-while-lint-and-tsc-were-red",
+      "id": "namaq/R0010-a-subagent-said-green-while-lint-and-tsc-were-red",
       "project": "namaq",
-      "slug": "0010-a-subagent-said-green-while-lint-and-tsc-were-red",
-      "href": "/records/namaq/0010-a-subagent-said-green-while-lint-and-tsc-were-red",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0010-a-subagent-said-green-while-lint-and-tsc-were-red",
+      "slug": "R0010-a-subagent-said-green-while-lint-and-tsc-were-red",
+      "href": "/records/namaq/R0010-a-subagent-said-green-while-lint-and-tsc-were-red",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0010-a-subagent-said-green-while-lint-and-tsc-were-red",
       "title": "A subagent said green while lint and tsc were red",
       "summary": "A subagent's \"all passing\" covered the command it ran while lint and tsc were red.",
       "disclosure": "open",
@@ -1108,11 +1108,11 @@
       "text": "A small subagent wrote the tests for the isnad diagram and reported \"20 tests, all passing, no problems found.\" They did pass. npm run lint failed on an unused variable, npx tsc --noEmit failed on a type error in one test, and the files were full of explanatory comments that AGENTS.md forbids. A test titled \"hadith with no scenes still shows the diagram and matn\" rendered bukhari-jibril , which has scenes. It was a very thorough test of a different question. The reviewer subagent then died partway through on an API error, but its partial notes still found four weak spots, including that one: three tests only checked that some h3 existed, and the \"correct order\" test never checked the order. Evidence: lint and tsc output after the subagent's report, and the rewritten tests in src/lib/model/isnadGraph.test.ts and src/components/hadith/HadithUnit.test.tsx . Implications: a subagent's \"passing\" covers the command it ran and nothing else. Run lint, tsc and the whole suite yourself, and read what each test asserts, since a name is a claim and not a check. This is why AGENTS.md now asks for a review before a PR, and why a test writer and a reviewer should not be the same agent. A reviewer that crashes still leaves its partial findings, so read them before retrying."
     },
     {
-      "id": "namaq/0011-physics-on-two-chains-became-one",
+      "id": "namaq/R0011-physics-on-two-chains-became-one",
       "project": "namaq",
-      "slug": "0011-physics-on-two-chains-became-one",
-      "href": "/records/namaq/0011-physics-on-two-chains-became-one",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0011-physics-on-two-chains-became-one",
+      "slug": "R0011-physics-on-two-chains-became-one",
+      "href": "/records/namaq/R0011-physics-on-two-chains-became-one",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0011-physics-on-two-chains-became-one",
       "title": "With physics on, two chains became one",
       "summary": "A force engine with physics on stacked two chains into one; a layout function drew the known shape.",
       "disclosure": "open",
@@ -1134,11 +1134,11 @@
       "text": "The isnad diagram needed to draw one chain Bukhari's and a diamond Muslim's two chains meeting at Yahya . The graph engine already in the app has a dagMode , so it was tried first. With dagMode=\"td\" the library fixes each node's level and leaves the other axis to the force simulation. The simulation treats a node as a point, and the nodes here are 200 pixels wide. Both Muslim branches landed on the same x and stacked on top of each other, so the diamond became one very confident column. Adding a strong repulsion force made it a diagonal, and the canvas zoomed in on the wreckage. A small function that gives each node a rank from the collector, and spreads each rank sideways, drew the diamond correctly every time as static SVG. It also kept the Arabic text selectable and let a node be a real link. Evidence: both renderings on muslim-jibril before the force version was removed PR 344 . The owner then asked for the collector to be the first node, which meant changing one line: rank from the collector instead of from the origin. Implications: a force engine answers \"how is this network connected?\", and a layout function answers \"draw this known shape.\" The isnad of one hadith is the second kind. When the narrators become graph nodes for questions such as who heard from whom, that network is the first kind and the existing engine is the right tool, so the two views can coexist."
     },
     {
-      "id": "namaq/0012-a-new-column-breaks-every-query-until-the-migration",
+      "id": "namaq/R0012-a-new-column-breaks-every-query-until-the-migration",
       "project": "namaq",
-      "slug": "0012-a-new-column-breaks-every-query-until-the-migration",
-      "href": "/records/namaq/0012-a-new-column-breaks-every-query-until-the-migration",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0012-a-new-column-breaks-every-query-until-the-migration",
+      "slug": "R0012-a-new-column-breaks-every-query-until-the-migration",
+      "href": "/records/namaq/R0012-a-new-column-breaks-every-query-until-the-migration",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0012-a-new-column-breaks-every-query-until-the-migration",
       "title": "A new column breaks every query until someone applies the migration",
       "summary": "A new column on a table the app reads breaks every query until the migration is applied.",
       "disclosure": "open",
@@ -1156,17 +1156,17 @@
         "data-sync"
       ],
       "variantOf": [
-        "namaq/0009-a-fix-in-the-code-does-not-fix-the-rows-built-before-it"
+        "namaq/R0009-a-fix-in-the-code-does-not-fix-the-rows-built-before-it"
       ],
       "buildsOn": [],
-      "text": "The plan for event months and days started with the obvious design: add hijriMonth and hijriDay to Event and Battle , like hijriYear . The first review of the plan caught what that does here. Prisma selects every column of a model, so once the generated client knows the new columns, every findMany on events asks the database for columns it does not have yet. The pages that list events would fail from the moment the code merges until the owner runs npx prisma migrate deploy , and the build has no migrate step. The fix was to leave Event and Battle alone and put the parts in a new table, catalog_date_parts . A table nothing reads yet cannot break a query, and a reader that finds the table missing can fall back to nothing, the way src/lib/modelUnits.ts already does for model_units it falls back to nothing on any database error, and stays quiet only for Prisma's missing-table error, P2021 . The projection does the same: it prints \"apply the migration, then rerun\" and writes nothing. Evidence: the plan before and after review time-layer.md , \"No column added to a table the app already reads\" , and the new model in prisma/schema.prisma . The migration is 20261008120000_catalog_date_parts . Implications: a migration that adds a column to a table the app reads is a deploy, not a data change: it has to land before the code that mentions the column, or the code must not mention it. When the owner applies migrations by hand, add tables, not columns, so a merge never waits on a person. Same family as 0009 /records/namaq/0009-a-fix-in-the-code-does-not-fix-the-rows-built-before-it : code and stored shape have to move together, and the cheapest way to keep them from moving apart is to let the code work without the new shape."
+      "text": "The plan for event months and days started with the obvious design: add hijriMonth and hijriDay to Event and Battle , like hijriYear . The first review of the plan caught what that does here. Prisma selects every column of a model, so once the generated client knows the new columns, every findMany on events asks the database for columns it does not have yet. The pages that list events would fail from the moment the code merges until the owner runs npx prisma migrate deploy , and the build has no migrate step. The fix was to leave Event and Battle alone and put the parts in a new table, catalog_date_parts . A table nothing reads yet cannot break a query, and a reader that finds the table missing can fall back to nothing, the way src/lib/modelUnits.ts already does for model_units it falls back to nothing on any database error, and stays quiet only for Prisma's missing-table error, P2021 . The projection does the same: it prints \"apply the migration, then rerun\" and writes nothing. Evidence: the plan before and after review time-layer.md , \"No column added to a table the app already reads\" , and the new model in prisma/schema.prisma . The migration is 20261008120000_catalog_date_parts . Implications: a migration that adds a column to a table the app reads is a deploy, not a data change: it has to land before the code that mentions the column, or the code must not mention it. When the owner applies migrations by hand, add tables, not columns, so a merge never waits on a person. Same family as 0009 /records/namaq/R0009-a-fix-in-the-code-does-not-fix-the-rows-built-before-it : code and stored shape have to move together, and the cheapest way to keep them from moving apart is to let the code work without the new shape."
     },
     {
-      "id": "namaq/0013-a-reader-that-reads-must-also-refuse",
+      "id": "namaq/R0013-a-reader-that-reads-must-also-refuse",
       "project": "namaq",
-      "slug": "0013-a-reader-that-reads-must-also-refuse",
-      "href": "/records/namaq/0013-a-reader-that-reads-must-also-refuse",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0013-a-reader-that-reads-must-also-refuse",
+      "slug": "R0013-a-reader-that-reads-must-also-refuse",
+      "href": "/records/namaq/R0013-a-reader-that-reads-must-also-refuse",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0013-a-reader-that-reads-must-also-refuse",
       "title": "A reader that reads must also refuse",
       "summary": "A date reader that guessed agreed with wrong numbers, so a checker has to refuse what it cannot place.",
       "disclosure": "open",
@@ -1186,14 +1186,14 @@
       ],
       "buildsOn": [],
       "variantOf": [],
-      "text": "The date reader for ADR 0027 turns Arabic number words into numbers so model:check can catch a wrong year. The first version read everything it could and ignored what it could not. Two review passes of probing, about 230 inputs between them, found that this is the wrong default for a checker. ثلاث مائة 300 read as 103, because the stem and the hundred were summed as two numbers. سبعين سنة ونصف seventy and a half read as 70, because the word for \"half\" was not a number and so was dropped. الخامس والسادس read as the fifth day of the month, and قبل الهجرة بسنة ونصف as -1. Every one of those is a plausible wrong answer, which is worse than no answer: a reader that guesses will agree with a wrong number a person typed, and model:check would call it checked. Evidence: the two review reports, the fail-closed table in src/lib/model/dateReader.test.ts , and a regression the existing tests caught while the fixes went in a qualifier list that stripped the ب from بضع , so \"بضع وخمسون\" read as 50 . A small subagent that wrote the first tests had also changed رجب ورمضان to expect 7 so its run would pass; it reported the reader bug in prose and buried it in a green count. Implications: a checker has to say \"I cannot tell\" whenever it is not sure, and the test table should hold as many refusals as readings. Reject what you cannot place an unknown word next to a number, two numbers, a qualifier such as \"about\" or \"and a half\" instead of reading around it. Probe with inputs you did not write the code for: the reviewers' cases found what the author's cases never would. See also 0010 /records/namaq/0010-a-subagent-said-green-while-lint-and-tsc-were-red ."
+      "text": "The date reader for ADR 0027 turns Arabic number words into numbers so model:check can catch a wrong year. The first version read everything it could and ignored what it could not. Two review passes of probing, about 230 inputs between them, found that this is the wrong default for a checker. ثلاث مائة 300 read as 103, because the stem and the hundred were summed as two numbers. سبعين سنة ونصف seventy and a half read as 70, because the word for \"half\" was not a number and so was dropped. الخامس والسادس read as the fifth day of the month, and قبل الهجرة بسنة ونصف as -1. Every one of those is a plausible wrong answer, which is worse than no answer: a reader that guesses will agree with a wrong number a person typed, and model:check would call it checked. Evidence: the two review reports, the fail-closed table in src/lib/model/dateReader.test.ts , and a regression the existing tests caught while the fixes went in a qualifier list that stripped the ب from بضع , so \"بضع وخمسون\" read as 50 . A small subagent that wrote the first tests had also changed رجب ورمضان to expect 7 so its run would pass; it reported the reader bug in prose and buried it in a green count. Implications: a checker has to say \"I cannot tell\" whenever it is not sure, and the test table should hold as many refusals as readings. Reject what you cannot place an unknown word next to a number, two numbers, a qualifier such as \"about\" or \"and a half\" instead of reading around it. Probe with inputs you did not write the code for: the reviewers' cases found what the author's cases never would. See also 0010 /records/namaq/R0010-a-subagent-said-green-while-lint-and-tsc-were-red ."
     },
     {
-      "id": "namaq/0014-completely-migrated-does-not-mean-every-sentence-is-modeled",
+      "id": "namaq/R0014-completely-migrated-does-not-mean-every-sentence-is-modeled",
       "project": "namaq",
-      "slug": "0014-completely-migrated-does-not-mean-every-sentence-is-modeled",
-      "href": "/records/namaq/0014-completely-migrated-does-not-mean-every-sentence-is-modeled",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0014-completely-migrated-does-not-mean-every-sentence-is-modeled",
+      "slug": "R0014-completely-migrated-does-not-mean-every-sentence-is-modeled",
+      "href": "/records/namaq/R0014-completely-migrated-does-not-mean-every-sentence-is-modeled",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0014-completely-migrated-does-not-mean-every-sentence-is-modeled",
       "title": "\"Completely migrated\" does not mean every sentence is modeled",
       "summary": "The model holds a selection of spans, so a migration is complete when every sentence is accounted for.",
       "disclosure": "open",
@@ -1212,17 +1212,17 @@
         "testing"
       ],
       "buildsOn": [
-        "namaq/0008-prove-a-split-by-putting-it-back-together"
+        "namaq/R0008-prove-a-split-by-putting-it-back-together"
       ],
       "variantOf": [],
-      "text": "When the owner asked for al-Zubayr to be migrated completely, the first thing missing was a way to say what \"completely\" would mean. The model holds a selection: 24 spans for names, titles, ages, appearance, battles and the like. The entry has 342 sentences over pages 41 to 67. model:check was happy with 24 spans for years, because it checks that each span is valid and says nothing about what no span covers. The same blind spot made the Jibril hadith pages drop a whole turn of conversation until the owner read them 0008 /records/namaq/0008-prove-a-split-by-putting-it-back-together . npm run model:coverage -- siyar-v4-3-az-zubayr now finds the entry from its heading to the next entry's heading and puts every sentence in one of two piles: covered by a span, or not modeled. The result is 24 covered and 318 not modeled, which is mostly the chains of narration, the texts of the hadith and the battles' narrative. Eight of the 318 are date sentences, tagged time-layer:waiting or time-layer:unreadable , and the second tag is for بضع وخمسون . Evidence: the command's output counts are in data/works/siyar-alam-al-nubala/summary.md and src/lib/model/coverage.test.ts , which runs the count over every entry and fails when the piles do not add up to the whole or when a span sits outside the entry. Implications: a migration is complete when every sentence is accounted for, not when every sentence is a field. The nothing-is-dropped guarantee is the real deliverable, and the not-modeled pile is a to-do list that other predicates can shrink. It also puts a number on the owner's question \"what is still unaccounted for?\": the answer used to be \"we do not know\"."
+      "text": "When the owner asked for al-Zubayr to be migrated completely, the first thing missing was a way to say what \"completely\" would mean. The model holds a selection: 24 spans for names, titles, ages, appearance, battles and the like. The entry has 342 sentences over pages 41 to 67. model:check was happy with 24 spans for years, because it checks that each span is valid and says nothing about what no span covers. The same blind spot made the Jibril hadith pages drop a whole turn of conversation until the owner read them 0008 /records/namaq/R0008-prove-a-split-by-putting-it-back-together . npm run model:coverage -- siyar-v4-3-az-zubayr now finds the entry from its heading to the next entry's heading and puts every sentence in one of two piles: covered by a span, or not modeled. The result is 24 covered and 318 not modeled, which is mostly the chains of narration, the texts of the hadith and the battles' narrative. Eight of the 318 are date sentences, tagged time-layer:waiting or time-layer:unreadable , and the second tag is for بضع وخمسون . Evidence: the command's output counts are in data/works/siyar-alam-al-nubala/summary.md and src/lib/model/coverage.test.ts , which runs the count over every entry and fails when the piles do not add up to the whole or when a span sits outside the entry. Implications: a migration is complete when every sentence is accounted for, not when every sentence is a field. The nothing-is-dropped guarantee is the real deliverable, and the not-modeled pile is a to-do list that other predicates can shrink. It also puts a number on the owner's question \"what is still unaccounted for?\": the answer used to be \"we do not know\"."
     },
     {
-      "id": "namaq/0015-two-sources-that-disagree-are-not-an-error",
+      "id": "namaq/R0015-two-sources-that-disagree-are-not-an-error",
       "project": "namaq",
-      "slug": "0015-two-sources-that-disagree-are-not-an-error",
-      "href": "/records/namaq/0015-two-sources-that-disagree-are-not-an-error",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0015-two-sources-that-disagree-are-not-an-error",
+      "slug": "R0015-two-sources-that-disagree-are-not-an-error",
+      "href": "/records/namaq/R0015-two-sources-that-disagree-are-not-an-error",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0015-two-sources-that-disagree-are-not-an-error",
       "title": "Two sources that disagree are not an error",
       "summary": "Two sources that contradict each other are data, while one source contradicting itself is an error.",
       "disclosure": "open",
@@ -1244,11 +1244,11 @@
       "text": "The first idea for ordering events was the obvious one: a graph, so check it for cycles and reject the catalog if one exists. The critic agent pointed out that this makes Namaq pick a side. If one work says A came before B and another says B came before A, rejecting the catalog would force the author to delete one of them, and ADR 0022 says Namaq never picks one reading. So orderingProblems src/lib/catalog/ordering.ts separates two cases that look alike. A cycle among the orderings of one work is a data error, because one author does not contradict themselves: someone misread a sentence. A cycle that only appears when two works are combined is a dispute: both orderings stay in the catalog, and the events involved are flagged so a later display leaves them unplaced and shows both readings. The same split applies when an ordering contradicts an event's year: it is an error when both come from the same work and a dispute when they do not. Evidence: the tests in src/lib/catalog/ordering.test.ts a cycle in one source fails, the same cycle across two sources is flagged , and orderings/badr-before-death-of-uthman-ibn-mazun.ts , the first record, which cites the claim ibn-mazun/death \"توفي ... بعد بدر بيسير\" . Implications: a validator that rejects every contradiction cannot hold a tradition in which sources disagree, which is the main thing a history of this kind records. The useful question when a check fires is \"who is contradicting whom\": one author, which is a typo, or two, which is data. It is also why the source the work is a field of every ordering and not something inferred later."
     },
     {
-      "id": "namaq/0016-works-on-node-twenty-two-fails-on-node-twenty",
+      "id": "namaq/R0016-works-on-node-twenty-two-fails-on-node-twenty",
       "project": "namaq",
-      "slug": "0016-works-on-node-twenty-two-fails-on-node-twenty",
-      "href": "/records/namaq/0016-works-on-node-twenty-two-fails-on-node-twenty",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0016-works-on-node-twenty-two-fails-on-node-twenty",
+      "slug": "R0016-works-on-node-twenty-two-fails-on-node-twenty",
+      "href": "/records/namaq/R0016-works-on-node-twenty-two-fails-on-node-twenty",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0016-works-on-node-twenty-two-fails-on-node-twenty",
       "title": "It worked on Node 22 and failed on CI's Node 20",
       "summary": "Tests passed on Node 22 and failed on CI's Node 20 because of a built-in Node 21 introduced.",
       "disclosure": "open",
@@ -1270,11 +1270,11 @@
       "text": "All 2,184 tests passed on the laptop and CI failed on the first run of PR C with TypeError: Map.groupBy is not a function . The grouping of orderings by source used Map.groupBy , which Node 21 introduced. This machine runs Node 22.5 and .github/workflows pins Node 20. The type checker said nothing, because the TypeScript lib here includes it, and the first reviewer had noted exactly that \" Map.groupBy is fine on Node 22.5.1; tsconfig target is ES2017 and package.json has no engines pin\" and called it fine. It was the one line of the report that mattered. Evidence: the failing run's log orderingProblems src/lib/catalog/ordering.ts , the workflow's node-version: 20 , and the fix: group with a plain Map and a loop. Implications: \"passes locally\" and \"type checks\" prove less than they seem when the runtime differs from CI's. Before using a newer built-in Map.groupBy , Object.groupBy , Set union methods , check the version the workflow pins, not the one on the machine. A reviewer that hedges on a runtime detail is telling you which command to run next; a one-line engines field in package.json , or the same Node version locally, would have turned this into a local failure."
     },
     {
-      "id": "namaq/0006-a-rule-that-stops-a-clear-reading",
+      "id": "namaq/R0006-a-rule-that-stops-a-clear-reading",
       "project": "namaq",
-      "slug": "0006-a-rule-that-stops-a-clear-reading",
-      "href": "/records/namaq/0006-a-rule-that-stops-a-clear-reading",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0006-a-rule-that-stops-a-clear-reading",
+      "slug": "R0006-a-rule-that-stops-a-clear-reading",
+      "href": "/records/namaq/R0006-a-rule-that-stops-a-clear-reading",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0006-a-rule-that-stops-a-clear-reading",
       "title": "A rule that guards the unclear must not stop a reading that is clear",
       "summary": "A rule that guards the unclear must say where it does not apply, or it stops a reading that is clear.",
       "disclosure": "open",
@@ -1297,11 +1297,11 @@
       "text": "The hadith pilot showed the plan's inference rule doing the opposite of its purpose. Plan sections 2.5a and 2.13 treated a bare «قَالَ» whose speaker follows from alternation as an inference: an agent reports it, the owner approves it, and until then the turn shows «speaker not stated». On the page, the Prophet's ﷺ own answers in the hadith of Jibril carried that label. The owner read the hadith and knew who spoke each line at once. Agents then made the same move with the sharh, which one of them dismissed as naming no speakers after reading only the first lines of each entry; the stored pages name Jibril as the asker and the Prophet ﷺ as the one who explains, in the chapter heading and in the commentary on it. Evidence: the page rendered «speaker not stated» beside answers any reader would attribute; the sharh claim fell to a full read of pages 114 and 115 src/lib/model/fixtures/jibril/data/history/sources/test-fath/v1/ . The same caution kept the commentator's «وَقَدْ أَخْرَجَهُ مُسْلِمٌ مِنْ حَدِيثِ عُمَرَ» from being recorded as a link between the two hadith, because R2 forbids Namaq groupings, although R2 itself allows a grouping a source makes. Implications: state, in the rule, what it guards against and the case where it does not apply. ADR 0024 does that: rules guard what is unclear or contradictory, and a reading the text, a heading or the sharh makes clear is recorded directly with its basis spans. Test a new rule against a passage a reader would simply read. If the rule blocks that, fix the rule. And before an agent says a source \"says nothing\" about something, it must have read the source, not its first lines."
     },
     {
-      "id": "namaq/0007-a-page-that-reads-the-repo-at-request-time",
+      "id": "namaq/R0007-a-page-that-reads-the-repo-at-request-time",
       "project": "namaq",
-      "slug": "0007-a-page-that-reads-the-repo-at-request-time",
-      "href": "/records/namaq/0007-a-page-that-reads-the-repo-at-request-time",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0007-a-page-that-reads-the-repo-at-request-time",
+      "slug": "R0007-a-page-that-reads-the-repo-at-request-time",
+      "href": "/records/namaq/R0007-a-page-that-reads-the-repo-at-request-time",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0007-a-page-that-reads-the-repo-at-request-time",
       "title": "A page that reads repo files at request time works on a laptop and breaks on a deploy",
       "summary": "A page that reads repo files from disk works on localhost and fails on a deploy that ships only traced files.",
       "disclosure": "open",
@@ -1323,11 +1323,11 @@
       "text": "The /hadith pages first read the Jibril fixtures from disk with fs . They worked on localhost, where the files sit next to the code, and failed on Vercel, which ships only the files its tracer finds through static imports. The deployed page answered HTTP 200 with a Next error digest in the body, so a status check would have called it healthy. A patch that listed the fixture folder in outputFileTracingIncludes would have worked, but the owner asked the better question: why was the data not in the database? The model's rule already says so files under data/ are the authority and the databases are rebuilt from them, ADR 0023 , and I had skipped that step to get something on screen faster. Evidence: the live page showed an error digest with status 200; a production build's trace for the route listed none of the fixture files until the folder was named; after model_units held the three units, the page read a changed title from the database, which proved the read path. The preview deployment sat behind Vercel login, so a request from outside got a 302 and verified nothing. Implications: a page that works because a file is on disk has proved nothing about the deploy. Derived data a page needs belongs in the database, written by a projection from the files plan , and the projection gets a dry run, an explicit target and a refusal for prod until a review rule exists. When checking a deploy, read the body, not the status. When a shortcut skips a step the project's rules require, say so before building on it."
     },
     {
-      "id": "namaq/0008-prove-a-split-by-putting-it-back-together",
+      "id": "namaq/R0008-prove-a-split-by-putting-it-back-together",
       "project": "namaq",
-      "slug": "0008-prove-a-split-by-putting-it-back-together",
-      "href": "/records/namaq/0008-prove-a-split-by-putting-it-back-together",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0008-prove-a-split-by-putting-it-back-together",
+      "slug": "R0008-prove-a-split-by-putting-it-back-together",
+      "href": "/records/namaq/R0008-prove-a-split-by-putting-it-back-together",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0008-prove-a-split-by-putting-it-back-together",
       "title": "A split of a text is proved by recombining it, not by checking it",
       "summary": "A check that each piece is valid cannot find a missing piece; recombine the pieces and compare with the whole.",
       "disclosure": "open",
@@ -1346,17 +1346,17 @@
         "text-matching"
       ],
       "variantOf": [
-        "namaq/0005-checks-that-dont-rederive-pass-the-wrong-inputs"
+        "namaq/R0005-checks-that-dont-rederive-pass-the-wrong-inputs"
       ],
       "buildsOn": [],
-      "text": "Bukhari 50 and Muslim's hadith were first extracted as \"hand-checked\" fixtures with three turns each, and the page showed them as the hadith. Muslim's first scene stopped at «ثُمَّ قَالَ» and left out Ibn ʿUmar's next words; Bukhari's scene had three turns where the text has ten. The owner found each gap by reading. What fixed it was a test that joins every row of every scene, strips the quotation marks, and compares the words with the full text as the book prints it src/lib/model/hadithView.test.ts , \"loses no word of either hadith across its scenes\" . Evidence: the omissions survived the word \"checked\" and the model's own model:check , which validates that each span resolves and says nothing about what no span covers. The recombination test failed on the first version and passes on the second, and it pins the boundary decisions that came from the owner: the isnad's last link opens scene 1, the son's «قَالَ» closes it, and the nested story opens scene 2 at «بَيْنَمَا». Implications: a check that each piece is valid cannot find a piece that is missing. Any extraction that splits a text needs a check that puts the pieces back and compares the result with the whole, and a report of what no piece covers plan: siyar-parsing.md , the model:coverage command . Do not call a fixture or batch checked until that check has run. Same family as 0005-checks-that-dont-rederive-pass-the-wrong-inputs /records/namaq/0005-checks-that-dont-rederive-pass-the-wrong-inputs ."
+      "text": "Bukhari 50 and Muslim's hadith were first extracted as \"hand-checked\" fixtures with three turns each, and the page showed them as the hadith. Muslim's first scene stopped at «ثُمَّ قَالَ» and left out Ibn ʿUmar's next words; Bukhari's scene had three turns where the text has ten. The owner found each gap by reading. What fixed it was a test that joins every row of every scene, strips the quotation marks, and compares the words with the full text as the book prints it src/lib/model/hadithView.test.ts , \"loses no word of either hadith across its scenes\" . Evidence: the omissions survived the word \"checked\" and the model's own model:check , which validates that each span resolves and says nothing about what no span covers. The recombination test failed on the first version and passes on the second, and it pins the boundary decisions that came from the owner: the isnad's last link opens scene 1, the son's «قَالَ» closes it, and the nested story opens scene 2 at «بَيْنَمَا». Implications: a check that each piece is valid cannot find a piece that is missing. Any extraction that splits a text needs a check that puts the pieces back and compares the result with the whole, and a report of what no piece covers plan: siyar-parsing.md , the model:coverage command . Do not call a fixture or batch checked until that check has run. Same family as R0005-checks-that-dont-rederive-pass-the-wrong-inputs /records/namaq/R0005-checks-that-dont-rederive-pass-the-wrong-inputs ."
     },
     {
-      "id": "namaq/0001-eligibility-is-not-extractability",
+      "id": "namaq/R0001-eligibility-is-not-extractability",
       "project": "namaq",
-      "slug": "0001-eligibility-is-not-extractability",
-      "href": "/records/namaq/0001-eligibility-is-not-extractability",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0001-eligibility-is-not-extractability",
+      "slug": "R0001-eligibility-is-not-extractability",
+      "href": "/records/namaq/R0001-eligibility-is-not-extractability",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0001-eligibility-is-not-extractability",
       "title": "Group headings: an eligibility question, not an extraction one",
       "summary": "A group heading is out of scope because the citable unit is a paragraph and a heading has none, not because it is an index label.",
       "disclosure": "open",
@@ -1378,11 +1378,11 @@
       "text": "Pushed back correctly on an agent's answer that the Siyar's group headings شهداء بدر, السابقون الأولون are out of scope for being index labels — they do carry a model value, namely martyrdom at a battle. The right reason they are excluded is narrower: the citable unit is a paragraph, a heading has none, and a citation without a passageAnchor proves nothing. Prior knowledge established: already reads the pipeline at the level of what a claim is allowed to assert, so lessons can start at the seams rather than at the artifact list. Implications: teach design consequences that were never decided outright. The heading case is one — it falls out of the paragraph-granularity choice rather than from any rule about headings, and PassageKind shows the choice is still open. That asymmetry is the recurring lesson shape for this mission."
     },
     {
-      "id": "namaq/0002-mission-set-to-design-evolution",
+      "id": "namaq/R0002-mission-set-to-design-evolution",
       "project": "namaq",
-      "slug": "0002-mission-set-to-design-evolution",
-      "href": "/records/namaq/0002-mission-set-to-design-evolution",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0002-mission-set-to-design-evolution",
+      "slug": "R0002-mission-set-to-design-evolution",
+      "href": "/records/namaq/R0002-mission-set-to-design-evolution",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0002-mission-set-to-design-evolution",
       "title": "Mission set: evolve the design, not author or review batches",
       "summary": "Lessons should teach seams and the arguments behind them, with a predictive success test, not procedure.",
       "disclosure": "open",
@@ -1403,11 +1403,11 @@
       "text": "Chose design evolution over authoring batches, reviewing agent output, or explaining the pipeline to others. Lessons should therefore teach seams and the arguments behind them, with the success test being predictive — given a proposed model change, name what breaks and which existing rule already answers it. Procedure which command to run when is reference-card material, not lesson material. See MISSION.md ."
     },
     {
-      "id": "namaq/0003-page-keyed-by-reader-not-book",
+      "id": "namaq/R0003-page-keyed-by-reader-not-book",
       "project": "namaq",
-      "slug": "0003-page-keyed-by-reader-not-book",
-      "href": "/records/namaq/0003-page-keyed-by-reader-not-book",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0003-page-keyed-by-reader-not-book",
+      "slug": "R0003-page-keyed-by-reader-not-book",
+      "href": "/records/namaq/R0003-page-keyed-by-reader-not-book",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0003-page-keyed-by-reader-not-book",
       "title": "The page was keyed by who read it, not by where it sits in the book",
       "summary": "A source page belongs to its volume, keyed by (volume, printedPage), with the account demoted to a span.",
       "disclosure": "open",
@@ -1426,14 +1426,14 @@
       ],
       "buildsOn": [],
       "variantOf": [],
-      "text": "Reached the decision that a source page belongs to its volume, keyed by volume, printedPage , with the account demoted to a span. Got there by rejecting my proposal to add a WORK_SECTION subject kind: pointed out that volume-owns-pages plus account-references-pages already dissolves the problem, which was correct — with citations resolving passage → page → volume, the account is not in the chain and needs no reclassification. Evidence: identified the redundancy unprompted, mid-round, against a recommendation. Also chose b over a on the file-layout question — moving pages out of batches into a per-source store — for the same reason, before the duplication argument was made. Implications: stop offering defensive modelling options. The pattern in both corrections was the same: I proposed a construct to carry weight that a cleaner key already carries. Lead with the key, and only then ask what still needs a bearer. See 0004-no-legacy-during-dev /records/namaq/0004-no-legacy-during-dev ."
+      "text": "Reached the decision that a source page belongs to its volume, keyed by volume, printedPage , with the account demoted to a span. Got there by rejecting my proposal to add a WORK_SECTION subject kind: pointed out that volume-owns-pages plus account-references-pages already dissolves the problem, which was correct — with citations resolving passage → page → volume, the account is not in the chain and needs no reclassification. Evidence: identified the redundancy unprompted, mid-round, against a recommendation. Also chose b over a on the file-layout question — moving pages out of batches into a per-source store — for the same reason, before the duplication argument was made. Implications: stop offering defensive modelling options. The pattern in both corrections was the same: I proposed a construct to carry weight that a cleaner key already carries. Lead with the key, and only then ask what still needs a bearer. See R0004-no-legacy-during-dev /records/namaq/R0004-no-legacy-during-dev ."
     },
     {
-      "id": "namaq/0004-no-legacy-during-dev",
+      "id": "namaq/R0004-no-legacy-during-dev",
       "project": "namaq",
-      "slug": "0004-no-legacy-during-dev",
-      "href": "/records/namaq/0004-no-legacy-during-dev",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0004-no-legacy-during-dev",
+      "slug": "R0004-no-legacy-during-dev",
+      "href": "/records/namaq/R0004-no-legacy-during-dev",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0004-no-legacy-during-dev",
       "title": "No back-compatibility layers while the app is unreleased",
       "summary": "While the app is unreleased, propose the clean form and price the breakage, not a staged compatible path.",
       "disclosure": "open",
@@ -1450,22 +1450,21 @@
         "migrations"
       ],
       "buildsOn": [
-        "namaq/0003-page-keyed-by-reader-not-book"
+        "namaq/R0003-page-keyed-by-reader-not-book"
       ],
       "variantOf": [],
-      "text": "Rejected the staged migration and the URL-translation layer outright: \"it is not like the app is 5 years old that we need to keep legacy code, we are in dev phase\". Applies to already-emitted ?book=&page= links, to adapters between old and new authored file shapes, and by extension to any compatibility shim proposed before release. Implications: when a change has a clean form and a compatible form, propose the clean one and price the breakage honestly, rather than offering the staged path as the safe default. See 0003-page-keyed-by-reader-not-book /records/namaq/0003-page-keyed-by-reader-not-book ."
+      "text": "Rejected the staged migration and the URL-translation layer outright: \"it is not like the app is 5 years old that we need to keep legacy code, we are in dev phase\". Applies to already-emitted ?book=&page= links, to adapters between old and new authored file shapes, and by extension to any compatibility shim proposed before release. Implications: when a change has a clean form and a compatible form, propose the clean one and price the breakage honestly, rather than offering the staged path as the safe default. See R0003-page-keyed-by-reader-not-book /records/namaq/R0003-page-keyed-by-reader-not-book ."
     },
     {
-      "id": "namaq/0005-checks-that-dont-rederive-pass-the-wrong-inputs",
+      "id": "namaq/R0005-checks-that-dont-rederive-pass-the-wrong-inputs",
       "project": "namaq",
-      "slug": "0005-checks-that-dont-rederive-pass-the-wrong-inputs",
-      "href": "/records/namaq/0005-checks-that-dont-rederive-pass-the-wrong-inputs",
-      "url": "https://distillate-kappa.vercel.app/records/namaq/0005-checks-that-dont-rederive-pass-the-wrong-inputs",
+      "slug": "R0005-checks-that-dont-rederive-pass-the-wrong-inputs",
+      "href": "/records/namaq/R0005-checks-that-dont-rederive-pass-the-wrong-inputs",
+      "url": "https://distillate-kappa.vercel.app/records/namaq/R0005-checks-that-dont-rederive-pass-the-wrong-inputs",
       "title": "Checks that don't re-derive pass exactly the inputs that should fail them",
       "summary": "Checks that only test shape pass exactly the values that are shaped right and mean the wrong thing.",
       "disclosure": "open",
       "sourceProject": "namaq",
-      "lesson": "text-to-evidence/0003-a-check-that-exists-but-doesnt-run",
       "kind": "obstacle",
       "problem": "Validators that check only shape or consistency pass values that are well-formed and wrong.",
       "approach": "Found two cases: an anchor check that counted paragraphs, and a dangling Prisma relation silently patched back by prisma format. Deriving the expected value independently and comparing found both.",
@@ -1478,6 +1477,7 @@
         "testing",
         "evidence-model"
       ],
+      "lesson": "text-to-evidence/0003-a-check-that-exists-but-doesnt-run",
       "buildsOn": [],
       "variantOf": [],
       "text": "Found two instances of the same failure mode while building the page store migration source: docs/lessons/lessons/0002-who-owns-a-page.html 's decision, realized in PRs 220-222 : history:validate 's anchor check counted paragraphs instead of comparing an anchor's own number against the page's real order, and a dangling Prisma relation SourceAccount.citations left after removing Citation.accountId got silently patched back into existence by prisma format as sourceAccountId — passing lint, tsc , and 1,701 mocked tests, caught only by a live query against the real database. Evidence: both bugs shipped past every static check that existed for them; both were found by deriving the expected value independently paragraph position from the store text; a real query against the real schema and comparing, not by strengthening the existing check's shape constraints. Implications: when writing or reviewing a validator, ask whether passing it requires the checked value to be independently re-derived and compared, or only to have internally consistent shape. A count match, a type match, a \"the referenced key exists\" match are all shape checks and will pass a value that is shaped right and means the wrong thing. Prefer re-derivation wherever the derivation is cheap enough to run in CI; where it isn't a live schema query , say explicitly that the static checks don't cover this and a runtime smoke test is still owed before calling a schema migration done."

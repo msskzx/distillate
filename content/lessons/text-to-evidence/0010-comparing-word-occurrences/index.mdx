@@ -7,7 +7,7 @@ export const meta = {
   sourceProject: "namaq",
 };
 
-This describes [Namaq PR #512](https://github.com/msskzx/namaq/pull/512), reviewed at commit `ec98ac8d`, and the [record of the fix](/records/namaq/0022-shared-forms-do-not-pair-word-occurrences). It continues [The ayah next door](/text-to-evidence/0006-the-ayah-next-door): a shared highlighting rule needs checks beyond the example that exposed it.
+This describes [Namaq PR #512](https://github.com/msskzx/namaq/pull/512), reviewed at commit `ec98ac8d`, and the [record of the fix](/records/namaq/R0022-shared-forms-do-not-pair-word-occurrences). It continues [The ayah next door](/text-to-evidence/0006-the-ayah-next-door): a shared highlighting rule needs checks beyond the example that exposed it.
 
 ## Three decisions behind one color
 
@@ -45,4 +45,4 @@ The tree matcher separates ayah segments before calling the same comparison func
 
 The regressions cover both reported comparisons, the existing repeated-word alignment example, and continuation boundaries. An inventory check covers all 5,174 multi-ayah tree groups: exact counts and lemma/root counts must agree across the compared ayat, and marks must be disjoint and within the original word arrays. Those invariants do not prove every linguistic pairing correct. They detect asymmetric classification and missing or reused indices that the examples alone would miss.
 
-The primary sources are the corpus STEM annotations in <RepoLink repo="namaq" path="data/quran/quranic-corpus-morphology-0.4.txt" />, the matcher in <RepoLink repo="namaq" path="src/lib/quran/ayahContext.ts" />, and its executable cases in <RepoLink repo="namaq" path="src/lib/quran/ayahContext.test.ts" />. The older [record about neighboring highlights](/records/namaq/0019-fixing-the-example-broke-the-ayah-next-door) explains why the inventory check accompanies the examples.
+The primary sources are the corpus STEM annotations in <RepoLink repo="namaq" path="data/quran/quranic-corpus-morphology-0.4.txt" />, the matcher in <RepoLink repo="namaq" path="src/lib/quran/ayahContext.ts" />, and its executable cases in <RepoLink repo="namaq" path="src/lib/quran/ayahContext.test.ts" />. The older [record about neighboring highlights](/records/namaq/R0019-fixing-the-example-broke-the-ayah-next-door) explains why the inventory check accompanies the examples.
