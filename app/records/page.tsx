@@ -13,7 +13,11 @@ export default function RecordsPage() {
       title="Records"
       lead="Challenges, obstacles and detours met during work, each with its outcome, the conditions it held under and its evidence. Agents search the same records through /api/records."
     >
-      <p><Link href="/records/graph">Explore record relationships →</Link></p>
+      <p>
+        <Link href="/records/graph">Explore record relationships →</Link>
+        <span aria-hidden="true" className="mx-2.5 text-rule">·</span>
+        <Link href="/records/stats">Record stats →</Link>
+      </p>
       <Suspense fallback={<div className="not-prose"><RecordRows records={recordIndex} /></div>}>
         <RecordSearch records={recordIndex} />
       </Suspense>
