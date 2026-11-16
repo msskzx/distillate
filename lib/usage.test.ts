@@ -48,6 +48,7 @@ describe("stats", () => {
       ["distillate/0005-c", [10]],
     ]);
     expect(s.neverUsed.map((each) => each.id)).toEqual(["namaq/0002-b"]);
+    expect(s.untracked).toEqual(["distillate"]);
   });
 
   it("adds records by their date and uses by the merge month", () => {
@@ -71,7 +72,8 @@ describe("recordStats", () => {
     expect([one.uses.length, one.first?.pr.number, one.last?.pr.number, one.tried]).toEqual([2, 10, 12, true]);
     expect(one.source).toEqual({ repo: "msskzx/namaq", file: "docs/records/0001-a.md", createdIn: 7 });
     const none = recordStats("namaq/0002-b", "", usage);
-    expect([none.uses.length, none.first, none.source, none.tried]).toEqual([0, undefined, undefined, false]);
+    expect([none.uses.length, none.first, none.source, none.tried, none.tracked]).toEqual([0, undefined, undefined, false, true]);
+    expect(recordStats("distillate/0005-c", "", usage).tracked).toBe(false);
   });
 
   it("finds a Tried section only as a heading", () => {
@@ -81,8 +83,9 @@ describe("recordStats", () => {
 });
 
 describe("content/usage", () => {
-  it("names only records this site holds, each with its file", () => {
-    const ids = new Set(readRecordSources().map((each) => each.id));
+  it("holds every record of its project, and names only records this site holds", () => {
+    const all = readRecordSources();
+    const ids = new Set(all.map((each) => each.id));
     const usage = readUsage();
     expect(usage.length).toBeGreaterThan(0);
     for (const file of usage) {
@@ -91,6 +94,8 @@ describe("content/usage", () => {
         expect(ids.has(id), id).toBe(true);
         expect(record.file).toMatch(/\.md$/);
       }
+      const missing = all.filter((each) => each.project === file.project && !(each.id in file.records)).map((each) => each.id);
+      expect(missing, "rerun the project's records:export").toEqual([]);
       for (const each of file.prs) expect(each.mergedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     }
   });

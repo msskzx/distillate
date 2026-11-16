@@ -61,7 +61,7 @@ export function usesOf(usage: Usage[]) {
   return uses;
 }
 
-export function recordStats(id: string, body: string, usage: Usage[]): RecordStats {
+export function recordStats(id: string, body: string, usage: Usage[]): RecordStats & { tracked: boolean } {
   const uses = usesOf(usage).get(id) ?? [];
   const holder = usage.find((each) => id in each.records);
   return {
@@ -70,6 +70,7 @@ export function recordStats(id: string, body: string, usage: Usage[]): RecordSta
     last: uses.at(-1),
     source: holder && { repo: holder.repo, ...holder.records[id] },
     tried: hasTried(body),
+    tracked: usage.some((each) => each.project === id.split("/")[0]),
   };
 }
 
@@ -85,9 +86,13 @@ export function stats(sources: RecordSource[], usage: Usage[]) {
     ...pr.used.filter((id) => !ids.has(id)).map((id) => ({ repo, pr, text: id, reason: "not a record here" })),
   ]);
 
+  // "Never used" means only records whose project's PRs are read: a project
+  // with no usage file has no PRs counted, so its records are untracked.
+  const tracked = new Set(usage.map((each) => each.project));
   const counted = sources.map((source) => ({ source, uses: uses.get(source.id) ?? [] }));
   const mostUsed = counted.filter((each) => each.uses.length).sort((a, b) => b.uses.length - a.uses.length || a.source.id.localeCompare(b.source.id));
-  const neverUsed = counted.filter((each) => !each.uses.length).map((each) => each.source);
+  const neverUsed = counted.filter((each) => !each.uses.length && tracked.has(each.source.project)).map((each) => each.source);
+  const untracked = [...new Set(sources.map((source) => source.project))].filter((project) => !tracked.has(project));
 
   const months = new Map<string, MonthRow>();
   const row = (month: string) => {
@@ -115,6 +120,7 @@ export function stats(sources: RecordSource[], usage: Usage[]) {
     uses: mostUsed.reduce((sum, each) => sum + each.uses.length, 0),
     mostUsed,
     neverUsed,
+    untracked,
     byMonth,
     unresolved,
     repos: usage.map((each) => each.repo),

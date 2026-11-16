@@ -69,8 +69,10 @@ export default async function RecordPage({ params }: Params) {
             </>
           )}
         </span>
-      ) : (
+      ) : use.tracked ? (
         "not yet named by a merged PR"
+      ) : (
+        `not tracked: ${record.project}’s pull requests are not read yet`
       ),
     ],
     ...(use.source

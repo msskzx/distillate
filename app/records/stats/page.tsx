@@ -27,7 +27,7 @@ export default function RecordStatsPage() {
   const tiles: [string, string | number, string][] = [
     ["Records", s.total, s.byProject.map((each) => `${each.count} ${each.project}`).join(" · ")],
     ["Used", used, `at least once, ${s.uses} uses in all`],
-    ["Never used", s.neverUsed.length, "not named by any PR yet"],
+    ["Never used", s.neverUsed.length, s.untracked.length ? `not named by any PR yet; ${s.untracked.join(", ")} PRs not read` : "not named by any PR yet"],
     ["With “Tried”", s.withTried, "list the attempts that failed"],
     ["PRs read", s.prs, `${s.prsUsing} named a record`],
   ];
@@ -116,7 +116,10 @@ export default function RecordStatsPage() {
       </ol>
 
       <h2>Never used</h2>
-      <p>No merged pull request has named these yet. Some are new; some may want a better title or summary so a search finds them.</p>
+      <p>
+        No merged pull request has named these yet. Some are new; some may want a better title or summary so a search finds them.
+        {s.untracked.length > 0 && ` Records from ${s.untracked.join(", ")} are left out: that project's pull requests are not read yet.`}
+      </p>
       <ul className="not-prose m-0 list-none columns-1 gap-8 p-0 sm:columns-2">
         {s.neverUsed.map((source) => (
           <li key={source.id} className="break-inside-avoid py-1 leading-snug">

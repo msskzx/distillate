@@ -798,20 +798,26 @@
       "title": "One rule colours words the ayat share, with a colour setting",
       "mergedAt": "2026-11-14",
       "line": "ADR 0035 (a tree node shows words only as the mushaf writes them), 0036 (a video that copies the app drifts from it).",
-      "used": [
-        "namaq/0036-a-video-that-copies-the-app-drifts-from-it"
-      ],
-      "unresolved": []
+      "used": [],
+      "unresolved": [
+        {
+          "text": "0036",
+          "reason": "a bare number after an ADR may name an ADR"
+        }
+      ]
     },
     {
       "number": 776,
       "title": "Compare cards draw with the branches tree",
       "mergedAt": "2026-11-14",
       "line": "ADR 0035 and 0036 (tree node words), 0037 (one word rule).",
-      "used": [
-        "namaq/0037-a-video-that-redraws-a-screen-drifts-from-it"
-      ],
-      "unresolved": []
+      "used": [],
+      "unresolved": [
+        {
+          "text": "0037",
+          "reason": "a bare number after an ADR may name an ADR"
+        }
+      ]
     },
     {
       "number": 777,
