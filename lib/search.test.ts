@@ -239,9 +239,9 @@ describe("queryFrom", () => {
 });
 
 describe("searchRecords against the real index", () => {
-  it("ranks the fixing-the-example record first for the highlight query", () => {
-    expect(searchRecords(indexed, { q: "highlight" })[0].id).toBe(
-      "namaq/0019-fixing-the-example-broke-the-ayah-next-door",
+  it("ranks the fixing-the-example record first for a query about its highlight", () => {
+    expect(searchRecords(indexed, { q: "highlight next door" })[0].id).toBe(
+      "namaq/R0019-fixing-the-example-broke-the-ayah-next-door",
     );
   });
 

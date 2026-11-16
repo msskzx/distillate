@@ -1,6 +1,6 @@
 # Record file format
 
-Write `content/records/<project>/NNNN-dash-case-title.mdx` in the existing local checkout. Use the next available number and a specific short title. Create a new file without overwriting another record. Keep its ID stable so usage events remain attached when the batch is published.
+Write `content/records/<project>/RNNNN-dash-case-title.mdx` in the existing local checkout. Use the next available number after the `R` (`R0009` after `R0008`); the `R` keeps a record id apart from ADR and PR numbers. Use a specific short title. Namaq's records are written in namaq's `docs/records` (see its AGENTS.md) and copied here by its `npm run records:export`, so capture those there. Create a new file without overwriting another record. Keep its ID stable so usage events remain attached when the batch is published.
 
 Preserve the existing MDX format: an `export const meta = { ... };` block followed by a few short paragraphs. Copy a nearby record's structure, not its facts. Supply the existing required fields: title, summary, sourceProject, kind, problem, approach, outcome, conditions, evidence, implication, date and disclosure. `kind` is challenge, obstacle or detour; `outcome` is solved, failed, partial or open. Use `implication: "none"` when no rule change follows. Optional topics use the existing list; links such as buildsOn, variantOf and lesson are included only when known.
 

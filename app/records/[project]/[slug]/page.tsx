@@ -3,7 +3,10 @@ import { notFound } from "next/navigation";
 import { components } from "@/mdx-components";
 import { Article } from "@/components/lesson/Article";
 import { findLesson, records } from "@/lib/content";
+import { readRecordSources } from "@/lib/records";
 import { marks } from "@/lib/search";
+import { fileUrl, prUrl, readUsage, recordStats, type Use } from "@/lib/usage";
+import { PrLinks } from "@/components/records/PrLinks";
 
 export const dynamicParams = false;
 
@@ -29,6 +32,14 @@ export default async function RecordPage({ params }: Params) {
   const all = await records();
   const titleOf = (id: string) => all.find((each) => each.id === id);
   const { meta } = record;
+  const body = readRecordSources().find((each) => each.id === record.id)?.body ?? "";
+  const use = recordStats(record.id, body, readUsage());
+  const pr = (each: Use) => (
+    <a href={prUrl(each.repo, each.pr.number)} className="text-accent hover:underline" title={each.pr.title}>
+      #{each.pr.number}
+    </a>
+  );
+  const day = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
   const fields: [string, React.ReactNode][] = [
     ["Problem", meta.problem],
     ["Approach", meta.approach],
@@ -42,9 +53,49 @@ export default async function RecordPage({ params }: Params) {
       </span>,
     ],
     ["Conditions", meta.conditions],
-    ["Evidence", <span key="evidence" className="font-mono text-[0.8rem] leading-relaxed [overflow-wrap:anywhere]">{meta.evidence}</span>],
+    ["Evidence", <span key="evidence" className="font-mono text-[0.8rem] leading-relaxed [overflow-wrap:anywhere]">{meta.disclosure === "open" ? <PrLinks text={meta.evidence} project={record.project} /> : meta.evidence}</span>],
     ["Implication", meta.implication],
     ["Topics", meta.topics?.length ? meta.topics.map((topic) => <Link key={topic} href={`/records?topic=${topic}`} className="me-3 font-mono text-[0.8rem] text-accent">{topic}</Link>) : "none"],
+  ];
+  const usage: [string, React.ReactNode][] = [
+    [
+      "Used",
+      use.first && use.last ? (
+        <span key="used">
+          {use.uses.length === 1 ? "once" : `${use.uses.length} times`}, {use.uses.length === 1 ? "in" : "first in"} {pr(use.first)} ({day(use.first.pr.mergedAt)})
+          {use.uses.length > 1 && (
+            <>
+              , last in {pr(use.last)} ({day(use.last.pr.mergedAt)})
+            </>
+          )}
+        </span>
+      ) : use.tracked ? (
+        "not yet named by a merged PR"
+      ) : (
+        `not tracked: ${record.project}’s pull requests are not read yet`
+      ),
+    ],
+    ...(use.source
+      ? ([
+          [
+            "Added in",
+            use.source.createdIn ? (
+              <a key="added" href={prUrl(use.source.repo, use.source.createdIn)} className="text-accent hover:underline">
+                #{use.source.createdIn}
+              </a>
+            ) : (
+              "a commit with no pull request"
+            ),
+          ],
+          [
+            "File",
+            <a key="file" href={fileUrl(use.source.repo, use.source.file)} className="font-mono text-[0.8rem] text-accent hover:underline [overflow-wrap:anywhere]">
+              {use.source.file}
+            </a>,
+          ],
+        ] as [string, React.ReactNode][])
+      : []),
+    ["Tried", use.tried ? "lists the attempts that failed (below)" : "no list of attempts"],
   ];
   const links: [string, string[] | undefined][] = [
     ["Builds on", meta.buildsOn],
@@ -95,6 +146,19 @@ export default async function RecordPage({ params }: Params) {
           ) : null,
         )}
       </dl>
+      <section aria-label="Use" className="not-prose mb-10 border-b border-rule pb-7">
+        <p className="m-0 mb-3 text-base tracking-[0.1em] text-ink-soft [font-variant:all-small-caps]">
+          Use · <Link href="/records/stats" className="text-accent hover:underline">all record stats</Link>
+        </p>
+        <dl className="m-0 grid gap-x-5 gap-y-1 text-[1.1875rem] leading-snug sm:grid-cols-[8.5rem_minmax(0,1fr)] sm:gap-y-3">
+          {usage.map(([label, value]) => (
+            <div key={label} className="contents">
+              <dt className={dt}>{label}</dt>
+              <dd className="m-0 mb-3 min-w-0 sm:mb-0">{value}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
       <record.Content components={components} />
       {lesson && (
         <p>

@@ -11,7 +11,7 @@ Each event contains:
 - `effect`: required for `used`; the specific decision, check or implementation changed. Omit for `read`.
 
 ```json
-{"date":"2026-11-07","record":"namaq/0021-absorbing-a-phrase-must-preserve-its-entry-points","task":"namaq/pr/524","action":"used","effect":"Added regression checks for search, subtree links and bookmarks during duplicate removal."}
+{"date":"2026-11-07","record":"namaq/R0021-absorbing-a-phrase-must-preserve-its-entry-points","task":"namaq/pr/524","action":"used","effect":"Added regression checks for search, subtree links and bookmarks during duplicate removal."}
 ```
 
 This example is illustrative. Log actual events only; do not copy it into the log or backfill guessed reads, effects or dates. Searching, authoring, formatting or batch-publishing a record does not by itself constitute consulting it for a task. A remembered influence may be logged as `used` without fabricating a new `read` event.

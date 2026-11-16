@@ -35,7 +35,7 @@ const root = path.join(process.cwd(), "content");
 
 const lessonFolder = /^(\d{4})-[a-z0-9-]+$/;
 const pageFolder = /^[a-z][a-z-]*$/;
-const recordFile = /^\d{4}-[a-z0-9-]+\.mdx$/;
+const recordFile = /^R\d{4}-[a-z0-9-]+\.mdx$/;
 
 export function entries(dir: string, allowedFiles: (name: string) => boolean = () => false) {
   const folders: string[] = [];

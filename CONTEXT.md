@@ -11,7 +11,7 @@ A long-form page that teaches one idea, drawn from real work or from study, with
 _Avoid_: Article, tutorial, post
 
 **Record**:
-One piece of experience from work, written when it happens so an agent can find it before repeating it: a challenge, an obstacle or a detour, with its outcome, the conditions it held under and its evidence.
+One piece of experience from work, written when it happens so an agent can find it before repeating it: a challenge, an obstacle or a detour, with its outcome, the conditions it held under and its evidence. Its id is `R` and a number (`R0019`), unique within its source project.
 _Avoid_: Learning record, card, log entry, attempt, case
 
 **Track**:

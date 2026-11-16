@@ -6,10 +6,12 @@
   "graph-layout",
   "graph-ui",
   "migrations",
+  "mobile",
   "runtime-versions",
   "source-extraction",
   "testing",
   "text-matching",
   "ui-rtl",
-  "ui-state"
+  "ui-state",
+  "video"
 ]
